@@ -1,0 +1,153 @@
+/* Fixed to the top of the viewport. Never hides on scroll. */
+.trim-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: var(--trim-nav-height);
+  padding: 1rem var(--trim-gutter);
+  background-color: transparent;
+  transition: color 220ms ease;
+}
+
+/* White over the blue hero and the black callback page. Both tones now read
+   the same, so the tone classes carry no colour difference of their own. */
+.trim-nav--dark,
+.trim-nav--light {
+  color: var(--trim-white);
+}
+
+/* Brand and links share the white wipe. */
+.trim-nav__brand,
+.trim-nav__link {
+  position: relative;
+  z-index: 0;
+  color: inherit;
+  text-decoration: none;
+  transition: color 220ms ease;
+}
+
+.trim-nav__brand::before,
+.trim-nav__link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--trim-white);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 260ms ease;
+}
+
+.trim-nav__brand:hover,
+.trim-nav__link:hover,
+.trim-nav__brand:focus-visible,
+.trim-nav__link:focus-visible {
+  color: var(--trim-blue);
+}
+
+.trim-nav__brand:hover::before,
+.trim-nav__link:hover::before,
+.trim-nav__brand:focus-visible::before,
+.trim-nav__link:focus-visible::before {
+  transform: scaleY(1);
+}
+
+.trim-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.06em;
+  font-family: var(--trim-font-brand);
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  line-height: 0.8;
+}
+
+.trim-nav__brand:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.trim-nav__menu {
+  display: flex;
+}
+
+.trim-nav__links {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 2vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-nav__link {
+  display: inline-block;
+  padding: 0.12em 0.28em;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.375rem, 2.2vw, 2rem);
+  line-height: 1;
+}
+
+.trim-nav__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* A real button, so strip the UA chrome. */
+.trim-nav__link--button {
+  padding: 0.12em 0.28em;
+  border: 0;
+  background: none;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.375rem, 2.2vw, 2rem);
+  font-weight: 400;
+  line-height: 1;
+  color: inherit;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-nav__link--button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Account marker, in place of the login word. */
+.trim-nav__avatar {
+  display: grid;
+  place-items: center;
+  width: clamp(2.25rem, 3.5vw, 3rem);
+  height: clamp(2.25rem, 3.5vw, 3rem);
+  overflow: hidden;
+  border-radius: 50%;
+  /* White on the blue hero, not blue on blue. */
+  background-color: var(--trim-white);
+  color: var(--trim-blue);
+  font-family: var(--trim-font-display);
+  font-size: 1.25rem;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform 200ms ease;
+}
+
+.trim-nav__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trim-nav__avatar:hover,
+.trim-nav__avatar:focus-visible {
+  transform: scale(1.08);
+  outline: none;
+}
+
+@media (max-width: 48rem) {
+  .trim-nav__link {
+    font-size: 1.5rem;
+  }
+}

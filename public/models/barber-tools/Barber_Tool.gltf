@@ -1,0 +1,1165 @@
+{
+  "asset": {
+    "generator": "OpenSceneGraph 3.5.6",
+    "version": "2.0"
+  },
+  "accessors": [
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 820,
+      "max": [
+        0.29045283794403076,
+        0.29045283794403076,
+        0.915340781211853
+      ],
+      "min": [
+        -0.2904529869556427,
+        -0.2904529869556427,
+        -0.653784990310669
+      ],
+      "bufferView": 0,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 820,
+      "bufferView": 0,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 820,
+      "bufferView": 0,
+      "byteOffset": 24
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 820,
+      "bufferView": 0,
+      "byteOffset": 40
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 4230,
+      "bufferView": 1,
+      "byteOffset": 0
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 9522,
+      "bufferView": 1,
+      "byteOffset": 8460
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 19554,
+      "bufferView": 1,
+      "byteOffset": 27504
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 4908,
+      "bufferView": 1,
+      "byteOffset": 66612
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 7848,
+      "bufferView": 1,
+      "byteOffset": 76428
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 15312,
+      "bufferView": 1,
+      "byteOffset": 92124
+    },
+    {
+      "type": "SCALAR",
+      "componentType": 5123,
+      "count": 7482,
+      "bufferView": 1,
+      "byteOffset": 122748
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1950,
+      "max": [
+        0.2548324167728424,
+        0.12657618522644043,
+        0.6251424551010132
+      ],
+      "min": [
+        -0.3434930145740509,
+        -0.12557800114154816,
+        -0.6304299831390381
+      ],
+      "bufferView": 2,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1950,
+      "bufferView": 2,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 1950,
+      "bufferView": 2,
+      "byteOffset": 24
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 1950,
+      "bufferView": 2,
+      "byteOffset": 40
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 3502,
+      "max": [
+        0.6544092893600464,
+        0.30949005484580994,
+        0.2801460325717926
+      ],
+      "min": [
+        -0.2982870042324066,
+        -0.30948999524116516,
+        -0.0804411992430687
+      ],
+      "bufferView": 3,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 3502,
+      "bufferView": 3,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 3502,
+      "bufferView": 3,
+      "byteOffset": 24
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 3502,
+      "bufferView": 3,
+      "byteOffset": 40
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 964,
+      "max": [
+        1.4261696338653564,
+        -0.38793134689331055,
+        0.10911732912063599
+      ],
+      "min": [
+        -0.5653660297393799,
+        -1.9852800369262695,
+        0.03019079938530922
+      ],
+      "bufferView": 4,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 964,
+      "bufferView": 4,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 964,
+      "bufferView": 4,
+      "byteOffset": 24
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 964,
+      "bufferView": 4,
+      "byteOffset": 40
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1490,
+      "max": [
+        0.19838479161262512,
+        0.5897830128669739,
+        0.12398745119571686
+      ],
+      "min": [
+        -1.637369990348816,
+        -1.0018314123153687,
+        0.04346910119056702
+      ],
+      "bufferView": 5,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1490,
+      "bufferView": 5,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 1490,
+      "bufferView": 5,
+      "byteOffset": 24
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 1490,
+      "bufferView": 5,
+      "byteOffset": 40
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 3140,
+      "max": [
+        0.19838479161262512,
+        0.5896918773651123,
+        0.12398745119571686
+      ],
+      "min": [
+        -1.637369990348816,
+        -1.1913599967956543,
+        0.04346910119056702
+      ],
+      "bufferView": 6,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 3140,
+      "bufferView": 6,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 3140,
+      "bufferView": 6,
+      "byteOffset": 24
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 3140,
+      "bufferView": 6,
+      "byteOffset": 40
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1728,
+      "max": [
+        1.6516532897949219,
+        0.13830247521400452,
+        0.0024684760719537735
+      ],
+      "min": [
+        -0.5826759934425354,
+        -0.17732499539852142,
+        -0.013767899945378304
+      ],
+      "bufferView": 7,
+      "byteOffset": 0
+    },
+    {
+      "type": "VEC3",
+      "componentType": 5126,
+      "count": 1728,
+      "bufferView": 7,
+      "byteOffset": 12
+    },
+    {
+      "type": "VEC4",
+      "componentType": 5126,
+      "count": 1728,
+      "bufferView": 7,
+      "byteOffset": 24
+    },
+    {
+      "type": "VEC2",
+      "componentType": 5126,
+      "count": 1728,
+      "bufferView": 7,
+      "byteOffset": 40
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 39360,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 39360,
+      "byteLength": 137712,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 177072,
+      "byteLength": 93600,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 270672,
+      "byteLength": 168096,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 438768,
+      "byteLength": 46272,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 485040,
+      "byteLength": 71520,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 556560,
+      "byteLength": 150720,
+      "byteStride": 48,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 707280,
+      "byteLength": 82944,
+      "byteStride": 48,
+      "target": 34962
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "textures": [
+    {
+      "source": 0,
+      "sampler": 0
+    },
+    {
+      "source": 2,
+      "sampler": 0
+    },
+    {
+      "source": 3,
+      "sampler": 0
+    },
+    {
+      "source": 1,
+      "sampler": 0
+    },
+    {
+      "source": 5,
+      "sampler": 0
+    },
+    {
+      "source": 6,
+      "sampler": 0
+    },
+    {
+      "source": 4,
+      "sampler": 0
+    },
+    {
+      "source": 7,
+      "sampler": 0
+    },
+    {
+      "source": 9,
+      "sampler": 0
+    },
+    {
+      "source": 10,
+      "sampler": 0
+    },
+    {
+      "source": 8,
+      "sampler": 0
+    },
+    {
+      "source": 11,
+      "sampler": 0
+    },
+    {
+      "source": 13,
+      "sampler": 0
+    },
+    {
+      "source": 14,
+      "sampler": 0
+    },
+    {
+      "source": 12,
+      "sampler": 0
+    },
+    {
+      "source": 15,
+      "sampler": 0
+    },
+    {
+      "source": 16,
+      "sampler": 0
+    },
+    {
+      "source": 17,
+      "sampler": 0
+    },
+    {
+      "source": 18,
+      "sampler": 0
+    },
+    {
+      "source": 19,
+      "sampler": 0
+    }
+  ],
+  "images": [
+    {
+      "name": "shaving_brush_Base_Color.png",
+      "mimeType": "image/png",
+      "uri": "images/shaving_brush_Base_Color.png"
+    },
+    {
+      "name": "shaving_brush_Metallic.png",
+      "mimeType": "image/png",
+      "uri": "images/shaving_brush_Metallic.png"
+    },
+    {
+      "name": "shaving_brush_Normal_OpenGL.png",
+      "mimeType": "image/png",
+      "uri": "images/shaving_brush_Normal_OpenGL.png"
+    },
+    {
+      "name": "shaving_brush_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/shaving_brush_Mixed_AO.png"
+    },
+    {
+      "name": "shaving_Metallic.png",
+      "mimeType": "image/png",
+      "uri": "images/shaving_Metallic.png"
+    },
+    {
+      "name": "shaving_Normal_OpenGL.png",
+      "mimeType": "image/png",
+      "uri": "images/shaving_Normal_OpenGL.png"
+    },
+    {
+      "name": "shaving_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/shaving_Mixed_AO.png"
+    },
+    {
+      "name": "wax_Base_Color.png",
+      "mimeType": "image/png",
+      "uri": "images/wax_Base_Color.png"
+    },
+    {
+      "name": "wax_Metallic.png",
+      "mimeType": "image/png",
+      "uri": "images/wax_Metallic.png"
+    },
+    {
+      "name": "wax_Normal_OpenGL.png",
+      "mimeType": "image/png",
+      "uri": "images/wax_Normal_OpenGL.png"
+    },
+    {
+      "name": "wax_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/wax_Mixed_AO.png"
+    },
+    {
+      "name": "straight_razor_Base_Color.png",
+      "mimeType": "image/png",
+      "uri": "images/straight_razor_Base_Color.png"
+    },
+    {
+      "name": "straight_razor_Metallic.png",
+      "mimeType": "image/png",
+      "uri": "images/straight_razor_Metallic.png"
+    },
+    {
+      "name": "straight_razor_Normal_OpenGL.png",
+      "mimeType": "image/png",
+      "uri": "images/straight_razor_Normal_OpenGL.png"
+    },
+    {
+      "name": "straight_razor_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/straight_razor_Mixed_AO.png"
+    },
+    {
+      "name": "scissors_Normal_OpenGL.png",
+      "mimeType": "image/png",
+      "uri": "images/scissors_Normal_OpenGL.png"
+    },
+    {
+      "name": "scissors_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/scissors_Mixed_AO.png"
+    },
+    {
+      "name": "single_thinning_scissors_Normal_OpenGL.png",
+      "mimeType": "image/png",
+      "uri": "images/single_thinning_scissors_Normal_OpenGL.png"
+    },
+    {
+      "name": "single_thinning_scissors_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/single_thinning_scissors_Mixed_AO.png"
+    },
+    {
+      "name": "comb_Mixed_AO.png",
+      "mimeType": "image/png",
+      "uri": "images/comb_Mixed_AO.png"
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "Barber_Tool.bin",
+      "byteLength": 790224
+    }
+  ],
+  "materials": [
+    {
+      "name": "shaving brush",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 3
+        }
+      },
+      "normalTexture": {
+        "index": 1
+      },
+      "occlusionTexture": {
+        "index": 2
+      },
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0.2,
+            0.2,
+            0.2
+          ]
+        }
+      }
+    },
+    {
+      "name": "shaving",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.5520114015034399,
+          0.5711248294565854,
+          0.5711248294565854,
+          1
+        ],
+        "metallicRoughnessTexture": {
+          "index": 6
+        }
+      },
+      "normalTexture": {
+        "index": 4
+      },
+      "occlusionTexture": {
+        "index": 5
+      },
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0.2,
+            0.2,
+            0.2
+          ]
+        }
+      }
+    },
+    {
+      "name": "wax",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 7
+        },
+        "metallicRoughnessTexture": {
+          "index": 10
+        }
+      },
+      "normalTexture": {
+        "index": 8
+      },
+      "occlusionTexture": {
+        "index": 9
+      },
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0.2,
+            0.2,
+            0.2
+          ]
+        }
+      }
+    },
+    {
+      "name": "straight razor",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 11
+        },
+        "metallicRoughnessTexture": {
+          "index": 14
+        }
+      },
+      "normalTexture": {
+        "index": 12
+      },
+      "occlusionTexture": {
+        "index": 13
+      },
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0.2,
+            0.2,
+            0.2
+          ]
+        }
+      }
+    },
+    {
+      "name": "scissors",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.5520114015034399,
+          0.5711248294565854,
+          0.5711248294565854,
+          1
+        ],
+        "roughnessFactor": 0.2
+      },
+      "normalTexture": {
+        "index": 15
+      },
+      "occlusionTexture": {
+        "index": 16
+      },
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0.2,
+            0.2,
+            0.2
+          ]
+        }
+      }
+    },
+    {
+      "name": "single thinning scissors",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.5520114015034399,
+          0.5711248294565854,
+          0.5711248294565854,
+          1
+        ],
+        "roughnessFactor": 0.2
+      },
+      "normalTexture": {
+        "index": 17
+      },
+      "occlusionTexture": {
+        "index": 18
+      },
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0.2,
+            0.2,
+            0.2
+          ]
+        }
+      }
+    },
+    {
+      "name": "comb",
+      "doubleSided": true,
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.08228270712149792,
+          0.2874408377161099,
+          0.7758222183126458,
+          1
+        ],
+        "roughnessFactor": 0.4,
+        "metallicFactor": 0
+      },
+      "occlusionTexture": {
+        "index": 19
+      },
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0.2,
+            0.2,
+            0.2
+          ]
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Shaving brush_shaving brush_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "mode": 4,
+          "material": 0,
+          "indices": 4
+        }
+      ]
+    },
+    {
+      "name": "Shaving_shaving_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 11,
+            "NORMAL": 12,
+            "TANGENT": 13,
+            "TEXCOORD_0": 14
+          },
+          "mode": 4,
+          "material": 1,
+          "indices": 5
+        }
+      ]
+    },
+    {
+      "name": "Wax_wax_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 15,
+            "NORMAL": 16,
+            "TANGENT": 17,
+            "TEXCOORD_0": 18
+          },
+          "mode": 4,
+          "material": 2,
+          "indices": 6
+        }
+      ]
+    },
+    {
+      "name": "Straight razor_straight razor_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 19,
+            "NORMAL": 20,
+            "TANGENT": 21,
+            "TEXCOORD_0": 22
+          },
+          "mode": 4,
+          "material": 3,
+          "indices": 7
+        }
+      ]
+    },
+    {
+      "name": "Scissors_scissors_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 23,
+            "NORMAL": 24,
+            "TANGENT": 25,
+            "TEXCOORD_0": 26
+          },
+          "mode": 4,
+          "material": 4,
+          "indices": 8
+        }
+      ]
+    },
+    {
+      "name": "Single thinning scissors_single thinning scissors_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 27,
+            "NORMAL": 28,
+            "TANGENT": 29,
+            "TEXCOORD_0": 30
+          },
+          "mode": 4,
+          "material": 5,
+          "indices": 9
+        }
+      ]
+    },
+    {
+      "name": "Comb_comb_0",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 31,
+            "NORMAL": 32,
+            "TANGENT": 33,
+            "TEXCOORD_0": 34
+          },
+          "mode": 4,
+          "material": 6,
+          "indices": 10
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "7896e4379afc463392e4b78a2b47f1a1.fbx",
+      "rotation": [
+        0.7071067811865475,
+        0,
+        0,
+        0.7071067811865476
+      ],
+      "scale": [
+        0.009999999776482582,
+        0.009999999776482582,
+        0.009999999776482582
+      ],
+      "children": [
+        1
+      ]
+    },
+    {
+      "name": "RootNode",
+      "children": [
+        2,
+        5,
+        8,
+        11,
+        14,
+        17,
+        20
+      ]
+    },
+    {
+      "name": "Shaving brush",
+      "translation": [
+        51.47589874267578,
+        32.10279846191406,
+        -143.2899932861328
+      ],
+      "rotation": [
+        0.5731836944386586,
+        0.573183570249853,
+        -0.41407788813470453,
+        -0.41407795133649844
+      ],
+      "scale": [
+        100.00000000000193,
+        100.000030365819,
+        100.00003036582014
+      ],
+      "children": [
+        3
+      ]
+    },
+    {
+      "name": "Shaving brush",
+      "children": [
+        4
+      ]
+    },
+    {
+      "name": "Shaving brush_shaving brush_0",
+      "mesh": 0
+    },
+    {
+      "name": "Shaving",
+      "translation": [
+        -93.99909973144531,
+        23.008699417114258,
+        -113.7750015258789
+      ],
+      "rotation": [
+        -3.774456790379296e-8,
+        0.017475271643627253,
+        5.816017899912093e-10,
+        0.9998472957812008
+      ],
+      "scale": [
+        99.9999808206833,
+        100.00000000000028,
+        99.99998082068359
+      ],
+      "children": [
+        6
+      ]
+    },
+    {
+      "name": "Shaving",
+      "children": [
+        7
+      ]
+    },
+    {
+      "name": "Shaving_shaving_0",
+      "mesh": 1
+    },
+    {
+      "name": "Wax",
+      "translation": [
+        -23.344999313354492,
+        6.874800205230713,
+        118.80599975585938
+      ],
+      "rotation": [
+        0.030842170272672532,
+        0.7064338176788574,
+        0.7064338485580783,
+        -0.030842168924517226
+      ],
+      "scale": [
+        99.99999495757615,
+        99.99999495757625,
+        100.00000000000009
+      ],
+      "children": [
+        9
+      ]
+    },
+    {
+      "name": "Wax",
+      "children": [
+        10
+      ]
+    },
+    {
+      "name": "Wax_wax_0",
+      "mesh": 2
+    },
+    {
+      "name": "Straight razor",
+      "rotation": [
+        -0.7071068387878191,
+        0,
+        0,
+        0.7071067235852713
+      ],
+      "scale": [
+        100,
+        100.00000000000132,
+        100.00000000000132
+      ],
+      "children": [
+        12
+      ]
+    },
+    {
+      "name": "Straight razor",
+      "children": [
+        13
+      ]
+    },
+    {
+      "name": "Straight razor_straight razor_0",
+      "mesh": 3
+    },
+    {
+      "name": "Scissors",
+      "translation": [
+        -20.033000946044922,
+        -9.503720121983861e-8,
+        29.466100692749023
+      ],
+      "rotation": [
+        -0.7071068387878191,
+        0,
+        0,
+        0.7071067235852713
+      ],
+      "scale": [
+        100,
+        100.00000000000132,
+        100.00000000000132
+      ],
+      "children": [
+        15
+      ]
+    },
+    {
+      "name": "Scissors",
+      "children": [
+        16
+      ]
+    },
+    {
+      "name": "Scissors_scissors_0",
+      "mesh": 4
+    },
+    {
+      "name": "Single thinning scissors",
+      "translation": [
+        -27.61319923400879,
+        -8.478210133944231e-7,
+        -116.71199798583984
+      ],
+      "rotation": [
+        -0.37668610937896146,
+        0.5984209363813652,
+        0.5984208198645861,
+        0.37668618272240817
+      ],
+      "scale": [
+        99.99995624987913,
+        99.99995624988104,
+        100.00000000000189
+      ],
+      "children": [
+        18
+      ]
+    },
+    {
+      "name": "Single thinning scissors",
+      "children": [
+        19
+      ]
+    },
+    {
+      "name": "Single thinning scissors_single thinning scissors_0",
+      "mesh": 5
+    },
+    {
+      "name": "Comb",
+      "translation": [
+        156.83200073242188,
+        9.70438003540039,
+        -97.08619689941406
+      ],
+      "rotation": [
+        -0.5521229372757074,
+        -0.44176945780966653,
+        -0.44176942445699696,
+        0.5521229789598632
+      ],
+      "scale": [
+        99.99997894868385,
+        99.99997894868412,
+        100.00000000000028
+      ],
+      "children": [
+        21
+      ]
+    },
+    {
+      "name": "Comb",
+      "children": [
+        22
+      ]
+    },
+    {
+      "name": "Comb_comb_0",
+      "mesh": 6
+    },
+    {
+      "name": "Sketchfab_model",
+      "translation": [
+        -0.06299500167369843,
+        0.3919013738632202,
+        -3.825411558151245
+      ],
+      "rotation": [
+        -0.40056209507649077,
+        -0.22814139306034628,
+        -0.4391894260852003,
+        0.7711122890073567
+      ],
+      "children": [
+        0
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        23
+      ]
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_specular"
+  ]
+}

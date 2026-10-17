@@ -1,0 +1,52 @@
+@import './fonts.css';
+@import './cursor.css';
+
+/* Sampled from reference/hero-section.png. Fixed light identity. */
+
+:root {
+  --ion-background-color: #ffffff;
+  --ion-text-color: #000000;
+
+  --trim-blue: #0034ff;
+  --trim-black: #000000;
+  --trim-white: #ffffff;
+
+  /* Destructive actions only. Kept out of the brand trio deliberately: red
+     here means "this removes something", never decoration. */
+  --trim-danger: #d92d20;
+
+  --trim-font-brand: 'Tritopani', 'Segoe Script', cursive;
+  --trim-font-display: 'Footlight MT Pro', 'Times New Roman', serif;
+  --trim-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  --trim-gutter: clamp(1.25rem, 3vw, 3.5rem);
+  --trim-nav-height: clamp(5rem, 9vw, 7rem);
+}
+
+/* Black shell behind the auth guard's loading branch. */
+.trim-guard {
+  min-height: 100%;
+  background-color: var(--trim-black);
+}
+
+/* Ionic ships no visually-hidden utility. */
+.trim-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

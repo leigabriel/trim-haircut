@@ -1,0 +1,109 @@
+.trim-hero {
+  position: relative;
+  /* Above the sticky about layer. */
+  z-index: 1;
+  /* Pulled back over the about layer so it reads as the front plane while the
+     black section is already pinned behind it. */
+  margin-top: -100svh;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--trim-gutter);
+  padding-bottom: calc(var(--trim-gutter) + env(safe-area-inset-bottom, 0px));
+  padding-top: calc(var(--trim-nav-height) + var(--trim-gutter));
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+/* Fades in after the intro. */
+.trim-hero--entered {
+  opacity: 1;
+  transform: none;
+}
+
+.trim-hero__lede {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: min(86%, 1660px);
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--trim-font-sans);
+  font-size: clamp(1.5rem, 7.8vw, 8.4rem);
+  font-weight: 400;
+  line-height: 0.95;
+  text-align: center;
+}
+
+/* Mask clips the slide, not the word spacing. */
+.trim-hero__lede-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+  /* Own layer, so it slides without a per-frame repaint. */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.trim-hero__lede-word {
+  display: inline-block;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.trim-hero__title {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  width: 100%;
+  margin: 0;
+  font-weight: normal;
+}
+
+.trim-hero__wordmark {
+  font-family: var(--trim-font-brand);
+  font-size: clamp(3.5rem, 11vw, 10rem);
+  /* Tritopani's T has a deep swash, so the line box holds the ink. */
+  line-height: 1.05;
+}
+
+.trim-hero__tagline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.50rem, 2.5vw, 3.5rem);
+  font-weight: 400;
+  line-height: 0.75;
+  letter-spacing: -0.01em;
+  text-align: right;
+}
+
+@media (max-width: 48rem) {
+  .trim-hero__lede {
+    top: 40%;
+    width: 92%;
+  }
+
+  .trim-hero__title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .trim-hero__tagline {
+    align-items: flex-start;
+    text-align: left;
+  }
+}

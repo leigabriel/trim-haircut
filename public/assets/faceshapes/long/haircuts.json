@@ -1,0 +1,20 @@
+[
+  {
+    "slot": "01",
+    "name": "Heavy Side Swept Fringe",
+    "slug": "heavy-side-swept-fringe",
+    "src": "/assets/faceshapes/long/01-heavy-side-swept-fringe.png"
+  },
+  {
+    "slot": "02",
+    "name": "Classic Side Parting",
+    "slug": "classic-side-parting",
+    "src": "/assets/faceshapes/long/02-classic-side-parting.png"
+  },
+  {
+    "slot": "03",
+    "name": "Scissor Cut Fuller Sides",
+    "slug": "scissor-cut-fuller-sides",
+    "src": "/assets/faceshapes/long/03-scissor-cut-fuller-sides.png"
+  }
+]

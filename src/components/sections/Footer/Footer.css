@@ -1,0 +1,265 @@
+/* Full bleed black. The scissors sit in an absolutely positioned layer behind
+   every piece of copy, so the type reads on top of the model rather than
+   beside it. */
+.trim-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+}
+
+/* Backdrop. Covers the whole footer and never intercepts a click. */
+.trim-footer__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.trim-footer__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--trim-gutter);
+}
+
+/* Top bar: tag hard left, year hard right. */
+.trim-footer__topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 0 0 auto;
+}
+
+.trim-footer__tag {
+  font-family: var(--trim-font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+/* Nav rows span the full width: index, label, VIEW at the far edge. */
+.trim-footer__nav {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  padding-block: clamp(1rem, 4vh, 3rem);
+}
+
+.trim-footer__link {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.5rem, 2vw, 1.75rem);
+  width: 100%;
+  padding: clamp(0.4rem, 1.4vh, 1rem) 0.25rem;
+  border: 0;
+  border-bottom: 1px dotted rgb(0 0 0 / 25%);
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+  transition: background-color 300ms ease, color 300ms ease, padding-left 300ms ease;
+}
+
+.trim-footer__nav a:last-child,
+.trim-footer__link:last-child {
+  border-bottom: none;
+}
+
+.trim-footer__link:hover,
+.trim-footer__link:focus-visible {
+  padding-left: clamp(0.5rem, 1.5vw, 1.25rem);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-footer__index,
+.trim-footer__hint {
+  flex: 0 0 auto;
+  padding-top: 0.7em;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.5rem, 0.7vw, 0.6875rem);
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  transition: opacity 300ms ease;
+}
+
+.trim-footer__hint {
+  margin-left: auto;
+}
+
+.trim-footer__link:hover .trim-footer__index,
+.trim-footer__link:hover .trim-footer__hint,
+.trim-footer__link:focus-visible .trim-footer__index,
+.trim-footer__link:focus-visible .trim-footer__hint {
+  opacity: 0.85;
+}
+
+.trim-footer__label {
+  /* min-width:0 lets the flex item shrink so long labels wrap rather than
+     pushing the row wider than the viewport. */
+  min-width: 0;
+  font-family: var(--trim-font-display);
+  font-size: min(clamp(1.75rem, 5.2vw, 3.75rem), 11svh);
+  font-weight: 400;
+  line-height: 1.1;
+  overflow-wrap: break-word;
+}
+
+/* Socials spread across the full width, hard left to hard right. */
+.trim-footer__socials {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-block: clamp(0.75rem, 2vh, 1.5rem);
+  font-family: var(--trim-font-sans);
+  font-size: min(clamp(0.75rem, 1.6vw, 1.25rem), 3.4svh);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.trim-footer__social {
+  padding: 0.1em 0.2em;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+.trim-footer__social:hover,
+.trim-footer__social:focus-visible {
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  outline: none;
+}
+
+/* Shop details. Small, and pulled to the left so the socials stay the widest
+   thing on this row. */
+.trim-footer__shop {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0 0 clamp(0.75rem, 2vh, 1.5rem);
+  font-family: var(--trim-font-sans);
+  font-style: normal;
+  font-size: min(clamp(0.75rem, 1.2vw, 0.9375rem), 2.6svh);
+  line-height: 1.5;
+  opacity: 0.6;
+}
+
+.trim-footer__shop-name {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.trim-footer__shop-line {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.trim-footer__shop-line:hover,
+a.trim-footer__shop-line:focus-visible {
+  color: var(--trim-blue);
+  outline: none;
+}
+
+/* Wordmark. The largest element on the page and the last thing in it,
+   deliberately cropped by the bottom edge. */
+.trim-footer__wordmark {
+  flex: 0 0 auto;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--trim-font-brand);
+  font-size: min(clamp(4rem, 19vw, 17rem), 30svh);
+  font-weight: 400;
+  line-height: 0.78;
+  letter-spacing: -0.02em;
+  color: var(--trim-blue);
+  white-space: nowrap;
+}
+
+.trim-footer__char {
+  display: inline-block;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trim-footer__wordmark:hover .trim-footer__char {
+  transform: translateY(-0.06em);
+}
+
+/* Tablet: the label and social steps come down so everything still fits one
+   screen. */
+@media (max-width: 64rem) {
+  .trim-footer__label {
+    font-size: min(clamp(1.5rem, 4.4vw, 2.5rem), 9svh);
+  }
+
+  .trim-footer__socials {
+    font-size: min(clamp(0.6875rem, 1.6vw, 1.125rem), 3.2svh);
+  }
+}
+
+@media (max-width: 48rem) {
+  .trim-footer__label {
+    font-size: min(clamp(1.25rem, 6vw, 1.875rem), 8svh);
+  }
+
+  .trim-footer__wordmark {
+    font-size: min(clamp(3.5rem, 30vw, 12rem), 26svh);
+  }
+
+  /* Four items will not spread across a phone without colliding. */
+  .trim-footer__socials {
+    justify-content: flex-start;
+    gap: 0.25rem 0.875rem;
+  }
+
+  .trim-footer__shop {
+    font-size: min(clamp(0.75rem, 3vw, 0.875rem), 2.6svh);
+  }
+}
+
+/* Short landscape: the viewport is the constraint, so vertical padding
+   collapses and every type size drops another step. */
+@media (max-height: 34rem) and (orientation: landscape) {
+  .trim-footer__nav {
+    padding-block: 0.25rem;
+  }
+
+  .trim-footer__link {
+    padding-block: 0.15rem;
+  }
+
+  .trim-footer__label {
+    font-size: min(clamp(1rem, 5vw, 1.5rem), 13svh);
+  }
+
+  .trim-footer__wordmark {
+    font-size: min(3rem, 18vw, 7rem);
+  }
+
+  .trim-footer__socials {
+    font-size: min(0.6875rem, 1.4vw, 1rem);
+  }
+}

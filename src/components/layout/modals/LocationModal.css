@@ -1,0 +1,75 @@
+.trim-location-modal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+  --background: #000;
+}
+
+.trim-location-modal::part(content) {
+  background-color: #000;
+  color: var(--trim-white);
+}
+
+.trim-location-modal__panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+}
+
+.trim-location-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 0 0 auto;
+  padding: clamp(1rem, 2.5vw, 1.75rem) var(--trim-gutter);
+}
+
+.trim-location-modal__title {
+  margin: 0;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--trim-blue);
+}
+
+.trim-location-modal__address {
+  margin: 0.4rem 0 0;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.8125rem, 1.2vw, 0.9375rem);
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.trim-location-modal__close {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 999px;
+  background: none;
+  color: var(--trim-white);
+  cursor: var(--cursor-pointer);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.trim-location-modal__close:hover,
+.trim-location-modal__close:focus-visible {
+  background-color: var(--trim-blue);
+  border-color: var(--trim-blue);
+  color: var(--trim-black);
+  outline: none;
+}
+
+/* The map fills whatever the head leaves over, rather than taking a square. */
+.trim-location__frame--modal {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+  border-width: 0 1px;
+}

@@ -1,0 +1,98 @@
+/* White sheet, black copy. */
+.trim-legal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+  --background: var(--trim-white);
+}
+
+.trim-legal::part(content) {
+  background-color: var(--trim-white);
+}
+
+.trim-legal__panel {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+}
+
+.trim-legal__close {
+  position: absolute;
+  top: clamp(1.25rem, 4vw, 3rem);
+  right: clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 20%);
+  border-radius: 50%;
+  background: none;
+  color: var(--trim-black);
+  cursor: var(--cursor-pointer);
+  transition: color 200ms ease, border-color 200ms ease, background-color 200ms ease;
+}
+
+.trim-legal__close:hover,
+.trim-legal__close:focus-visible {
+  border-color: var(--trim-blue);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  transform: scale(1.08);
+  outline: none;
+}
+
+.trim-legal__body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.4vw, 2.5rem);
+  width: min(100%, 52rem);
+  margin: 0 auto;
+  padding: clamp(4rem, 10vw, 8rem) var(--trim-gutter) clamp(3rem, 8vw, 6rem);
+}
+
+.trim-legal__title {
+  margin: 0;
+  font-family: var(--trim-font-display);
+  font-size: clamp(2.5rem, 7.5vw, 5.5rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--trim-black);
+}
+
+.trim-legal__updated {
+  margin: -1rem 0 0;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.875rem, 1.1vw, 1.0625rem);
+  letter-spacing: 0.05em;
+  color: var(--trim-black);
+  opacity: 0.55;
+}
+
+.trim-legal__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-top: clamp(1rem, 2.4vw, 1.6rem);
+  border-top: 1px dotted rgb(0 0 0 / 28%);
+}
+
+.trim-legal__heading {
+  margin: 0;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.875rem, 1.2vw, 1.125rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--trim-blue);
+}
+
+.trim-legal__text {
+  margin: 0;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(1.0625rem, 1.7vw, 1.375rem);
+  line-height: 1.62;
+  color: var(--trim-black);
+}

@@ -1,0 +1,400 @@
+/* Full screen white sheet. */
+.trim-login {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+  --background: var(--trim-white);
+}
+
+.trim-login::part(content) {
+  background-color: var(--trim-white);
+}
+
+.trim-login__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  overflow-y: auto;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+}
+
+.trim-login__mark {
+  width: clamp(120px, 26vw, 260px);
+  height: auto;
+  margin-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.trim-login__close {
+  position: absolute;
+  top: clamp(1.25rem, 4vw, 3rem);
+  right: clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 20%);
+  border-radius: 50%;
+  background: none;
+  color: var(--trim-black);
+  cursor: var(--cursor-pointer);
+  transition: color 200ms ease, border-color 200ms ease, background-color 200ms ease;
+}
+
+.trim-login__close:hover {
+  border-color: var(--trim-blue);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+}
+
+.trim-login__close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.trim-login__body {
+  margin-top: auto;
+}
+
+.trim-login__eyebrow {
+  margin: 0 0 clamp(0.5rem, 1.5vw, 1rem);
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.25rem, 2.4vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--trim-black);
+}
+
+.trim-login__title {
+  margin: 0 0 clamp(1.75rem, 5vw, 3.5rem);
+  font-family: var(--trim-font-display);
+  font-size: clamp(2.25rem, 7.5vw, 6.5rem);
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--trim-black);
+}
+
+.trim-login__google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 1.2vw, 0.9rem);
+  width: 100%;
+  padding: clamp(0.75rem, 1.8vw, 1.25rem);
+  border: 0;
+  border-radius: 0;
+  /* Filled blue: a white button was for the old black sheet and would vanish
+     on a white one. */
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.25rem, 3vw, 2.75rem);
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+  cursor: var(--cursor-pointer);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Icon scales with the display font. */
+.trim-login__google-icon {
+  flex: 0 0 auto;
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.trim-login__google:hover {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+}
+
+.trim-login__google:focus-visible {
+  outline: 2px solid var(--trim-black);
+  outline-offset: 3px;
+}
+
+/* Tabs */
+
+.trim-login__tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0.2rem;
+  background-color: rgb(0 0 0 / 6%);
+  border-radius: 3px;
+}
+
+.trim-login__tab {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--trim-black);
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.875rem, 1.4vw, 1rem);
+  line-height: 1;
+  cursor: var(--cursor-pointer);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.trim-login__tab:hover:not(.trim-login__tab--on) {
+  background-color: rgb(0 0 0 / 6%);
+}
+
+.trim-login__tab--on {
+  background-color: var(--trim-white);
+  font-weight: 700;
+}
+
+.trim-login__tab:focus-visible {
+  outline: 2px solid var(--trim-black);
+  outline-offset: -2px;
+}
+
+/* Divider between Google and the email form. */
+
+.trim-login__rule {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0 1.25rem;
+  font-family: var(--trim-font-sans);
+  font-size: 0.8125rem;
+  color: rgb(0 0 0 / 55%);
+}
+
+.trim-login__rule::before,
+.trim-login__rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: rgb(0 0 0 / 15%);
+}
+
+/* Fields */
+
+.trim-login__field {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.trim-login__field-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--trim-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(0 0 0 / 60%);
+}
+
+.trim-login__input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgb(0 0 0 / 25%);
+  border-radius: 3px;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  font-family: var(--trim-font-sans);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.trim-login__input:focus {
+  outline: none;
+  border-color: var(--trim-blue);
+  box-shadow: inset 0 0 0 1px var(--trim-blue);
+}
+
+.trim-login__input:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+}
+
+.trim-login__input[aria-invalid='true'] {
+  border-color: var(--trim-danger);
+  box-shadow: inset 0 0 0 1px var(--trim-danger);
+}
+
+/* Wide tracking so a six digit code is readable as separate digits. */
+.trim-login__input--code {
+  font-family: var(--trim-font-sans);
+  font-size: 1.5rem;
+  letter-spacing: 0.5em;
+  text-align: center;
+}
+
+.trim-login__field-error {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--trim-font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--trim-danger);
+}
+
+.trim-login__field-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--trim-font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: rgb(0 0 0 / 55%);
+}
+
+.trim-login__submit {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--trim-blue);
+  border-radius: 0;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+  line-height: 1;
+  cursor: var(--cursor-pointer);
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.trim-login__submit:hover:not(:disabled) {
+  background-color: var(--trim-black);
+  border-color: var(--trim-black);
+}
+
+.trim-login__submit:disabled {
+  opacity: 0.55;
+  cursor: var(--cursor-default);
+}
+
+.trim-login__submit:focus-visible {
+  outline: 2px solid var(--trim-black);
+  outline-offset: 3px;
+}
+
+/* Verify step */
+
+.trim-login__verify {
+  margin-bottom: 1rem;
+}
+
+.trim-login__lede {
+  margin: 0 0 1.25rem;
+  font-family: var(--trim-font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgb(0 0 0 / 75%);
+  overflow-wrap: anywhere;
+}
+
+.trim-login__verify-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.trim-login__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--trim-blue);
+  font-family: var(--trim-font-sans);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-login__link:hover:not(:disabled) {
+  color: var(--trim-black);
+}
+
+.trim-login__link:disabled {
+  opacity: 0.5;
+  cursor: var(--cursor-default);
+}
+
+.trim-login__link:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 2px;
+}
+
+/* The consent block supplies the top margin. */
+.trim-login__legal {
+  margin: 0;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.875rem, 1.5vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--trim-black);
+}
+
+.trim-login__legal strong {
+  font-weight: 700;
+}
+
+/* The legal copy is now a checkbox label. */
+.trim-login__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: clamp(1.5rem, 4vw, 3rem);
+  cursor: var(--cursor-pointer);
+}
+
+.trim-login__checkbox {
+  flex: 0 0 auto;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  accent-color: var(--trim-blue);
+  cursor: var(--cursor-pointer);
+}
+
+.trim-login__checkbox:focus-visible {
+  outline: 2px solid var(--trim-black);
+  outline-offset: 2px;
+}
+
+.trim-login__legal-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-login__legal-link:hover,
+.trim-login__legal-link:focus-visible {
+  color: var(--trim-blue);
+  outline: none;
+}
+
+.trim-login__notice {
+  margin: 0.75rem 0 0;
+  font-family: var(--trim-font-sans);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--trim-blue);
+}
+
+.trim-login__google:disabled {
+  opacity: 0.7;
+  cursor: var(--cursor-default);
+}
+
+@media (max-width: 48rem) {
+  .trim-login__legal {
+    text-align: left;
+  }
+}

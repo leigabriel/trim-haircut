@@ -1,0 +1,105 @@
+.trim-location__frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--trim-black);
+  overflow: hidden;
+}
+
+.trim-location__map {
+  width: 100%;
+  height: 100%;
+  background-color: var(--trim-white);
+}
+
+/* Light tiles as shipped, lifted towards white so the map reads as paper on
+   the white page rather than a grey block. The invert filter that made this
+   work on black is gone. */
+.trim-location__map .leaflet-tile-pane {
+  filter: brightness(1.06) saturate(0.55) contrast(0.92);
+}
+
+.trim-location__map .leaflet-control-attribution,
+.trim-location__map .leaflet-control-zoom a {
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  border-color: var(--trim-black);
+}
+
+.trim-location__map .leaflet-control-zoom a:hover {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+}
+
+/* Marker dot, replacing the default pin. A position marker, not a control,
+   so it carries no pointer affordance. */
+.trim-location__pin {
+  background: none;
+  border: 0;
+  cursor: var(--cursor-default);
+}
+
+.trim-location__pin span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: var(--trim-blue);
+  border: 2px solid var(--trim-white);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--trim-blue);
+}
+
+/* Details card. Always open: no open state, no pointer interaction. The
+   position is set in script because it tracks the marker. */
+.trim-location__card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 500;
+  width: min(17rem, calc(100% - 1.5rem));
+  padding: clamp(0.875rem, 1.5vw, 1.25rem);
+  border-radius: 0;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  text-align: left;
+  pointer-events: none;
+  transform: translateY(calc(-100% - 0.75rem));
+  transform-origin: bottom left;
+}
+
+.trim-location__card-name {
+  margin: 0;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.875rem);
+  line-height: 1;
+}
+
+.trim-location__card-branch {
+  margin: 0.35rem 0 0;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.625rem, 1vw, 0.75rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.trim-location__card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: clamp(0.625rem, 1.2vw, 1rem) 0 0;
+  padding: clamp(0.625rem, 1.2vw, 1rem) 0 0;
+  border-top: 1px solid currentColor;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.6875rem, 1.1vw, 0.875rem);
+  line-height: 1.4;
+  list-style: none;
+}
+
+/* Phone: the card docks to the frame bottom, where it has room to sit flat. */
+@media (max-width: 48rem) {
+  .trim-location__card {
+    width: calc(100% - 1.5rem);
+    transform: none;
+  }
+}

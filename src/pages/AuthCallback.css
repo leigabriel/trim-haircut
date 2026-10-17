@@ -1,0 +1,108 @@
+.trim-callback {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1.5rem;
+  min-height: 100%;
+  padding: var(--trim-gutter);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  text-align: center;
+}
+
+.trim-callback__pending {
+  margin: 0;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.trim-callback__error {
+  max-width: 40ch;
+  margin: 0;
+  font-family: var(--trim-font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.trim-callback__back {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--trim-white);
+  background: none;
+  color: var(--trim-white);
+  font-family: var(--trim-font-display);
+  font-size: 1.5rem;
+  cursor: var(--cursor-pointer);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.trim-callback__back:hover,
+.trim-callback__back:focus-visible {
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  outline: none;
+}
+
+/* Shown once the code has been exchanged. */
+.trim-callback__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Confirmation tick. Decorative: the heading carries the meaning. */
+.trim-callback__tick {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 0.75rem;
+  border-radius: 50%;
+  background-color: var(--trim-blue);
+  color: var(--trim-black);
+}
+
+.trim-callback__title {
+  margin: 0;
+  font-family: var(--trim-font-display);
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.05;
+  color: var(--trim-blue);
+  text-wrap: balance;
+}
+
+.trim-callback__note {
+  max-width: 46ch;
+  margin: 0.5rem 0 1rem;
+  font-family: var(--trim-font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  opacity: 0.75;
+  text-wrap: pretty;
+}
+
+.trim-callback__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.trim-callback__primary {
+  padding: 0.75rem 1.5rem;
+  border: 0;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: var(--trim-font-display);
+  font-size: 1.5rem;
+  cursor: var(--cursor-pointer);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.trim-callback__primary:hover,
+.trim-callback__primary:focus-visible {
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  outline: none;
+}

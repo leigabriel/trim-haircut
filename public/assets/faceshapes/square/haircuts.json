@@ -1,0 +1,20 @@
+[
+  {
+    "slot": "01",
+    "name": "Textured Crop Fade",
+    "slug": "textured-crop-fade",
+    "src": "/assets/faceshapes/square/01-textured-crop-fade.png"
+  },
+  {
+    "slot": "02",
+    "name": "Mid Fade Messy Top",
+    "slug": "mid-fade-messy-top",
+    "src": "/assets/faceshapes/square/02-mid-fade-messy-top.png"
+  },
+  {
+    "slot": "03",
+    "name": "Classic Side Part",
+    "slug": "classic-side-part",
+    "src": "/assets/faceshapes/square/03-classic-side-part.png"
+  }
+]

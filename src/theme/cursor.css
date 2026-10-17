@@ -1,0 +1,102 @@
+/* Cursors from assets/cursor (64x64). Hotspots measured from each sprite's
+   ink: top pixel for the arrow and hand, beam centre for the I-beam, middle
+   fingertip for the open hands. */
+
+/* Component stylesheets must set cursor through the tokens below, never with a
+   bare `cursor: pointer`. The rules further down target bare element selectors,
+   which are specificity 0-0-1; a class selector in a component stylesheet is
+   0-1-0 and wins regardless of import order, so a bare keyword silently swaps
+   the sprite back for the system cursor on that component only. The two
+   exceptions are `not-allowed` on a disabled control and the coarse-pointer
+   block below, both deliberate. */
+
+:root {
+  --cursor-default: url('/assets/cursor/default.png') 20 15, default;
+  --cursor-pointer: url('/assets/cursor/handpointing.png') 26 16, pointer;
+  --cursor-grab: url('/assets/cursor/handopen.png') 29 12, grab;
+  --cursor-grabbing: url('/assets/cursor/handgrabbing.png') 29 19, grabbing;
+  --cursor-text: url('/assets/cursor/textcursor.png') 32 32, text;
+}
+
+html,
+body {
+  cursor: var(--cursor-default);
+}
+
+/* Anchors, real buttons and anything that behaves like one. */
+a,
+button,
+summary,
+label,
+[role='button'],
+[role='link'] {
+  cursor: var(--cursor-pointer);
+}
+
+input,
+textarea,
+select,
+[contenteditable='true'] {
+  cursor: var(--cursor-text);
+}
+
+/* Leaflet's own stylesheet sets cursor:auto at a higher specificity. */
+.leaflet-control a,
+.leaflet-control button {
+  cursor: var(--cursor-pointer);
+}
+
+.leaflet-control-zoom a:hover {
+  cursor: var(--cursor-pointer);
+}
+
+/* The map pane drags, so it takes the grab pair. Leaflet ships
+   .leaflet-grab { cursor: grab }, which would replace the sprite. */
+.leaflet-container,
+.leaflet-grab {
+  cursor: var(--cursor-grab);
+}
+
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-container {
+  cursor: var(--cursor-grabbing);
+}
+
+/* Decorative 3D mounts do not pan, so they keep the arrow. */
+.trim-tools {
+  cursor: var(--cursor-default);
+}
+
+.is-dragging,
+[draggable='true']:active {
+  cursor: var(--cursor-grabbing);
+}
+
+/* The marker opens the details card, so it needs the hand despite being a div. */
+.trim-location__pin,
+.trim-location__pin span {
+  cursor: var(--cursor-pointer);
+}
+
+/* Coarse pointers get no sprite: forcing one leaves a stale hand trailing
+   every tap. */
+@media (pointer: coarse) {
+  html,
+  body,
+  a,
+  button,
+  summary,
+  label,
+  [role='button'],
+  [role='link'],
+  input,
+  textarea,
+  select,
+  .leaflet-container,
+  .leaflet-grab,
+  .leaflet-control a,
+  .trim-location__pin,
+  .trim-location__pin span {
+    cursor: auto;
+  }
+}

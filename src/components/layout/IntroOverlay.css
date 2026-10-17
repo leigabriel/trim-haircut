@@ -1,0 +1,31 @@
+/* Rendered into document.body, so z-index only competes with other body-level
+   layers rather than with Ionic's own stacking inside the router outlet. */
+.trim-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background-color: #fff;
+}
+
+.trim-intro__mark {
+  width: clamp(9rem, 30vmin, 17rem);
+  height: auto;
+  /* The source has generous transparent padding, so the visible ink is well
+     inside the box. Scales it up to read at the size it is actually drawn. */
+  transform: scale(1.45);
+}
+
+/* Bottom left counter. */
+.trim-intro__number {
+  position: absolute;
+  bottom: clamp(1rem, 3.5vw, 2.5rem);
+  left: clamp(1.25rem, 4vw, 3rem);
+  font-family: var(--trim-font-sans);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--trim-blue);
+}

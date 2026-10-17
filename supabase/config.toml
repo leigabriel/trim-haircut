@@ -1,0 +1,47 @@
+# Trim, Supabase CLI configuration.
+# Generated with: supabase init
+# Docs: https://supabase.com/docs/reference/config
+
+project_id = "trim"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/auth/callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[functions.chat]
+# Verify the caller's JWT before the handler runs, so an anonymous request is
+# rejected at the gateway rather than inside the body.
+verify_jwt = true
+
+[functions.delete-account]
+# Off deliberately. The gateway blocks the browser preflight, which does not
+# carry an Authorization header, and the handler authenticates the caller
+# itself with getUser() before touching anything.
+verify_jwt = false

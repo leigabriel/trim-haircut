@@ -1,0 +1,20 @@
+[
+  {
+    "slot": "01",
+    "name": "Mid-Length Bro Flow",
+    "slug": "mid-length-bro-flow",
+    "src": "/assets/faceshapes/heart/01-mid-length-bro-flow.png"
+  },
+  {
+    "slot": "02",
+    "name": "Side-Swept Fringe",
+    "slug": "side-swept-fringe",
+    "src": "/assets/faceshapes/heart/02-side-swept-fringe.png"
+  },
+  {
+    "slot": "03",
+    "name": "Textured Fringe Low Taper",
+    "slug": "textured-fringe-low-taper",
+    "src": "/assets/faceshapes/heart/03-textured-fringe-low-taper.png"
+  }
+]

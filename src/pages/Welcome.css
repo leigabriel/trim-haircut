@@ -1,0 +1,103 @@
+/* place-content: center on both axes, so the form sits in the middle of the
+   viewport rather than offset by its own line box. */
+.trim-welcome {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  min-height: 100%;
+  padding: clamp(2rem, 8vh, 5rem) var(--trim-gutter);
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+}
+
+/* Wider than a single-column form: at 28rem the field sat in a narrow column
+   with the title hard against the left gutter. */
+.trim-welcome__inner {
+  width: min(100%, 34rem);
+  margin: 0 auto;
+}
+
+.trim-welcome__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.trim-welcome__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--trim-font-display);
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.05;
+  color: var(--trim-blue);
+}
+
+.trim-welcome__lede {
+  margin: 0 0 0.75rem;
+  font-family: var(--trim-font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.65;
+}
+
+.trim-welcome__label {
+  font-family: var(--trim-font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+.trim-welcome__input {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--trim-black);
+  background: none;
+  color: var(--trim-black);
+  font-family: var(--trim-font-sans);
+  font-size: 1.125rem;
+}
+
+/* No focus ring on the box: a blue outline reads as a
+   validation error on a field the customer has not finished typing in yet. */
+.trim-welcome__input:focus,
+.trim-welcome__input:focus-visible {
+  outline: none;
+  border-color: var(--trim-blue);
+}
+
+.trim-welcome__input:disabled {
+  opacity: 0.6;
+}
+
+.trim-welcome__error {
+  margin: 0;
+  font-family: var(--trim-font-sans);
+  font-size: 0.875rem;
+  color: var(--trim-blue);
+}
+
+.trim-welcome__submit {
+  margin-top: 0.5rem;
+  padding: 0.9rem 1.5rem;
+  border: 0;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: var(--trim-font-display);
+  font-size: 1.75rem;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-welcome__submit:disabled {
+  opacity: 0.6;
+  cursor: var(--cursor-default);
+}
+
+.trim-welcome__hint {
+  margin: 0;
+  font-family: var(--trim-font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--trim-black);
+  opacity: 0.6;
+}

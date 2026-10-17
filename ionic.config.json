@@ -1,0 +1,7 @@
+{
+  "name": "Trim - Your Best Haircut",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

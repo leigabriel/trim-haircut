@@ -1,0 +1,20 @@
+[
+  {
+    "slot": "01",
+    "name": "High Fade Pompadour",
+    "slug": "high-fade-pompadour",
+    "src": "/assets/faceshapes/round/01-high-fade-pompadour.png"
+  },
+  {
+    "slot": "02",
+    "name": "Textured Undercut",
+    "slug": "textured-undercut",
+    "src": "/assets/faceshapes/round/02-textured-undercut.png"
+  },
+  {
+    "slot": "03",
+    "name": "Angular Fringe",
+    "slug": "angular-fringe",
+    "src": "/assets/faceshapes/round/03-angular-fringe.png"
+  }
+]

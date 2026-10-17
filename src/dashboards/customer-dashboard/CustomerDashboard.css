@@ -1,0 +1,1872 @@
+/* Customer dashboard. The rail and header share one grey plane, so the white
+   main column reads as the working area. */
+
+.trim-dash {
+  --dash-rail: 16rem;
+  --dash-feed: 24rem;
+  --dash-pad: clamp(1.25rem, 2.2vw, 2rem);
+  --dash-grey: #ebebeb;
+  --dash-line: rgb(0 0 0 / 12%);
+  --dash-label: 0.75rem;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  font-family: var(--trim-font-sans);
+  /* Nothing in this file goes below 0.75rem. */
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Header */
+
+.trim-dash__bar {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  flex: 0 0 auto;
+  min-height: 3.5rem;
+  padding: 0 clamp(0.875rem, 1.8vw, 1.35rem);
+  border-bottom: 1px solid var(--dash-line);
+  background-color: var(--dash-grey);
+}
+
+/* Tritopani script T in brand blue, echoing the public nav mark. */
+.trim-dash__logo {
+  font-family: var(--trim-font-brand);
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--trim-blue);
+  user-select: none;
+}
+
+.trim-dash__crumb {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--dash-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.55;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trim-dash__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+}
+
+/* Icon buttons. 2.5rem square keeps both a comfortable tap target and the
+   optical size of the 19px glyph inside. */
+.trim-dash__icon-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--trim-black);
+  cursor: var(--cursor-pointer);
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.trim-dash__icon-btn:hover,
+.trim-dash__icon-btn:focus-visible {
+  background-color: rgb(0 0 0 / 8%);
+  outline: none;
+}
+
+.trim-dash__icon-btn--on {
+  background-color: var(--trim-white);
+}
+
+.trim-dash__badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: grid;
+  place-items: center;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.2rem;
+  border-radius: 999px;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.trim-dash__rail-toggle {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-left: -0.35rem;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  cursor: var(--cursor-pointer);
+}
+
+.trim-dash__rail-toggle:hover,
+.trim-dash__rail-toggle:focus-visible {
+  background-color: rgb(0 0 0 / 8%);
+  outline: none;
+}
+
+/* Grid */
+
+.trim-dash__grid {
+  position: relative;
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Rail */
+
+.trim-dash__rail {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0.75rem 0.75rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--dash-line);
+  background-color: var(--dash-grey);
+}
+
+.trim-dash__nav {
+  flex: 1;
+}
+
+.trim-dash__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-dash__link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease;
+}
+
+.trim-dash__link:hover {
+  background-color: rgb(0 0 0 / 6%);
+}
+
+.trim-dash__link:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: -2px;
+}
+
+.trim-dash__link--current,
+.trim-dash__link--current:hover {
+  background-color: var(--trim-white);
+}
+
+.trim-dash__link-icon {
+  flex: 0 0 auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+.trim-dash__link--current .trim-dash__link-icon {
+  color: var(--trim-blue);
+  opacity: 1;
+}
+
+.trim-dash__link-label {
+  min-width: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--trim-black);
+}
+
+/* Identity */
+
+.trim-dash__identity {
+  flex: 0 0 auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--dash-line);
+}
+
+.trim-dash__identity-open {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease;
+}
+
+.trim-dash__identity-open:hover {
+  background-color: rgb(0 0 0 / 6%);
+}
+
+.trim-dash__identity-open:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: -2px;
+}
+
+.trim-dash__identity--current .trim-dash__identity-open,
+.trim-dash__identity--current .trim-dash__identity-open:hover {
+  background-color: var(--trim-white);
+}
+
+.trim-dash__identity-avatar,
+.trim-dash__identity-initial {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-size: 0.875rem;
+  font-weight: 700;
+  object-fit: cover;
+}
+
+.trim-dash__identity-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.trim-dash__identity-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--trim-black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Addresses have no break opportunities, and truncating identified nobody.
+   Clamped at two lines so a long address cannot push the rail taller than
+   its own column. */
+.trim-dash__identity-email {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--trim-black);
+  opacity: 0.55;
+  overflow-wrap: anywhere;
+}
+
+.trim-dash__identity-out {
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid var(--trim-danger);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-danger);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-dash__identity-out:hover,
+.trim-dash__identity-out:focus-visible {
+  background-color: var(--trim-danger);
+  border-color: var(--trim-danger);
+  color: var(--trim-white);
+  outline: none;
+}
+
+/* Heading for the conversation list column. */
+.trim-dash__list-title {
+  margin: 0;
+  padding: 1rem 1.1rem 0.6rem;
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+/* Main column */
+
+.trim-dash__main {
+  min-width: 0;
+  overflow-y: auto;
+  background-color: var(--trim-white);
+}
+
+/* Account centres itself in the main column. The child uses margin:auto rather
+   than align-items:center, which would clip the top of a block taller than the
+   viewport instead of letting it scroll. */
+.trim-dash__main--centred {
+  display: flex;
+}
+
+.trim-section {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--dash-pad) var(--dash-pad) 4rem;
+}
+
+.trim-section__head {
+  margin-bottom: clamp(1.5rem, 2.5vw, 2.25rem);
+}
+
+.trim-section__title {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--trim-black);
+}
+
+.trim-section__lede {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+/* Notification panel */
+
+.trim-notify__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background-color: rgb(0 0 0 / 25%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms ease, visibility 200ms;
+}
+
+.trim-notify__scrim--on {
+  opacity: 1;
+  visibility: visible;
+}
+
+.trim-notify {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: min(24rem, 100%);
+  border-left: 1px solid var(--dash-line);
+  background-color: var(--trim-white);
+  box-shadow: -12px 0 32px rgb(0 0 0 / 10%);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform 260ms cubic-bezier(0.32, 0.72, 0, 1), visibility 260ms;
+}
+
+.trim-notify--open {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+.trim-notify__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 0 0 auto;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-notify__title {
+  margin: 0;
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+.trim-notify__close {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  cursor: var(--cursor-pointer);
+}
+
+.trim-notify__close:hover,
+.trim-notify__close:focus-visible {
+  background-color: rgb(0 0 0 / 8%);
+  outline: none;
+}
+
+.trim-notify__list {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.trim-notify__item {
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-notify__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.trim-notify__item-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--trim-black);
+}
+
+.trim-notify__item-body {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+.trim-notify__when {
+  flex: 0 0 auto;
+  font-size: var(--dash-label);
+  color: var(--trim-black);
+  opacity: 0.45;
+}
+
+/* Unread marker: a left bar plus the bold title, not colour alone. */
+.trim-notify__item--unread {
+  border-left: 3px solid var(--trim-blue);
+  padding-left: calc(1.1rem - 3px);
+}
+
+/* Cards */
+
+.trim-card {
+  padding: 1.15rem 1.25rem 1.35rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 4px;
+}
+
+.trim-card__title {
+  margin: 0 0 0.9rem;
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+.trim-card__text {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--trim-black);
+}
+
+/* Metric row */
+
+.trim-metrics {
+  display: grid;
+  gap: 1px;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  background-color: var(--dash-line);
+  border: 1px solid var(--dash-line);
+  border-radius: 4px;
+  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.trim-metric {
+  padding: 1.1rem 1.15rem 1.2rem;
+  background-color: var(--trim-white);
+}
+
+.trim-metric__label {
+  margin: 0 0 0.4rem;
+  /* Two lines reserved, so a wrapped label cannot push its value out of line. */
+  min-height: 2.6em;
+  display: flex;
+  align-items: flex-start;
+  font-size: var(--dash-label);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+.trim-metric__value {
+  margin: 0 0 0.3rem;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--trim-black);
+}
+
+.trim-metric__delta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--trim-blue);
+}
+
+.trim-metric__delta--down {
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+/* Two cards side by side; single column left the pane half empty. */
+
+.trim-overview__bottom {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+}
+
+.trim-overview__bottom .trim-card {
+  margin-bottom: 0;
+}
+
+/* Saved style rows */
+
+.trim-saved {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-saved__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-saved__row:first-child {
+  padding-top: 0;
+}
+
+.trim-saved__row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.trim-saved__thumb {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 3px;
+  background-color: var(--trim-white);
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.trim-saved__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.trim-saved__name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--trim-black);
+}
+
+.trim-saved__meta {
+  font-size: 0.75rem;
+  color: var(--trim-black);
+  opacity: 0.55;
+}
+
+.trim-saved__match {
+  flex: 0 0 auto;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--trim-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Next booking */
+
+.trim-card--next {
+  border-left: 3px solid var(--trim-blue);
+}
+
+.trim-next__when {
+  margin: 0 0 0.3rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--trim-black);
+}
+
+.trim-next__what {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--trim-black);
+}
+
+.trim-next__note {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+/* Style cards */
+
+.trim-style-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+}
+
+.trim-style {
+  border: 1px solid var(--dash-line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.trim-style__frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  /* White, not the grey chrome: the PNGs are white cutouts, and blending
+     them into grey turned every portrait muddy beige. */
+  background-color: var(--trim-white);
+  overflow: hidden;
+}
+
+.trim-style__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.trim-style__match {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* A trending cut that does not suit the customer's shape. Says so rather than
+   hiding it, because trending and suiting you are different claims. */
+.trim-style__match--none {
+  background-color: var(--trim-black);
+  font-weight: 400;
+}
+
+.trim-style__note {
+  margin: 0.6rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: rgb(0 0 0 / 62%);
+}
+
+.trim-recos {
+  margin-bottom: 1.25rem;
+}
+
+.trim-recos > .trim-card__text {
+  margin-top: 0.4rem;
+}
+
+/* Shape gallery. Square cells: the source art is 1:1 and a grid of mixed
+   aspect ratios reads as broken rather than varied. */
+.trim-gallery-block {
+  margin-bottom: 1.25rem;
+}
+
+.trim-gallery-block__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.trim-gallery-block__note {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgb(0 0 0 / 62%);
+}
+
+.trim-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-gallery__item {
+  overflow: hidden;
+  border: 1px solid var(--dash-line);
+}
+
+.trim-gallery__image {
+  display: block;
+  width: 100%;
+  /* Locked to the cell width, so a 1:1 source stays 1:1 regardless of how
+     many columns the grid resolved to. */
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
+}
+
+.trim-gallery__meta {
+  padding: 0.4rem 0.5rem 0.45rem;
+  background-color: var(--trim-white);
+  border-top: 1px solid var(--dash-line);
+}
+
+.trim-gallery__name {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--trim-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* Face shape picker */
+
+.trim-shape__current {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-shape__current strong {
+  font-family: var(--trim-font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.trim-shape__source {
+  font-size: 0.8125rem;
+  color: rgb(0 0 0 / 55%);
+}
+
+.trim-shape__picker {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  border: 0;
+}
+
+.trim-shape__legend {
+  padding: 0;
+  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+  color: rgb(0 0 0 / 55%);
+}
+
+.trim-shape__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.trim-shape__option {
+  cursor: var(--cursor-pointer);
+}
+
+.trim-shape__option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.trim-shape__option span {
+  display: inline-block;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 3px;
+  font-size: 0.8125rem;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.trim-shape__option:hover span {
+  border-color: var(--trim-blue);
+}
+
+/* Focus ring sits on the label rather than the visually hidden input, so it
+   follows the thing the customer actually clicks. */
+.trim-shape__option input:focus-visible + span {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 2px;
+}
+
+.trim-shape__option--current span {
+  border-color: var(--trim-blue);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+}
+
+.trim-shape__hint {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgb(0 0 0 / 62%);
+}
+
+.trim-shape__privacy {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: rgb(0 0 0 / 55%);
+}
+
+.trim-account__analyze {
+  align-self: flex-start;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--trim-black);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  cursor: var(--cursor-pointer);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.trim-account__analyze:hover,
+.trim-account__analyze:focus-visible {
+  background: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-style__body {
+  padding: 0.8rem 0.9rem 1rem;
+}
+
+.trim-style__name {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--trim-black);
+}
+
+.trim-style__specs {
+  display: flex;
+  gap: 1.25rem;
+  margin: 0;
+}
+
+.trim-style__specs dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.45;
+}
+
+.trim-style__specs dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--trim-black);
+}
+
+/* Scale note. The mark is on the same scale as the bars. */
+
+.trim-card__scale {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: -0.35rem 0 1.15rem;
+  font-size: 0.8125rem;
+  color: var(--trim-black);
+  opacity: 0.55;
+}
+
+.trim-card__scale-mark {
+  flex: 0 0 auto;
+  width: 2px;
+  height: 0.75rem;
+  margin-left: auto;
+  background-color: var(--trim-black);
+  opacity: 0.5;
+}
+
+/* Landmarks */
+
+.trim-landmarks {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-landmark__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.trim-landmark__label {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--trim-black);
+}
+
+.trim-landmark__value {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--trim-black);
+  font-variant-numeric: tabular-nums;
+}
+
+.trim-landmark__track {
+  position: relative;
+  height: 0.5rem;
+  background-color: var(--dash-grey);
+  border-radius: 999px;
+}
+
+.trim-landmark__fill {
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--trim-blue);
+}
+
+/* Above the bar: inside the track it would be clipped by the fill. */
+.trim-landmark__reference {
+  position: absolute;
+  top: -0.25rem;
+  bottom: -0.25rem;
+  width: 2px;
+  transform: translateX(-1px);
+  background-color: var(--trim-black);
+  opacity: 0.45;
+}
+
+.trim-landmark__reading {
+  margin: 0.4rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+/* Findings */
+
+.trim-findings {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.trim-finding {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--trim-blue);
+}
+
+.trim-finding__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.trim-finding__label {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--trim-black);
+}
+
+.trim-finding__value {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--trim-blue);
+  white-space: nowrap;
+}
+
+.trim-finding__body {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+/* Result */
+
+.trim-result {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+}
+
+.trim-result strong {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--trim-black);
+}
+
+.trim-result__confidence {
+  font-size: var(--dash-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trim-blue);
+}
+
+/* AI answers */
+
+.trim-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-answer {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-answer:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.trim-answer__q {
+  margin: 0 0 0.35rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--trim-black);
+}
+
+.trim-answer__a {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--trim-black);
+  opacity: 0.75;
+}
+
+/* Facts list */
+
+.trim-facts {
+  display: grid;
+  gap: 0.85rem 1.5rem;
+  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.trim-facts dt {
+  font-size: var(--dash-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.45;
+}
+
+.trim-facts dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--trim-black);
+  overflow-wrap: anywhere;
+}
+
+/* An email has no break opportunities; the full row stops a mid-word split. */
+.trim-facts__wide {
+  grid-column: 1 / -1;
+}
+
+/* Account */
+
+/* Account. A fixed, readable measure centred in the main column, rather than
+   stretched across whatever width is left over. */
+.trim-account-page {
+  width: min(100%, 44rem);
+  margin: auto;
+  padding: clamp(1.5rem, 4vh, 3rem) clamp(1.25rem, 2.2vw, 2rem);
+}
+
+/* One column. Three short cards side by side became a row of slivers, and
+   the danger card ended up the same width as a list of three facts. */
+.trim-account {
+  display: grid;
+  gap: 1.25rem;
+  /* stretch, not start: equal-height cards so their borders line up down the
+     column instead of stepping in and out with content length. */
+  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Cards fill their row and push their action to the foot, so the three
+   actions line up rather than following their own content lengths. */
+.trim-account .trim-card {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+.trim-account .trim-card__title {
+  margin-bottom: 1rem;
+}
+
+.trim-account .trim-facts {
+  flex: 1;
+}
+
+/* Danger card. Blue is the only accent in the palette, so the delete action
+   is distinguished by weight and a solid rule rather than by colour. */
+.trim-card--danger {
+  border-left: 3px solid var(--trim-danger);
+}
+
+.trim-account__delete {
+  align-self: flex-start;
+  margin-top: 1rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--trim-danger);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-danger);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-account__delete:hover,
+.trim-account__delete:focus-visible {
+  background: var(--trim-danger);
+  border-color: var(--trim-danger);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-account__error {
+  margin: 0 0 1.25rem;
+  padding: 0.7rem 1rem;
+  border-left: 3px solid var(--trim-blue);
+  background: #f2f4ff;
+  font-size: 0.875rem;
+  color: var(--trim-black);
+}
+
+.trim-account__signout {
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.4rem;
+  border: 1px solid var(--trim-danger);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-danger);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-account__signout:hover,
+.trim-account__signout:focus-visible {
+  background-color: var(--trim-danger);
+  border-color: var(--trim-danger);
+  color: var(--trim-white);
+  outline: none;
+}
+
+/* Prompts */
+
+.trim-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-prompt {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-prompt:hover,
+.trim-prompt:focus-visible {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+/* Table */
+
+.trim-table-wrap {
+  border: 1px solid var(--dash-line);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.trim-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.trim-table th,
+.trim-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-table thead th {
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+.trim-table tbody tr:last-child th,
+.trim-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.trim-table__primary {
+  display: block;
+  font-weight: 700;
+  color: var(--trim-black);
+}
+
+.trim-table__secondary {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  color: var(--trim-black);
+  opacity: 0.55;
+}
+
+.trim-table__num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.trim-status {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.trim-status--confirmed {
+  border-color: var(--trim-blue);
+  color: var(--trim-blue);
+}
+
+.trim-status--requested {
+  border-color: var(--trim-black);
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+.trim-status--completed {
+  border-color: var(--dash-line);
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+/* Chat, AI view */
+
+/* Flush: no padding, and the thread manages its own. */
+.trim-dash__main--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.trim-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.trim-chat__thread {
+  flex: 1;
+  min-height: 0;
+  padding: clamp(1.25rem, 2.2vw, 2rem);
+  overflow-y: auto;
+}
+
+/* Empty state. Centred on the available height rather than pinned to the top. */
+.trim-chat__welcome {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 34rem;
+  min-height: 100%;
+  margin: 0 auto;
+  padding-block: clamp(1.5rem, 6vh, 4rem);
+}
+
+.trim-chat__welcome-title {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--trim-black);
+}
+
+.trim-chat__welcome-lede {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+.trim-chat__starters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-chat__starter {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-chat__starter:hover,
+.trim-chat__starter:focus-visible {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+/* Bubbles. User right and filled; Trimo left and outlined, so the two are
+   distinguishable without relying on colour alone. */
+.trim-bubble {
+  max-width: min(34rem, 82%);
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem 0.95rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 6px;
+}
+
+.trim-bubble--user {
+  margin-left: auto;
+  border-color: var(--trim-blue);
+  background-color: var(--trim-blue);
+}
+
+.trim-bubble__role {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+/* Trimo's mark beside the name on its own replies. */
+.trim-bubble__avatar {
+  width: 1.4rem;
+  height: 1.4rem;
+  object-fit: contain;
+  opacity: 1;
+}
+
+/* Welcome state: the character is what the section is introducing, so it gets
+   the size rather than being a logo in a corner. */
+.trim-chat__mark {
+  width: clamp(4.5rem, 12vw, 7.5rem);
+  height: auto;
+  margin-bottom: 0.75rem;
+}
+
+.trim-bubble--user .trim-bubble__role {
+  color: var(--trim-black);
+  opacity: 0.75;
+}
+
+.trim-bubble__text {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--trim-black);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.trim-bubble--user .trim-bubble__text {
+  color: var(--trim-white);
+}
+
+.trim-chat__thinking {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--trim-black);
+  opacity: 0.6;
+  animation: trim-chat-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes trim-chat-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.trim-chat__error {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-left: 3px solid var(--trim-blue);
+  background-color: #fff6f2;
+  font-size: 0.875rem;
+  color: var(--trim-black);
+}
+
+.trim-chat__composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+  padding: clamp(0.85rem, 1.5vw, 1.15rem);
+  border-top: 1px solid var(--dash-line);
+  background-color: var(--trim-white);
+}
+
+.trim-chat__input {
+  flex: 1;
+  min-width: 0;
+  /* Grows with the text up to a point, then scrolls. */
+  max-height: 9rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 4px;
+  resize: none;
+  background: var(--trim-white);
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.trim-chat__input:focus,
+.trim-chat__input:focus-visible {
+  outline: none;
+  border-color: var(--trim-black);
+}
+
+.trim-chat__input:disabled {
+  opacity: 0.6;
+}
+
+.trim-chat__send {
+  flex: 0 0 auto;
+  padding: 0.65rem 1.25rem;
+  border: 0;
+  border-radius: 4px;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease;
+}
+
+.trim-chat__send:hover:not(:disabled),
+.trim-chat__send:focus-visible:not(:disabled) {
+  background-color: var(--trim-black);
+  outline: none;
+}
+
+.trim-chat__send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Conversation list */
+
+.trim-chat-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-y: auto;
+  border-right: 1px solid var(--dash-line);
+}
+
+.trim-chat-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  padding-right: 0.85rem;
+}
+
+.trim-chat-list__head .trim-dash__list-title {
+  padding-right: 0;
+}
+
+.trim-chat-list__new {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-chat-list__new:hover,
+.trim-chat-list__new:focus-visible {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-chat-list__empty {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+.trim-chat-list__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-chat-list__item {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid var(--dash-line);
+}
+
+.trim-chat-list__item--current {
+  background-color: #f6f6f4;
+}
+
+.trim-chat-list__open {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 0.5rem 0.75rem 1.1rem;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-chat-list__open:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: -2px;
+}
+
+.trim-chat-list__title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--trim-black);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.trim-chat-list__date {
+  font-size: 0.75rem;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+.trim-chat-list__delete {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  border: 0;
+  background: none;
+  color: var(--trim-black);
+  opacity: 0.35;
+  cursor: var(--cursor-pointer);
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+.trim-chat-list__delete:hover,
+.trim-chat-list__delete:focus-visible {
+  opacity: 1;
+  color: var(--trim-blue);
+  outline: none;
+}
+
+/* Breakpoints */
+
+/* Tablet: the rail becomes permanent. */
+
+@media (min-width: 48rem) {
+  .trim-dash__rail-toggle {
+    display: none;
+  }
+
+  .trim-dash__grid {
+    grid-template-columns: var(--dash-rail) minmax(0, 1fr);
+  }
+
+  .trim-dash__rail {
+    display: flex;
+  }
+}
+
+@media (min-width: 68rem) {
+  /* Only Trimo adds a middle column, and it is the conversation list rather
+     than a feed. Every other view is rail plus section, which is what the 48rem
+     template above already gives. */
+  .trim-dash__grid--with-list {
+    grid-template-columns: var(--dash-rail) var(--dash-feed) minmax(0, 1fr);
+  }
+}
+
+/* Phone: the rail is a dropdown, closed until toggled. */
+
+@media (max-width: 47.99rem) {
+  .trim-dash__grid {
+    position: relative;
+  }
+
+  .trim-dash__rail {
+    display: none;
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
+    max-height: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--dash-line);
+    box-shadow: 0 12px 28px rgb(0 0 0 / 10%);
+  }
+
+  .trim-dash__rail--open {
+    display: flex;
+  }
+
+  .trim-dash__crumb {
+    text-align: left;
+  }
+}
+
+/* Phones: the table stacks into rows. Five columns at 375px is unreadable. */
+
+@media (max-width: 40rem) {
+  .trim-table thead {
+    display: none;
+  }
+
+  .trim-table,
+  .trim-table tbody,
+  .trim-table tr,
+  .trim-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .trim-table tr {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--dash-line);
+  }
+
+  .trim-table td {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.3rem 1rem;
+    border-bottom: 0;
+  }
+
+  .trim-table td::before {
+    content: attr(data-label);
+    flex: 0 0 6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--trim-black);
+    opacity: 0.45;
+  }
+
+  .trim-table__num {
+    text-align: left;
+  }
+}

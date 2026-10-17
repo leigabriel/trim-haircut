@@ -1,0 +1,142 @@
+.trim-scanner__viewport {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: #0d0d0d;
+}
+
+.trim-scanner__video,
+.trim-scanner__still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Selfie view. Every measurement is a left-right span, so mirroring moves
+     the outline onto the right side of the screen without changing a width. */
+  transform: scaleX(-1);
+}
+
+.trim-scanner__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.trim-scanner__still {
+  transform: none;
+}
+
+.trim-scanner__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  background: linear-gradient(to top, rgb(0 0 0 / 70%), rgb(0 0 0 / 0%) 70%);
+}
+
+.trim-scanner__placeholder-title {
+  margin: 0;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.25rem, 2.6vw, 2rem);
+  line-height: 1;
+  color: var(--trim-white);
+}
+
+.trim-scanner__placeholder-body {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgb(255 255 255 / 75%);
+}
+
+.trim-scanner__guidance {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  padding: 0.6rem 1rem;
+  transform: translate(-50%, -50%);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: var(--trim-font-display);
+  font-size: clamp(1rem, 2vw, 1.375rem);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.trim-scanner__progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: rgb(255 255 255 / 25%);
+}
+
+.trim-scanner__progress span {
+  display: block;
+  height: 100%;
+  background-color: var(--trim-blue);
+  transform-origin: left;
+  transition: transform 120ms linear;
+}
+
+.trim-scanner__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.trim-scanner__primary,
+.trim-scanner__secondary {
+  flex: 1 1 12rem;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--trim-black);
+  border-radius: 0;
+  font-family: var(--trim-font-display);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: var(--cursor-pointer);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.trim-scanner__primary {
+  background-color: var(--trim-blue);
+  border-color: var(--trim-blue);
+  color: var(--trim-white);
+}
+
+.trim-scanner__primary:hover:not(:disabled) {
+  background-color: var(--trim-black);
+  border-color: var(--trim-black);
+}
+
+.trim-scanner__secondary {
+  background: none;
+  color: var(--trim-black);
+}
+
+.trim-scanner__secondary:hover {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+}
+
+.trim-scanner__primary:disabled {
+  opacity: 0.55;
+  cursor: var(--cursor-default);
+}
+
+.trim-scanner__primary:focus-visible,
+.trim-scanner__secondary:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 2px;
+}
