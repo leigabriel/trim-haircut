@@ -59,15 +59,6 @@
   margin-top: auto;
 }
 
-.trim-login__eyebrow {
-  margin: 0 0 clamp(0.5rem, 1.5vw, 1rem);
-  font-family: var(--trim-font-display);
-  font-size: clamp(1.25rem, 2.4vw, 2.25rem);
-  font-weight: 400;
-  line-height: 1;
-  color: var(--trim-black);
-}
-
 .trim-login__title {
   margin: 0 0 clamp(1.75rem, 5vw, 3.5rem);
   font-family: var(--trim-font-display);
@@ -221,14 +212,6 @@
   box-shadow: inset 0 0 0 1px var(--trim-danger);
 }
 
-/* Wide tracking so a six digit code is readable as separate digits. */
-.trim-login__input--code {
-  font-family: var(--trim-font-sans);
-  font-size: 1.5rem;
-  letter-spacing: 0.5em;
-  text-align: center;
-}
-
 .trim-login__field-error {
   display: block;
   margin-top: 0.35rem;
@@ -275,53 +258,6 @@
 .trim-login__submit:focus-visible {
   outline: 2px solid var(--trim-black);
   outline-offset: 3px;
-}
-
-/* Verify step */
-
-.trim-login__verify {
-  margin-bottom: 1rem;
-}
-
-.trim-login__lede {
-  margin: 0 0 1.25rem;
-  font-family: var(--trim-font-sans);
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: rgb(0 0 0 / 75%);
-  overflow-wrap: anywhere;
-}
-
-.trim-login__verify-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1.25rem;
-  margin-top: 1rem;
-}
-
-.trim-login__link {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--trim-blue);
-  font-family: var(--trim-font-sans);
-  font-size: 0.875rem;
-  text-decoration: underline;
-  cursor: var(--cursor-pointer);
-}
-
-.trim-login__link:hover:not(:disabled) {
-  color: var(--trim-black);
-}
-
-.trim-login__link:disabled {
-  opacity: 0.5;
-  cursor: var(--cursor-default);
-}
-
-.trim-login__link:focus-visible {
-  outline: 2px solid var(--trim-blue);
-  outline-offset: 2px;
 }
 
 /* The consent block supplies the top margin. */

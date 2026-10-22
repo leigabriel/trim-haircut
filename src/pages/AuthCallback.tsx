@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { IonContent, IonPage } from '@ionic/react';
-import type { EmailOtpType } from '@supabase/supabase-js';
 
 import { useAuth } from '../auth/AuthProvider';
 import { supabase } from '../lib/supabase';
@@ -10,23 +9,10 @@ import './AuthCallback.css';
 // Shared by both failure paths: the customer only needs to know it failed.
 const EXCHANGE_FAILED = 'Could not complete sign in. Try again.';
 
-// Reached when the URL carries nothing to verify, which means the link was
-// altered or already spent. The old copy blamed Google, which was wrong twice
-// over: this page also serves email confirmation, and a customer arriving from
-// a confirmation email never went near Google.
-const NOTHING_TO_VERIFY =
-  'That link is no longer valid. Request a fresh code in the app and enter it there.';
-
-// Only what the SDK accepts, so a hand-edited URL cannot push an arbitrary
-// string into verifyOtp.
-const OTP_TYPES: readonly string[] = [
-  'email',
-  'signup',
-  'invite',
-  'magiclink',
-  'recovery',
-  'email_change',
-];
+// Reached when the URL carries no code, which means the link was altered or
+// already spent. The old copy blamed Google, which read as nonsense to anyone
+// arriving from anywhere else.
+const NOTHING_TO_VERIFY = 'That link is no longer valid. Start sign in again from the app.';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
@@ -58,31 +44,14 @@ const AuthCallback: React.FC = () => {
       if (active) setIsSignedIn(true);
     };
 
-    // Both branches below reject on non-AuthError failures too: blocked or full
-    // localStorage, failed client init.
+    // exchangeCodeForSession rejects on non-AuthError failures too: blocked or
+    // full localStorage, failed client init.
     const failed = () => {
       if (active) setError(EXCHANGE_FAILED);
     };
 
-    // Email confirmation, when the template links with a token hash. Checked
-    // before the code branch because it verifies against the address Supabase
-    // emailed, so it works from a different device or browser, where no PKCE
-    // verifier was ever stored.
-    const tokenHash = params.get('token_hash');
-    const type = params.get('type');
-
-    if (tokenHash && type && OTP_TYPES.includes(type)) {
-      supabase.auth
-        .verifyOtp({ token_hash: tokenHash, type: type as EmailOtpType })
-        .then(({ error: verifyError }) => (verifyError ? failed() : done()))
-        .catch(failed);
-
-      return () => {
-        active = false;
-      };
-    }
-
-    // Google, and any confirmation template still built on the confirmation URL.
+    // Google is the only flow that lands here. Email signup never sends a link,
+    // so there is no token hash to verify.
     const code = params.get('code');
     if (!code) {
       setError(NOTHING_TO_VERIFY);
@@ -141,13 +110,12 @@ const AuthCallback: React.FC = () => {
                           </h1>
 
                           {/*
-                              Neutral on purpose. This page serves both the
-                              emailed confirmation link and Google, and telling
-                              an email registrant their Google account is
-                              connected was simply untrue.
+                              Only reached without a username, since a profile
+                              that already has one redirects to the dashboard
+                              above. Google is the only provider that lands here.
                           */}
                           <p className="trim-callback__note">
-                              Your email is confirmed. Choose a username for your
+                              You&apos;re signed in. Choose a username for your
                               profile, then Trim will start matching styles to your
                               face shape.
                           </p>

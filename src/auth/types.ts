@@ -32,26 +32,28 @@ export interface AuthContextValue {
   saveUsername: (input: string) => Promise<{ ok: boolean; error?: string }>;
 
   /**
-   * Creates an account.
+   * Creates an account and signs the customer straight in.
    *
-   * Whether this leaves the customer signed in depends on the project setting,
-   * which is why the answer reports it rather than assuming. Supabase emails a
-   * code first and `needsConfirmation` is true; if email confirmation is off
-   * for the project, no code is sent and the session is already live.
+   * The account is created with no username: the Welcome page collects it
+   * afterwards, so a half-filled signup form cannot block registration.
+   *
+   * There is no confirmation step, so the project must have "Confirm email"
+   * switched off. That setting is what makes Supabase return a live session
+   * from signUp instead of emailing a code.
    */
   register: (input: {
     email: string;
-    username: string;
     password: string;
-  }) => Promise<{ ok: true; needsConfirmation: boolean } | { ok: false; error: string }>;
-
-  /** Completes registration with the emailed code, establishing the session. */
-  verifyEmailCode: (email: string, token: string) => Promise<{ ok: true } | { ok: false; error: string }>;
-
-  resendEmailCode: (email: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+  }) => Promise<{ ok: true } | { ok: false; error: string }>;
 
   signInWithPassword: (email: string, password: string) => Promise<{ ok: true } | { ok: false; error: string }>;
 
-  /** Whether an email already has a profile row, so the username is taken. */
-  isUsernameTaken: (username: string) => Promise<boolean>;
+  /**
+   * Whether a username is free.
+   *
+   * `null` means the check could not run — the RPC may not be deployed yet, or
+   * the network failed. Callers treat that as "unknown, let the database decide
+   * on save" rather than claiming the name is free.
+   */
+  isUsernameAvailable: (username: string) => Promise<boolean | null>;
 }

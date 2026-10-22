@@ -23,10 +23,38 @@
   --trim-nav-height: clamp(5rem, 9vw, 7rem);
 }
 
-/* Black shell behind the auth guard's loading branch. */
+/* Black shell behind the auth guard's loading branch. Centred content so a slow
+   profile read shows a spinner instead of an empty black screen. */
 .trim-guard {
+  display: grid;
+  place-content: center;
+  justify-items: center;
   min-height: 100%;
   background-color: var(--trim-black);
+}
+
+.trim-guard__spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid rgb(255 255 255 / 25%);
+  border-top-color: var(--trim-white);
+  border-radius: 50%;
+  animation: trim-guard-spin 700ms linear infinite;
+}
+
+@keyframes trim-guard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The global reduced-motion rule collapses animation-duration, which on an
+   infinite animation reads as a strobe rather than stillness. */
+@media (prefers-reduced-motion: reduce) {
+  .trim-guard__spinner {
+    animation: none;
+    border-top-color: rgb(255 255 255 / 60%);
+  }
 }
 
 /* Ionic ships no visually-hidden utility. */

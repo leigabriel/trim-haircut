@@ -64,16 +64,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // as "no username" and send them through the form again.
     setIsProfileLoading(true);
 
-    supabase
-      .from('profiles')
-      .select('id, username, display_name, avatar_url')
-      .eq('id', userId)
-      .maybeSingle()
-      .then(({ data }) => {
+    // try/finally, because this flag gates a full-screen shell. A rejected
+    // request used to skip the only line that cleared it, leaving the guard on
+    // its black loading branch forever — which is exactly the "page went black
+    // after signup" report.
+    const loadProfile = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, username, display_name, avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
+
         if (!active) return;
-        setProfile(mapProfile(data as ProfileRow | null));
-        setIsProfileLoading(false);
-      });
+        setProfile(error ? null : mapProfile(data as ProfileRow | null));
+      } catch {
+        if (active) setProfile(null);
+      } finally {
+        if (active) setIsProfileLoading(false);
+      }
+    };
+
+    void loadProfile();
 
     return () => {
       active = false;
@@ -121,35 +133,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return { ok: false, error: 'Could not save your username. Try again.' };
       }
 
-      setProfile((current) => (current ? { ...current, username: result.value } : current));
+      // Built from scratch when there is no profile yet. The old version only
+      // spread an existing object, so a customer whose initial profile read
+      // came back empty saved a name, kept a null profile, and was bounced
+      // straight back here by the guard — the form appeared to do nothing.
+      setProfile(() => ({
+        id: userId,
+        username: result.value,
+        displayName: null,
+        avatarUrl: null,
+      }));
       return { ok: true };
     },
     [userId],
   );
 
-  const isUsernameTaken = useCallback(async (username: string): Promise<boolean> => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', username)
-      .maybeSingle();
+  /**
+   * Asks the database whether a name is free.
+   *
+   * A plain select cannot answer this: the profiles RLS policy only exposes the
+   * caller's own row, so every other name looked available and the rejection
+   * only arrived from the unique constraint on save. username_available is a
+   * security-definer function that answers with a boolean and reveals nothing
+   * else. Returns null when the function is missing, which callers treat as
+   * "unknown" rather than "free".
+   */
+  const isUsernameAvailable = useCallback(
+    async (username: string): Promise<boolean | null> => {
+      const { data, error } = await supabase.rpc('username_available', {
+        candidate: username,
+      });
 
-    return data !== null;
-  }, []);
+      if (error) return null;
+      return data === true;
+    },
+    [],
+  );
 
   /**
-   * Supabase error text is not worth showing raw, but two cases are specific
+   * Supabase error text is not worth showing raw, but a few cases are specific
    * enough that a generic message would be useless: a username already claimed,
-   * and a confirmation that has already been used.
+   * an unconfirmed account, and a throttled client.
    */
   const readAuthError = useCallback((message: string): string => {
     const lower = message.toLowerCase();
 
-    // Checked before the generic cases: Supabase's free projects cap outgoing
-    // mail at a few per hour, so "no code arrived" is usually this rather than
-    // a broken form, and the wait is the only thing the customer can do.
     if (lower.includes('rate limit') || lower.includes('too many') || lower.includes('429')) {
-      return 'Too many codes requested. Wait a few minutes before asking for another one.';
+      return 'Too many attempts. Wait a few minutes and try again.';
     }
     if (lower.includes('already registered') || lower.includes('already been registered')) {
       return 'That email already has an account. Sign in instead.';
@@ -160,68 +190,43 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (lower.includes('invalid login')) {
       return 'That email and password do not match an account.';
     }
+    // Reachable when the project still has "Confirm email" on: the account
+    // exists, but Supabase refuses to let it sign in until it is confirmed,
+    // and this flow has no way to confirm it.
+    if (lower.includes('not confirmed')) {
+      return 'That account is not confirmed yet, so it cannot sign in.';
+    }
     if (lower.includes('signups not allowed') || lower.includes('sign up not allowed')) {
       return 'New accounts are closed right now.';
-    }
-    if (lower.includes('token') || lower.includes('expired')) {
-      return 'That code is wrong or has expired. Request a new one.';
     }
     return 'Something went wrong. Try again in a moment.';
   }, []);
 
   const register = useCallback(
-    async (input: { email: string; username: string; password: string }) => {
+    async (input: { email: string; password: string }) => {
+      const email = normaliseEmail(input.email);
+
       const { data, error } = await supabase.auth.signUp({
-        email: normaliseEmail(input.email),
+        email,
         password: input.password,
-        options: {
-          // Read by the handle_new_user trigger into profiles.username.
-          data: { username: input.username },
-          // Without this the confirmation link lands on the project's Site URL,
-          // which is localhost outside production, rather than the app that
-          // asked for the account. Same /auth/callback allow-list entry the
-          // Google flow above already needs.
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
       });
 
       if (error) return { ok: false as const, error: readAuthError(error.message) };
 
-      // A session here means the project has "Confirm email" switched off. No
-      // code was sent and none is coming, so signup already signed them in.
-      // Assuming the opposite leaves them on a code screen that can never be
-      // completed, which is exactly the "no email ever arrived" report.
-      return { ok: true as const, needsConfirmation: !data?.session };
-    },
-    [readAuthError],
-  );
+      // No session means one of two things, and a password sign in tells them
+      // apart: the project still requires confirmation, or the address already
+      // had an account and Supabase returned a placeholder user rather than
+      // signing in. Without this the customer would be dropped into the app
+      // with no session and bounce straight back here.
+      if (!data.session) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password: input.password,
+        });
 
-  const verifyEmailCode = useCallback(
-    async (email: string, token: string) => {
-      const { error } = await supabase.auth.verifyOtp({
-        // Normalised for the same reason as the signup address: Supabase looks
-        // the code up against the stored address, so a form value carrying
-        // stray whitespace or capitals does not match its own account.
-        email: normaliseEmail(email),
-        token,
-        type: 'email',
-      });
+        if (signInError) return { ok: false as const, error: readAuthError(signInError.message) };
+      }
 
-      if (error) return { ok: false as const, error: readAuthError(error.message) };
-      return { ok: true as const };
-    },
-    [readAuthError],
-  );
-
-  const resendEmailCode = useCallback(
-    async (email: string) => {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: normaliseEmail(email),
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-      });
-
-      if (error) return { ok: false as const, error: readAuthError(error.message) };
       return { ok: true as const };
     },
     [readAuthError],
@@ -247,10 +252,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signOut,
       saveUsername,
       register,
-      verifyEmailCode,
-      resendEmailCode,
       signInWithPassword,
-      isUsernameTaken,
+      isUsernameAvailable,
     }),
     [
       session,
@@ -261,10 +264,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signOut,
       saveUsername,
       register,
-      verifyEmailCode,
-      resendEmailCode,
       signInWithPassword,
-      isUsernameTaken,
+      isUsernameAvailable,
     ],
   );
 

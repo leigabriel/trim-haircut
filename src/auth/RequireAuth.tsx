@@ -25,6 +25,7 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({ children, requireUsern
       <IonPage>
         <IonContent>
           <div className="trim-guard" aria-busy="true">
+            <span className="trim-guard__spinner" aria-hidden="true" />
             <span className="trim-visually-hidden">Loading</span>
           </div>
         </IonContent>

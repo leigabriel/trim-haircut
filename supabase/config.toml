@@ -35,6 +35,13 @@ jwt_expiry = 3600
 enable_refresh_token_rotation = true
 enable_signup = true
 
+[auth.email]
+# Accounts are usable the moment they are created. The app has no verification
+# step, so requiring confirmation would leave every new customer signed out with
+# no screen to finish from. Hosted projects need the same setting on the Auth
+# Providers page, since this file only configures local development.
+enable_confirmations = false
+
 [functions.chat]
 # Verify the caller's JWT before the handler runs, so an anonymous request is
 # rejected at the gateway rather than inside the body.

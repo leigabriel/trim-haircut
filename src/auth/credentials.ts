@@ -20,8 +20,8 @@ export const MIN_PASSWORD_LENGTH = 8;
 export const MAX_PASSWORD_LENGTH = 72;
 
 /**
- * Deliberately permissive. The only reliable email check is sending a code to
- * it, which the verification step already does. Over-strict patterns reject
+ * Deliberately permissive. The only reliable email check is actually delivering
+ * to it, which this app no longer does on signup. Over-strict patterns reject
  * valid addresses far more often than they catch typos.
  */
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -64,31 +64,14 @@ export const validateConfirmation = (password: string, confirmation: string): Fi
   return { ok: true, value: confirmation };
 };
 
-/** Codes are digits only in the delivered email. */
-export const normaliseCode = (input: string): string => input.replace(/\D/g, '');
-
-export const CODE_LENGTH = 6;
-
-export const validateCode = (input: string): FieldResult => {
-  const value = normaliseCode(input);
-
-  if (!value) return { ok: false, error: 'Enter the code from your email.' };
-  if (value.length !== CODE_LENGTH) {
-    return { ok: false, error: `The code is ${CODE_LENGTH} digits.` };
-  }
-  return { ok: true, value };
-};
-
 export interface RegistrationInput {
   email: string;
-  username: string;
   password: string;
   confirmation: string;
 }
 
 export interface RegistrationErrors {
   email?: string;
-  username?: string;
   password?: string;
   confirmation?: string;
 }
@@ -99,18 +82,18 @@ export interface RegistrationErrors {
  * All fields are reported together rather than stopping at the first failure:
  * finding out about one error, fixing it, and being told about the next is a
  * worse loop than seeing everything on submit.
+ *
+ * No username here: it is asked for on the Welcome page, once the account
+ * exists. Collecting it twice meant the Welcome prompt never appeared for email
+ * signups, because the profile already had a name by then.
  */
 export const validateRegistration = (
   input: RegistrationInput,
-  validateUsername: (value: string) => { ok: true; value: string } | { ok: false; error: string },
-): { ok: true; email: string; username: string; password: string } | { ok: false; errors: RegistrationErrors } => {
+): { ok: true; email: string; password: string } | { ok: false; errors: RegistrationErrors } => {
   const errors: RegistrationErrors = {};
 
   const email = validateEmail(input.email);
   if (!email.ok) errors.email = email.error;
-
-  const username = validateUsername(input.username);
-  if (!username.ok) errors.username = username.error;
 
   const password = validatePassword(input.password);
   if (!password.ok) errors.password = password.error;
@@ -118,9 +101,9 @@ export const validateRegistration = (
   const confirmation = validateConfirmation(input.password, input.confirmation);
   if (!confirmation.ok) errors.confirmation = confirmation.error;
 
-  if (Object.keys(errors).length > 0 || !email.ok || !username.ok || !password.ok) {
+  if (Object.keys(errors).length > 0 || !email.ok || !password.ok) {
     return { ok: false, errors };
   }
 
-  return { ok: true, email: email.value, username: username.value, password: password.value };
+  return { ok: true, email: email.value, password: password.value };
 };
