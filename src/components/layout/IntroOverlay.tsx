@@ -7,7 +7,7 @@ interface IntroOverlayProps {
   onDone: () => void;
 }
 
-// Fixed length. Not tied to model loading: the hero assets are tens of
+// Fixed length. Not tied to model loading: the hero still pulls several
 // megabytes, so the wait would be unpredictable on a cold cache.
 const DURATION_MS = 3000;
 

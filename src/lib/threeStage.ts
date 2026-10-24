@@ -7,6 +7,16 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
  * navigation, so stages are built after the first paint and pause off screen.
  */
 
+/**
+ * Device pixel ratio ceiling for the decorative stages.
+ *
+ * These canvases are a texture and a silhouette, not an interface. A phone
+ * reporting 3 was asking the GPU to shade nine times the pixels of a 1x screen
+ * for no visible gain, and the hero's 1000px box became a 3000px buffer. 1.5
+ * keeps edges clean on a retina panel and leaves the fragment cost sane.
+ */
+export const MAX_PIXEL_RATIO = 1.5;
+
 /** Defers work until after the new frame paints. */
 export const afterPaint = (fn: () => void) => {
   let cancelled = false;
@@ -40,7 +50,7 @@ export const createStage = (mount: HTMLElement, fov = 35): Stage | null => {
   const camera = new THREE.PerspectiveCamera(fov, mount.clientWidth / mount.clientHeight, 0.1, 100);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
   renderer.setClearAlpha(0);
   mount.appendChild(renderer.domElement);
 

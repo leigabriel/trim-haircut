@@ -2,13 +2,23 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import { afterPaint, createStage, disposeNode, watchVisibility } from '../../../lib/threeStage';
+import {
+  MAX_PIXEL_RATIO,
+  afterPaint,
+  createStage,
+  disposeNode,
+  watchVisibility,
+} from '../../../lib/threeStage';
 import './Scissors.css';
 
 const TOOLS_URL = '/models/barber-tools/Barber_Tool.gltf';
 
 // How far the pointer can swing the scissors, either side of centre.
 const MAX_TURN = 0.55;
+/** Below this the turn is visually settled, so the loop can stop. */
+const SETTLE = 0.0006;
+/** Start building this far before the footer is on screen. */
+const APPROACH_MARGIN = '320px 0px';
 
 /**
  * The main scissors from the barber tools file, alone.
@@ -32,6 +42,10 @@ interface ScissorsProps {
 /**
  * Footer backdrop. The scissors turn toward the pointer rather than spinning,
  * which reads as responsive without pulling attention off the copy.
+ *
+ * Built only as the footer approaches. It used to build and load on mount, so
+ * the home page decoded the same 32MB of maps twice, in two WebGL contexts, at
+ * the same moment. Here the hero is finished and paused by the time this runs.
  */
 const Scissors: React.FC<ScissorsProps> = ({ fill = 0.72, offsetY = 0 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -42,12 +56,13 @@ const Scissors: React.FC<ScissorsProps> = ({ fill = 0.72, offsetY = 0 }) => {
 
     let isAlive = true;
     let isVisible = true;
-    let frame = 0;
+    let raf = 0;
     let teardown: (() => void) | null = null;
+    let cancelBuild = () => {};
 
     const pointer = new THREE.Vector2();
 
-    const cancelBuild = afterPaint(() => {
+    const build = () => {
       if (!isAlive) return;
 
       const stage = createStage(mount);
@@ -71,13 +86,23 @@ const Scissors: React.FC<ScissorsProps> = ({ fill = 0.72, offsetY = 0 }) => {
         camera.lookAt(0, 0, 0);
       };
 
+      const render = () => {
+        if (isAlive) renderer.render(scene, camera);
+      };
+
+      const requestFrame = () => {
+        if (raf || !isAlive || document.hidden || !isVisible) return;
+        raf = window.requestAnimationFrame(tick);
+      };
+
       const resize = () => {
         if (!mount.clientWidth || !mount.clientHeight) return;
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
         renderer.setSize(mount.clientWidth, mount.clientHeight, false);
         camera.aspect = mount.clientWidth / mount.clientHeight;
         camera.updateProjectionMatrix();
         fit();
+        render();
       };
 
       const observer = new ResizeObserver(resize);
@@ -114,43 +139,69 @@ const Scissors: React.FC<ScissorsProps> = ({ fill = 0.72, offsetY = 0 }) => {
         // compile() skips invisible objects, so the textures have to be warm
         // before the first visible frame or the model pops in shattered.
         renderer.compile(scene, camera);
+        render();
       });
 
       const handlePointerMove = (event: PointerEvent) => {
         pointer.set((event.clientX / window.innerWidth - 0.5) * 2, 0);
+        requestFrame();
+      };
+
+      const handleVisibilityChange = () => {
+        if (!document.hidden) requestFrame();
       };
 
       window.addEventListener('pointermove', handlePointerMove);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
 
       // Ionic keeps previous pages mounted, so gate the loop.
       const stopWatching = watchVisibility(mount, (visible) => {
         isVisible = visible;
+        if (visible) requestFrame();
       });
 
-      const tick = () => {
-        frame = requestAnimationFrame(tick);
-        if (document.hidden || !isVisible) return;
+      function tick() {
+        raf = 0;
+        if (!isAlive || document.hidden || !isVisible) return;
 
         const target = -pointer.x * MAX_TURN;
-        pivot.rotation.y += (target - pivot.rotation.y) * 0.05;
-        pivot.rotation.x = -pointer.y * 0.06;
+        const delta = target - pivot.rotation.y;
+        pivot.rotation.y += delta * 0.08;
+        render();
 
-        renderer.render(scene, camera);
-      };
-      tick();
+        // Nothing left to draw once the turn has caught the pointer.
+        if (Math.abs(delta) > SETTLE) requestFrame();
+      }
+
+      // Fit once the stylesheet has given the mount a box.
+      resize();
 
       teardown = () => {
-        window.cancelAnimationFrame(frame);
+        window.cancelAnimationFrame(raf);
         window.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
         observer.disconnect();
         stopWatching();
         disposeNode(pivot);
         stage.dispose();
       };
-    });
+    };
+
+    // Build on approach instead of on mount: the footer is far below the hero
+    // and shares its model.
+    const approach = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        approach.disconnect();
+        cancelBuild = afterPaint(build);
+      },
+      { rootMargin: APPROACH_MARGIN },
+    );
+    approach.observe(mount);
 
     return () => {
       isAlive = false;
+      approach.disconnect();
       cancelBuild();
       teardown?.();
     };

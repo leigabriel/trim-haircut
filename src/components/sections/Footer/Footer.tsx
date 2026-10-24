@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 
 import DownloadModal from '../../layout/modals/DownloadModal';
 import LocationModal from '../../layout/modals/LocationModal';
 import { SHOP } from '../Location/shop';
-import Scissors from './Scissors';
 import { FOOTER_LINKS, SOCIAL_LINKS } from './data';
 import './Footer.css';
+
+/** Shares its three.js chunk with the hero; nothing here is needed above the fold. */
+const Scissors = lazy(() => import('./Scissors'));
 
 const WORDMARK = 'Trim';
 const YEAR = String(new Date().getFullYear());
@@ -21,7 +23,9 @@ const Footer: React.FC = () => {
       {/* Backdrop layer. Sits behind every piece of copy and bleeds off the
           bottom, so it reads as a graphic rather than a column of content. */}
       <div className="trim-footer__stage" aria-hidden="true">
-        <Scissors fill={1.15} offsetY={0.18} />
+        <Suspense fallback={null}>
+          <Scissors fill={1.15} offsetY={0.18} />
+        </Suspense>
       </div>
 
       <div className="trim-footer__inner">

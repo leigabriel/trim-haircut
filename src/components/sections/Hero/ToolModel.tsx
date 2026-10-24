@@ -3,18 +3,35 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import { watchVisibility } from '../../../lib/threeStage';
+import { MAX_PIXEL_RATIO, watchVisibility } from '../../../lib/threeStage';
 import './ToolModel.css';
 
 const TOOLS_URL = '/models/barber-tools/Barber_Tool.gltf';
-const HOLD_MS = 2000;
-// One tool at a time: overlapping models z-fight.
-const FADE_MS = 620;
+// Longer hold, shorter fade: the scene is still for most of its life, and every
+// transition is a stretch where the compositor has work to do.
+const HOLD_MS = 2800;
+const FADE_MS = 520;
 const FILL = 0.78;
-const MAX_TURN = 0.7;
+const MAX_TURN = 0.55;
+/** Below this the yaw is visually settled, so the loop can stop. */
+const SETTLE = 0.0008;
+/** Gap between resting-texture uploads, so one tool never blocks a frame. */
+const WARM_GAP_MS = 320;
 
 // Smootherstep, so the fade has no start or stop tick.
 const ease = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+
+/** Texture slots a MeshStandardMaterial can hold. */
+const TEXTURE_SLOTS = [
+  'map',
+  'normalMap',
+  'aoMap',
+  'roughnessMap',
+  'metalnessMap',
+  'emissiveMap',
+  'alphaMap',
+  'bumpMap',
+];
 
 interface Tool {
   root: THREE.Group;
@@ -33,6 +50,19 @@ interface ToolModelProps {
   onReady?: () => void;
 }
 
+/**
+ * The hero's turntable of barber tools.
+ *
+ * The scene is deliberately lazy: it renders only while something is moving.
+ * The old loop drew sixty frames a second from mount until unmount, even
+ * through the two second hold where the image does not change, and even with
+ * the tab in the background. Here the loop stops when the yaw settles and the
+ * next switch is handed to a timer, so idle cost is one wake-up per cycle.
+ *
+ * Only the lead tool is uploaded up front. Warming all seven in one render
+ * uploaded twenty large maps in a single frame, which was the 1.3 second
+ * freeze at first paint; the rest are warmed from idling timers.
+ */
 const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   // Set once models load, called when the hero is on screen.
@@ -46,6 +76,9 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
     const mount = mountRef.current;
     if (!mount) return;
 
+    let disposed = false;
+    let isVisible = true;
+
     const scene = new THREE.Scene();
     // Tools face +Z, so the camera sits on Z looking back.
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
@@ -53,7 +86,7 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
     renderer.setClearAlpha(0);
     mount.appendChild(renderer.domElement);
 
@@ -63,8 +96,9 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
     scene.add(keyLight);
 
     // Metals need an environment or they render near black.
+    const room = new RoomEnvironment();
     const pmrem = new THREE.PMREMGenerator(renderer);
-    const envMap = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    const envMap = pmrem.fromScene(room, 0.04).texture;
     scene.environment = envMap;
     scene.environmentIntensity = 0.75;
 
@@ -80,6 +114,15 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
     let holdStart = 0;
     // Tool fading out, so only two are written per frame.
     let from = 0;
+
+    // Loop controls. A frame is requested, not owned: nothing runs between them.
+    let raf = 0;
+    let holdTimer = 0;
+    let warmTimer = 0;
+    let needsRender = true;
+    // False until the lead's program and maps are on the GPU. Drawing earlier
+    // would block on the same shader link the async compile is waiting for.
+    let isWarm = false;
 
     // Touches one tool, not all seven.
     const applyOpacity = (tool: Tool | undefined, value: number) => {
@@ -105,15 +148,55 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
       camera.lookAt(0, 0, 0);
     };
 
+    const renderNow = () => {
+      if (disposed || !isWarm) return;
+      renderer.render(scene, camera);
+      needsRender = false;
+    };
+
+    const requestFrame = () => {
+      if (raf || disposed || document.hidden || !isVisible) return;
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    const stopLoop = () => {
+      window.clearTimeout(holdTimer);
+      if (raf) {
+        window.cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
+
+    // Deadline, not a countdown: pointer moves during the hold re-arm this
+    // without pushing the next switch further out.
+    const armHold = () => {
+      window.clearTimeout(holdTimer);
+      // Before the reveal there is no cycle to drive: the hero is behind the
+      // intro and the tools are hidden.
+      if (!isWarm || !revealedRef.current || phase !== 'idle' || tools.length === 0) return;
+
+      const remaining = Math.max(0, holdStart + HOLD_MS - performance.now());
+      holdTimer = window.setTimeout(() => {
+        if (disposed || phase !== 'idle') return;
+        phase = 'out';
+        phaseStart = performance.now();
+        from = active;
+        needsRender = true;
+        requestFrame();
+      }, remaining);
+    };
+
     const resize = () => {
       const { clientWidth, clientHeight } = mount;
       // 0 until the stylesheet lands; ResizeObserver calls back after.
       if (!clientWidth || !clientHeight) return;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
       renderer.setSize(clientWidth, clientHeight, false);
       camera.aspect = clientWidth / clientHeight;
       camera.updateProjectionMatrix();
       frame();
+      needsRender = true;
+      requestFrame();
     };
 
     const observer = new ResizeObserver(resize);
@@ -124,7 +207,30 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
       callbacks.current.onProgress?.(total > 0 ? Math.min(1, loaded / total) : 0);
     };
 
+    // Uploads a resting tool's maps without drawing it. Spreading these out is
+    // what keeps the first visible frame of each tool from stalling.
+    const warm = (tool: Tool) => {
+      tool.materials.forEach((material) => {
+        const slots = material as unknown as Record<string, unknown>;
+        TEXTURE_SLOTS.forEach((slot) => {
+          const value = slots[slot];
+          if (value instanceof THREE.Texture) renderer.initTexture(value);
+        });
+      });
+    };
+
+    const warmRest = (index: number) => {
+      if (disposed || index >= tools.length) return;
+      warmTimer = window.setTimeout(() => {
+        if (disposed) return;
+        warm(tools[index]);
+        warmRest(index + 1);
+      }, WARM_GAP_MS);
+    };
+
     new GLTFLoader(manager).load(TOOLS_URL, (gltf) => {
+      if (disposed) return;
+
       gltf.scene.updateWorldMatrix(true, true);
 
       const meshes: THREE.Mesh[] = [];
@@ -177,80 +283,117 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
       });
 
       if (tools.length === 0) return;
+
       const lead = tools.findIndex((tool) => tool.isScissor);
       if (lead > 0) tools.unshift(...tools.splice(lead, 1));
 
+      active = 0;
+      from = 0;
+      phase = 'idle';
+      holdStart = performance.now();
+      resize();
+
       revealRef.current = () => {
+        // isEntered can arrive before the shaders finish; the warm-up below
+        // calls this again once they are ready.
+        if (!isWarm) return;
+
         const start = performance.now();
         holdStart = start;
         phase = 'in';
         phaseStart = start;
         from = active;
+        needsRender = true;
+        requestFrame();
       };
 
-      active = 0;
-      from = 0;
-      resize();
+      // Warm the lead behind the intro: only its maps, and only one render.
+      // A hair above zero so the mesh is drawn (and its textures uploaded) but
+      // still invisible, which keeps the later fade from flashing.
+      applyOpacity(tools[0], 0.01);
 
-      // Warm every tool before the reveal. compile() skips invisible
-      // objects, so without this the 2048px maps upload on the first visible
-      // frame and the model shatters.
-      tools.forEach((tool) => {
-        tool.root.visible = true;
-        tool.materials.forEach((material) => {
-          material.opacity = 1;
+      // compileAsync links in the driver and polls the completion flag, so the
+      // program build no longer blocks the intro's counter. Rendering before
+      // it resolves would block on exactly the same work.
+      void renderer
+        .compileAsync(scene, camera)
+        .then(() => {
+          if (disposed) return;
+
+          isWarm = true;
+          renderNow();
+
+          callbacks.current.onProgress?.(1);
+          callbacks.current.onReady?.();
+
+          if (revealedRef.current) {
+            // Loaded after the intro ended: fade it in now.
+            revealRef.current?.();
+          } else {
+            applyOpacity(tools[0], 0);
+          }
+
+          warmRest(1);
         });
-      });
-      renderer.compile(scene, camera);
-      renderer.render(scene, camera);
-
-      tools.forEach((tool, index) => {
-        applyOpacity(tool, index === 0 && revealedRef.current ? 1 : 0);
-      });
-
-      if (revealedRef.current) {
-        holdStart = performance.now();
-        phaseStart = holdStart;
-      }
-
-      callbacks.current.onProgress?.(1);
-      callbacks.current.onReady?.();
     });
 
     const handlePointerMove = (event: PointerEvent) => {
-      pointer.set((event.clientX / window.innerWidth - 0.5) * 2, 0);
+      const next = (event.clientX / window.innerWidth - 0.5) * 2;
+      if (Math.abs(next - pointer.x) < 0.002) return;
+      pointer.x = next;
+      requestFrame();
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
       pointer.x = event.key === 'ArrowLeft' ? -1 : 1;
+      requestFrame();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopLoop();
+        return;
+      }
+
+      if (!isVisible) return;
+      needsRender = true;
+      requestFrame();
+      armHold();
     };
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Ionic keeps previous pages mounted, so gate the loop.
-    let isVisible = true;
     const stopWatching = watchVisibility(mount, (visible) => {
       isVisible = visible;
+
+      if (!visible) {
+        stopLoop();
+        return;
+      }
+
+      needsRender = true;
+      requestFrame();
+      armHold();
     });
 
-    let frame2 = 0;
-    const tick = () => {
-      frame2 = requestAnimationFrame(tick);
-      if (document.hidden || !isVisible) return;
+    function tick() {
+      raf = 0;
+      if (disposed || document.hidden || !isVisible) return;
+
       const now = performance.now();
+      let isFading = false;
 
       if (tools.length > 0) {
-        if (phase === 'idle') {
-          if (now - holdStart > HOLD_MS) {
-            phase = 'out';
-            phaseStart = now;
-            from = active;
-          }
-        } else if (phase === 'out') {
+        if (phase === 'out') {
           const t = Math.min(1, (now - phaseStart) / FADE_MS);
           paint(from, 1 - ease(t));
+          needsRender = true;
+          isFading = true;
+
           if (t >= 1) {
             applyOpacity(tools[from], 0);
             active = (from + 1) % tools.length;
@@ -258,9 +401,12 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
             phaseStart = now;
             frame();
           }
-        } else {
+        } else if (phase === 'in') {
           const t = Math.min(1, (now - phaseStart) / FADE_MS);
           paint(active, ease(t));
+          needsRender = true;
+          isFading = true;
+
           if (t >= 1) {
             paint(active, 1);
             phase = 'idle';
@@ -269,18 +415,32 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
         }
       }
 
-      // Turn toward the cursor rather than spin.
+      // Turn toward the cursor rather than spin. Once the gap is below the
+      // settle threshold there is nothing left to draw.
       const yaw = -pointer.x * MAX_TURN;
-      pivot.rotation.y += (yaw - pivot.rotation.y) * 0.06;
-      renderer.render(scene, camera);
-    };
-    tick();
+      const delta = yaw - pivot.rotation.y;
+      if (Math.abs(delta) > SETTLE) {
+        pivot.rotation.y += delta * 0.12;
+        needsRender = true;
+      }
+
+      if (needsRender) renderNow();
+
+      if (isFading) {
+        requestFrame();
+      } else {
+        armHold();
+      }
+    }
 
     return () => {
-      cancelAnimationFrame(frame2);
+      disposed = true;
+      stopLoop();
+      window.clearTimeout(warmTimer);
       revealRef.current = null;
       observer.disconnect();
       stopWatching();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('keydown', handleKeyDown);
       pivot.traverse((node) => {
@@ -297,6 +457,7 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
       renderer.dispose();
       envMap.dispose();
       pmrem.dispose();
+      room.dispose();
       mount.removeChild(renderer.domElement);
     };
   }, []);
