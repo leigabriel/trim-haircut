@@ -17,7 +17,7 @@
 
   --trim-font-brand: 'Tritopani', 'Segoe Script', cursive;
   --trim-font-display: 'Footlight MT Pro', 'Times New Roman', serif;
-  --trim-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --trim-font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   --trim-gutter: clamp(1.25rem, 3vw, 3.5rem);
   --trim-nav-height: clamp(5rem, 9vw, 7rem);

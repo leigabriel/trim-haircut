@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 
 import ChatView from './ai/ChatView';
@@ -37,6 +37,16 @@ const CustomerDashboard: React.FC = () => {
   // and Recommendation when the customer clicks through. Three sections reading
   // independently is how a just-saved shape shows up as "not set" next screen.
   const face = useFaceProfile();
+
+  // The dashboard's type is all rem, so the only lever that scales it (and the
+  // rail with it) is the root size. Marking the document while this route is
+  // mounted keeps the step out of the marketing pages. Layout effect, not
+  // effect, so the larger size is in place before the first paint.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.classList.add('trim-dash-active');
+    return () => root.classList.remove('trim-dash-active');
+  }, []);
 
   const select = (next: DashboardView) => {
     setView(next);

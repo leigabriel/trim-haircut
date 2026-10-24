@@ -1,4 +1,6 @@
-/* Tritopani: brand. Footlight MT Pro: display. Inter: sans, via Google Fonts. */
+/* Tritopani: brand. Footlight MT Pro: display. Helvetica Neue: UI sans, served
+   from the project rather than Google Fonts so the type is identical on every
+   platform — the OTF is the Light cut, so heavier weights are synthesised. */
 
 @font-face {
   font-family: 'Tritopani';
@@ -11,6 +13,14 @@
 @font-face {
   font-family: 'Footlight MT Pro';
   src: url('/assets/fonts/footlightmtprolight.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('/assets/fonts/HelveticaNeueLight.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;

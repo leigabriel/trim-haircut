@@ -20,6 +20,18 @@
   line-height: 1.5;
 }
 
+/* Laptop and desktop: one size step up, so the dashboard reads at arm's length
+   rather than phone scale. Every length in this file is rem, so raising the
+   root scales the type, the rail and the spacing together. The class is added
+   only while this route is mounted, which keeps the marketing pages at their
+   designed size. Media queries are untouched: rem inside them is relative to
+   the initial 16px, not to this rule. */
+@media (min-width: 64rem) {
+  html.trim-dash-active {
+    font-size: 112.5%;
+  }
+}
+
 /* Header */
 
 .trim-dash__bar {
