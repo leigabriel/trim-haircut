@@ -5,7 +5,7 @@ import type { Conversation } from '../ai/trimo';
 import { shapeAdvice } from '../face/advice';
 import type { FaceProfileState } from '../face/useFaceProfile';
 import { faceShapeLabel } from '../face/shapes';
-import SectionHead from './SectionHead';
+import SectionHead from '../../shell/SectionHead';
 
 interface OverviewProps {
   face: FaceProfileState;

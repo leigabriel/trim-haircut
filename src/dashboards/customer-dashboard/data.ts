@@ -5,7 +5,8 @@ import {
   HomeSmile2,
   StarFall4,
 } from 'reicon-react';
-import type { IconComponent } from 'reicon-react/createIcon';
+
+import type { DashboardNavItem } from '../shell/types';
 
 export type DashboardView =
   | 'overview'
@@ -14,13 +15,6 @@ export type DashboardView =
   | 'booking'
   | 'ai'
   | 'account';
-
-export interface DashboardNavItem {
-  id: DashboardView;
-  label: string;
-  /** Reicon component. Drawn at 20px, outline weight. */
-  icon: IconComponent;
-}
 
 /**
  * Rail order. Account is absent on purpose: it opens from the identity block at

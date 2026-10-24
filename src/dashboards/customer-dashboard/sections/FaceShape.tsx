@@ -6,7 +6,7 @@ import StyleRecommendations from '../face/StyleRecommendations';
 import type { FaceProfileState } from '../face/useFaceProfile';
 import type { FaceScanResult } from '../face/useFaceScanner';
 import { faceShapeLabel } from '../face/shapes';
-import SectionHead from './SectionHead';
+import SectionHead from '../../shell/SectionHead';
 
 interface FaceShapeProps {
   profile: FaceProfileState;

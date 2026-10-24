@@ -1,20 +1,23 @@
 import { BackSquare, Bell } from 'reicon-react';
 import { Link } from 'react-router-dom';
 
-import { UNREAD_COUNT } from '../notifications';
-
 interface DashboardHeaderProps {
   sectionLabel: string;
   isRailOpen: boolean;
   onToggleRail: () => void;
-  isPanelOpen: boolean;
-  onTogglePanel: () => void;
+  /** Omitted by surfaces that have no notifications, such as admin and barber. */
+  unreadCount?: number;
+  isPanelOpen?: boolean;
+  onTogglePanel?: () => void;
 }
 
 /**
  * Header. The brand mark is the Tritopani script T in brand blue, echoing the
  * public nav. Right side carries the notification bell and the back-to-site
  * control, both icon-only.
+ *
+ * The bell is opt-in: a count with no real feed behind it would be decoration
+ * pretending to be data.
  *
  * The back-to-site control routes rather than reloading the document; see the
  * note on it below.
@@ -23,7 +26,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   sectionLabel,
   isRailOpen,
   onToggleRail,
-  isPanelOpen,
+  unreadCount,
+  isPanelOpen = false,
   onTogglePanel,
 }) => (
   <header className="trim-dash__bar">
@@ -54,20 +58,22 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     <span className="trim-dash__crumb">{sectionLabel}</span>
 
     <div className="trim-dash__actions">
-      <button
-        className={`trim-dash__icon-btn${isPanelOpen ? ' trim-dash__icon-btn--on' : ''}`}
-        type="button"
-        aria-expanded={isPanelOpen}
-        aria-controls="trim-dash-notifications"
-        onClick={onTogglePanel}
-      >
-        {/* Decorative: the count beside it carries the meaning. */}
-        <Bell size={19} aria-hidden="true" />
-        <span className="trim-dash__badge">{UNREAD_COUNT}</span>
-        <span className="trim-visually-hidden">
-          Notifications, {UNREAD_COUNT} unread
-        </span>
-      </button>
+      {unreadCount !== undefined ? (
+        <button
+          className={`trim-dash__icon-btn${isPanelOpen ? ' trim-dash__icon-btn--on' : ''}`}
+          type="button"
+          aria-expanded={isPanelOpen}
+          aria-controls="trim-dash-notifications"
+          onClick={onTogglePanel}
+        >
+          {/* Decorative: the count beside it carries the meaning. */}
+          <Bell size={19} aria-hidden="true" />
+          <span className="trim-dash__badge">{unreadCount}</span>
+          <span className="trim-visually-hidden">
+            Notifications, {unreadCount} unread
+          </span>
+        </button>
+      ) : null}
 
       {/* Link, not a plain anchor. A bare href navigates the document, which
           throws away the running app: it refetches index.html, re-parses the

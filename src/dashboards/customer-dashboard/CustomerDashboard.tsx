@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
 
 import ChatView from './ai/ChatView';
@@ -7,15 +7,17 @@ import { useConversations } from './ai/useConversations';
 import { useFaceProfile } from './face/useFaceProfile';
 import { DASHBOARD_NAV } from './data';
 import type { DashboardView } from './data';
+import { UNREAD_COUNT } from './notifications';
 import Account from './sections/Account';
 import Booking from './sections/Booking';
 import FaceShape from './sections/FaceShape';
 import Overview from './sections/Overview';
 import Recommendation from './sections/Recommendation';
-import DashboardHeader from './shell/DashboardHeader';
-import DashboardRail from './shell/DashboardRail';
+import DashboardHeader from '../shell/DashboardHeader';
+import DashboardRail from '../shell/DashboardRail';
 import NotificationPanel from './shell/NotificationPanel';
-import './CustomerDashboard.css';
+import { useDashboardScale } from '../shell/useDashboardScale';
+import '../shell/dashboard.css';
 
 /**
  * Customer dashboard. Two column shell: rail and section.
@@ -39,14 +41,8 @@ const CustomerDashboard: React.FC = () => {
   const face = useFaceProfile();
 
   // The dashboard's type is all rem, so the only lever that scales it (and the
-  // rail with it) is the root size. Marking the document while this route is
-  // mounted keeps the step out of the marketing pages. Layout effect, not
-  // effect, so the larger size is in place before the first paint.
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    root.classList.add('trim-dash-active');
-    return () => root.classList.remove('trim-dash-active');
-  }, []);
+  // rail with it) is the root size. Shared with the admin and barber surfaces.
+  useDashboardScale();
 
   const select = (next: DashboardView) => {
     setView(next);
@@ -72,12 +68,19 @@ const CustomerDashboard: React.FC = () => {
             sectionLabel={sectionLabel}
             isRailOpen={isRailOpen}
             onToggleRail={() => setIsRailOpen((open) => !open)}
+            unreadCount={UNREAD_COUNT}
             isPanelOpen={isPanelOpen}
             onTogglePanel={() => setIsPanelOpen((open) => !open)}
           />
 
           <div className={`trim-dash__grid${isAi ? ' trim-dash__grid--with-list' : ''}`}>
-            <DashboardRail view={view} onSelect={select} isOpen={isRailOpen} />
+            <DashboardRail
+              items={DASHBOARD_NAV}
+              view={view}
+              onSelect={(next) => select(next as DashboardView)}
+              isOpen={isRailOpen}
+              accountId="account"
+            />
 
             {isAi ? <ConversationList chat={chat} /> : null}
 

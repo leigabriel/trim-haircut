@@ -1,5 +1,5 @@
 import { BOOKING_METRICS, BOOKINGS } from '../data';
-import SectionHead from './SectionHead';
+import SectionHead from '../../shell/SectionHead';
 
 const Booking: React.FC = () => (
   <>

@@ -1,16 +1,23 @@
 # Barber dashboard
 
-Not built yet. Trim has three roles: customer, admin and barber. The customer
-surface lives in `../customer-dashboard`; this folder is where the barber one
-goes.
+`/barber`. Same shell as the customer surface (`../shell`), with a rail that
+follows the working day.
 
-Intended scope, for when it is specced rather than improvised:
+## Sections
 
-- Today's appointment list, and accept or decline requests
-- Availability: working hours, days off, cut-off times
-- Services and prices offered at that barber's shop
-- The reference images customers attach, per booking
-- Earnings and rebooking rate for that barber
+- **Today** — the day's appointments, with booking counts left blank until they exist
+- **Appointments** — every booking for this chair, past and upcoming
+- **Availability** — working hours, days off, cut-off
+- **Clients** — derived from completed appointments
+- **Services** — the per-shop menu and prices
+- **Account** — read-only identity, opened from the rail foot
 
-A folder holds no files in git, so this note is what keeps the place in the
-tree and the intent on record.
+## Data
+
+There is no bookings, availability, client or services table yet, so those four
+pages render an explicit empty state. Today's member-since figure is real; the
+appointment counts are em dashes rather than zero, because "nothing booked" and
+"nothing stored" are different statements.
+
+The only live data on this dashboard is the account itself, through
+`useAuth()`. Role access comes from `profiles.role` (migration 0008).

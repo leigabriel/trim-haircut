@@ -1,15 +1,28 @@
 # Admin dashboard
 
-Not built yet. Trim has three roles: customer, admin and barber. The customer
-surface lives in `../customer-dashboard`; this folder is where the admin one
-goes.
+`/admin`. Rail plus section, the same shell as `../customer-dashboard`; the
+shared pieces live in `../shell` and the stylesheet is `../shell/dashboard.css`.
 
-Intended scope, for when it is specced rather than improvised:
+## Sections
 
-- Shop and barber records: create, edit, suspend
-- Booking oversight across every shop, with a dispute queue
-- Style library: the catalogue the recommendation engine reads from
-- Customer accounts, including the `profiles` rows created by the signup trigger
+- **Overview** — account counts, newest accounts
+- **User Manager** — every account, with the role select as the only write
+- **Barber Manager** — the barber subset, plus the shop gap
+- **Bookings** — empty state until a bookings table exists
+- **Style Library** — the catalogue from `../customer-dashboard/face/catalog`
+- **Account** — read-only identity, opened from the rail foot
 
-A folder holds no files in git, so this note is what keeps the place in the
-tree and the intent on record.
+## Data
+
+`useAccounts` reads `admin_list_accounts()` and writes through
+`admin_set_role()`, both created by
+`supabase/migrations/0008_staff_roles.sql`. Neither exists until that migration
+is applied; the pages name the missing migration instead of showing zeros.
+
+Role is enforced twice: `RequireAuth` sends the wrong role to its own
+dashboard, and the two RPCs re-check the caller in the database.
+
+## Not built yet
+
+Shop records, booking oversight and catalogue editing all need tables that do
+not exist. The pages say so rather than rendering sample rows.

@@ -1,5 +1,9 @@
-/* Customer dashboard. The rail and header share one grey plane, so the white
-   main column reads as the working area. */
+/* Dashboards. The rail and header share one grey plane, so the white main
+   column reads as the working area.
+   
+   Shared by the customer, admin and barber surfaces: the shell classes are
+   role-neutral, and the section classes are the common vocabulary all three
+   pages are built from. */
 
 .trim-dash {
   --dash-rail: 16rem;
@@ -1881,4 +1885,93 @@
   .trim-table__num {
     text-align: left;
   }
+}
+
+/* Staff surfaces. The shell above is shared; these are the few controls the
+   admin and barber pages add on top of the customer vocabulary. */
+
+/* Role under the name in the identity block. Only staff dashboards pass one. */
+.trim-dash__identity-role {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--trim-blue);
+}
+
+/* User Manager search. Filters the already-loaded list, so it is a plain
+   input rather than a form. */
+.trim-search {
+  display: block;
+  margin: 0 0 1.25rem;
+}
+
+.trim-search__input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 4px;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+
+.trim-search__input::placeholder {
+  color: var(--trim-black);
+  opacity: 0.45;
+}
+
+.trim-search__input:focus,
+.trim-search__input:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+}
+
+/* Role control in the account table. Native select: the platform picker is
+   more usable on a phone than a custom menu for three options. */
+.trim-role-select {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 3px;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-role-select:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+}
+
+.trim-role-select:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Facts following a paragraph inside an empty-state card. */
+.trim-facts--spaced {
+  margin-top: 1.5rem;
+}
+
+/* The pill is rendered as a paragraph at the end of PendingPanel. */
+p.trim-status {
+  margin: 1.25rem 0 0;
+}
+
+/* Catalogue rows use photographs. The base thumb rule assumes a tool icon:
+   contain, multiplied onto white. */
+.trim-saved__thumb--photo {
+  object-fit: cover;
+  mix-blend-mode: normal;
+}
+
+/* A date in a metric slot: the 2rem display size is for counts. */
+.trim-metric__value--text {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  letter-spacing: 0;
 }

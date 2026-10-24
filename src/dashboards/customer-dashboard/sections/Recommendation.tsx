@@ -3,7 +3,7 @@ import { galleryItemsFor } from '../face/gallery';
 import StyleRecommendations from '../face/StyleRecommendations';
 import type { FaceProfileState } from '../face/useFaceProfile';
 import { faceShapeLabel } from '../face/shapes';
-import SectionHead from './SectionHead';
+import SectionHead from '../../shell/SectionHead';
 
 interface RecommendationProps {
   face: FaceProfileState;

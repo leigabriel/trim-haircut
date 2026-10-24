@@ -1,32 +1,42 @@
 import { useState } from 'react';
 
-import { useAuth } from '../../../auth/AuthProvider';
-import ConfirmModal from '../../../components/layout/modals/ConfirmModal';
-import type { DashboardView } from '../data';
-import { DASHBOARD_NAV } from '../data';
+import { useAuth } from '../../auth/AuthProvider';
+import ConfirmModal from '../../components/layout/modals/ConfirmModal';
+import type { DashboardNavItem } from './types';
 
 interface DashboardRailProps {
-  view: DashboardView;
-  onSelect: (next: DashboardView) => void;
+  items: DashboardNavItem[];
+  view: string;
+  onSelect: (next: string) => void;
   isOpen: boolean;
+  /** The view key the identity block opens. */
+  accountId: string;
+  /** Shown under the name on the staff dashboards. Omitted for customers. */
+  roleLabel?: string;
 }
 
 /**
  * Left rail: the section links, then the identity block pinned to the foot.
  * The identity block is the only route into Account, since the section is
- * absent from the nav list above.
+ * absent from the nav list.
+ *
+ * Shared by all three dashboards: it is given its links rather than importing
+ * one dashboard's list, so the admin and barber surfaces stay the same shell.
  */
 const DashboardRail: React.FC<DashboardRailProps> = ({
+  items,
   view,
   onSelect,
   isOpen,
+  accountId,
+  roleLabel,
 }) => {
   const { session, profile, signOut } = useAuth();
   const [isConfirmingOut, setIsConfirmingOut] = useState(false);
 
   const name = profile?.username ?? profile?.displayName ?? 'Guest';
   const initial = name.charAt(0).toUpperCase();
-  const isAccount = view === 'account';
+  const isAccount = view === accountId;
 
   return (
     <>
@@ -36,7 +46,7 @@ const DashboardRail: React.FC<DashboardRailProps> = ({
       >
         <nav className="trim-dash__nav" aria-label="Dashboard sections">
           <ul className="trim-dash__sections">
-            {DASHBOARD_NAV.map((item) => {
+            {items.map((item) => {
               const isCurrent = view === item.id;
 
               return (
@@ -64,7 +74,7 @@ const DashboardRail: React.FC<DashboardRailProps> = ({
           <button
             className="trim-dash__identity-open"
             type="button"
-            onClick={() => onSelect('account')}
+            onClick={() => onSelect(accountId)}
             aria-current={isAccount ? 'page' : undefined}
           >
             {profile?.avatarUrl ? (
@@ -81,6 +91,9 @@ const DashboardRail: React.FC<DashboardRailProps> = ({
 
             <span className="trim-dash__identity-text">
               <span className="trim-dash__identity-name">{name}</span>
+              {roleLabel ? (
+                <span className="trim-dash__identity-role">{roleLabel}</span>
+              ) : null}
               <span className="trim-dash__identity-email">
                 {session?.user.email}
               </span>
@@ -102,7 +115,7 @@ const DashboardRail: React.FC<DashboardRailProps> = ({
       <ConfirmModal
         isOpen={isConfirmingOut}
         title="Log out of Trim?"
-        message={`You are signed in as ${name}. You will need to sign in with Google again to get back in.`}
+        message={`You are signed in as ${name}. You will need to sign in again to get back in.`}
         confirmLabel="Log out"
         pendingLabel="Logging out…"
         onConfirm={signOut}

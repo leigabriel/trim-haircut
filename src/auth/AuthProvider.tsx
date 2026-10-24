@@ -5,8 +5,16 @@ import { useNavigate } from 'react-router-dom';
 
 import { supabase } from '../lib/supabase';
 import { normaliseEmail } from './credentials';
+import { isUserRole } from './roles';
 import { validateUsername } from './username';
 import type { AuthContextValue, Profile, ProfileRow } from './types';
+
+const PROFILE_COLUMNS = 'id, username, display_name, avatar_url, role';
+
+// Before migration 0008 the role column does not exist. Selecting it would fail
+// the whole row and the guard would read that as "no profile", so the fallback
+// keeps every existing account working until that migration is applied.
+const LEGACY_PROFILE_COLUMNS = 'id, username, display_name, avatar_url';
 
 export const mapProfile = (row: ProfileRow | null): Profile | null =>
   row
@@ -15,6 +23,7 @@ export const mapProfile = (row: ProfileRow | null): Profile | null =>
         username: row.username,
         displayName: row.display_name,
         avatarUrl: row.avatar_url,
+        role: isUserRole(row.role) ? row.role : 'customer',
       }
     : null;
 
@@ -70,11 +79,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // after signup" report.
     const loadProfile = async () => {
       try {
-        const { data, error } = await supabase
+        let { data, error } = await supabase
           .from('profiles')
-          .select('id, username, display_name, avatar_url')
+          .select(PROFILE_COLUMNS)
           .eq('id', userId)
           .maybeSingle();
+
+        if (error?.code === '42703') {
+          ({ data, error } = await supabase
+            .from('profiles')
+            .select(LEGACY_PROFILE_COLUMNS)
+            .eq('id', userId)
+            .maybeSingle());
+        }
 
         if (!active) return;
         setProfile(error ? null : mapProfile(data as ProfileRow | null));
@@ -137,11 +154,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // spread an existing object, so a customer whose initial profile read
       // came back empty saved a name, kept a null profile, and was bounced
       // straight back here by the guard — the form appeared to do nothing.
-      setProfile(() => ({
+      //
+      // Role is carried over rather than reset: this path is also reachable by
+      // a provisioned staff account whose profile read was slow.
+      setProfile((current) => ({
         id: userId,
         username: result.value,
-        displayName: null,
-        avatarUrl: null,
+        displayName: current?.displayName ?? null,
+        avatarUrl: current?.avatarUrl ?? null,
+        role: current?.role ?? 'customer',
       }));
       return { ok: true };
     },

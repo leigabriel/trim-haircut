@@ -1,10 +1,13 @@
 import type { Session } from '@supabase/supabase-js';
 
+import type { UserRole } from './roles';
+
 export interface Profile {
   id: string;
   username: string | null;
   displayName: string | null;
   avatarUrl: string | null;
+  role: UserRole;
 }
 
 /** Row shape from the profiles table. */
@@ -13,6 +16,8 @@ export interface ProfileRow {
   username: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  /** Absent until migration 0008 has run. */
+  role?: string | null;
 }
 
 export interface AuthContextValue {

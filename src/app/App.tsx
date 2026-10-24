@@ -6,6 +6,8 @@ import { IonReactRouter } from '@ionic/react-router';
 import { AuthProvider } from '../auth/AuthProvider';
 import { RequireAuth } from '../auth/RequireAuth';
 import IntroOverlay from '../components/layout/IntroOverlay';
+import AdminDashboard from '../dashboards/admin-dashboard/AdminDashboard';
+import BarberDashboard from '../dashboards/barber-dashboard/BarberDashboard';
 import CustomerDashboard from '../dashboards/customer-dashboard/CustomerDashboard';
 import AuthCallback from '../pages/AuthCallback';
 import Home from '../pages/Home';
@@ -72,12 +74,30 @@ const App: React.FC = () => (
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/welcome" element={<Welcome />} />
 
-          {/* The guard wraps the IonPage rather than sitting inside its content. */}
+          {/* The guard wraps the IonPage rather than sitting inside its content.
+              requireRole sends a staff account that signed in through the same
+              form to its own dashboard instead of showing a dead end. */}
           <Route
             path="/dashboard"
             element={
-              <RequireAuth requireUsername>
+              <RequireAuth requireUsername requireRole="customer">
                 <CustomerDashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequireAuth requireRole="admin">
+                <AdminDashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/barber"
+            element={
+              <RequireAuth requireRole="barber">
+                <BarberDashboard />
               </RequireAuth>
             }
           />
