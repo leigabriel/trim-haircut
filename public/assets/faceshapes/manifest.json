@@ -4,19 +4,19 @@
       "slot": "01",
       "name": "Textured Crop",
       "slug": "textured-crop",
-      "src": "/assets/faceshapes/oval/01-textured-crop.png"
+      "src": "/assets/faceshapes/oval/01-textured-crop.webp"
     },
     {
       "slot": "02",
       "name": "Low Taper Fade",
       "slug": "low-taper-fade",
-      "src": "/assets/faceshapes/oval/02-low-taper-fade.png"
+      "src": "/assets/faceshapes/oval/02-low-taper-fade.webp"
     },
     {
       "slot": "03",
       "name": "Classic Pompadour",
       "slug": "classic-pompadour",
-      "src": "/assets/faceshapes/oval/03-classic-pompadour.png"
+      "src": "/assets/faceshapes/oval/03-classic-pompadour.webp"
     }
   ],
   "round": [
@@ -24,19 +24,19 @@
       "slot": "01",
       "name": "High Fade Pompadour",
       "slug": "high-fade-pompadour",
-      "src": "/assets/faceshapes/round/01-high-fade-pompadour.png"
+      "src": "/assets/faceshapes/round/01-high-fade-pompadour.webp"
     },
     {
       "slot": "02",
       "name": "Textured Undercut",
       "slug": "textured-undercut",
-      "src": "/assets/faceshapes/round/02-textured-undercut.png"
+      "src": "/assets/faceshapes/round/02-textured-undercut.webp"
     },
     {
       "slot": "03",
       "name": "Angular Fringe",
       "slug": "angular-fringe",
-      "src": "/assets/faceshapes/round/03-angular-fringe.png"
+      "src": "/assets/faceshapes/round/03-angular-fringe.webp"
     }
   ],
   "square": [
@@ -44,19 +44,19 @@
       "slot": "01",
       "name": "Textured Crop Fade",
       "slug": "textured-crop-fade",
-      "src": "/assets/faceshapes/square/01-textured-crop-fade.png"
+      "src": "/assets/faceshapes/square/01-textured-crop-fade.webp"
     },
     {
       "slot": "02",
       "name": "Mid Fade Messy Top",
       "slug": "mid-fade-messy-top",
-      "src": "/assets/faceshapes/square/02-mid-fade-messy-top.png"
+      "src": "/assets/faceshapes/square/02-mid-fade-messy-top.webp"
     },
     {
       "slot": "03",
       "name": "Classic Side Part",
       "slug": "classic-side-part",
-      "src": "/assets/faceshapes/square/03-classic-side-part.png"
+      "src": "/assets/faceshapes/square/03-classic-side-part.webp"
     }
   ],
   "heart": [
@@ -64,19 +64,19 @@
       "slot": "01",
       "name": "Mid-Length Bro Flow",
       "slug": "mid-length-bro-flow",
-      "src": "/assets/faceshapes/heart/01-mid-length-bro-flow.png"
+      "src": "/assets/faceshapes/heart/01-mid-length-bro-flow.webp"
     },
     {
       "slot": "02",
       "name": "Side-Swept Fringe",
       "slug": "side-swept-fringe",
-      "src": "/assets/faceshapes/heart/02-side-swept-fringe.png"
+      "src": "/assets/faceshapes/heart/02-side-swept-fringe.webp"
     },
     {
       "slot": "03",
       "name": "Textured Fringe Low Taper",
       "slug": "textured-fringe-low-taper",
-      "src": "/assets/faceshapes/heart/03-textured-fringe-low-taper.png"
+      "src": "/assets/faceshapes/heart/03-textured-fringe-low-taper.webp"
     }
   ],
   "diamond": [
@@ -84,19 +84,19 @@
       "slot": "01",
       "name": "Textured Messy Fringe",
       "slug": "textured-messy-fringe",
-      "src": "/assets/faceshapes/diamond/01-textured-messy-fringe.png"
+      "src": "/assets/faceshapes/diamond/01-textured-messy-fringe.webp"
     },
     {
       "slot": "02",
       "name": "Scissor Cut Full Sides",
       "slug": "scissor-cut-full-sides",
-      "src": "/assets/faceshapes/diamond/02-scissor-cut-full-sides.png"
+      "src": "/assets/faceshapes/diamond/02-scissor-cut-full-sides.webp"
     },
     {
       "slot": "03",
       "name": "Textured Crop Low Fade",
       "slug": "textured-crop-low-fade",
-      "src": "/assets/faceshapes/diamond/03-textured-crop-low-fade.png"
+      "src": "/assets/faceshapes/diamond/03-textured-crop-low-fade.webp"
     }
   ],
   "long": [
@@ -104,19 +104,19 @@
       "slot": "01",
       "name": "Heavy Side Swept Fringe",
       "slug": "heavy-side-swept-fringe",
-      "src": "/assets/faceshapes/long/01-heavy-side-swept-fringe.png"
+      "src": "/assets/faceshapes/long/01-heavy-side-swept-fringe.webp"
     },
     {
       "slot": "02",
       "name": "Classic Side Parting",
       "slug": "classic-side-parting",
-      "src": "/assets/faceshapes/long/02-classic-side-parting.png"
+      "src": "/assets/faceshapes/long/02-classic-side-parting.webp"
     },
     {
       "slot": "03",
       "name": "Scissor Cut Fuller Sides",
       "slug": "scissor-cut-fuller-sides",
-      "src": "/assets/faceshapes/long/03-scissor-cut-fuller-sides.png"
+      "src": "/assets/faceshapes/long/03-scissor-cut-fuller-sides.webp"
     }
   ],
   "triangle": [
@@ -124,19 +124,19 @@
       "slot": "01",
       "name": "High Volume Quiff",
       "slug": "high-volume-quiff",
-      "src": "/assets/faceshapes/triangle/01-high-volume-quiff.png"
+      "src": "/assets/faceshapes/triangle/01-high-volume-quiff.webp"
     },
     {
       "slot": "02",
       "name": "Textured French Crop High Fade",
       "slug": "textured-french-crop-high-fade",
-      "src": "/assets/faceshapes/triangle/02-textured-french-crop-high-fade.png"
+      "src": "/assets/faceshapes/triangle/02-textured-french-crop-high-fade.webp"
     },
     {
       "slot": "03",
       "name": "Modern Pompadour",
       "slug": "modern-pompadour",
-      "src": "/assets/faceshapes/triangle/03-modern-pompadour.png"
+      "src": "/assets/faceshapes/triangle/03-modern-pompadour.webp"
     }
   ],
   "trending": [
@@ -144,19 +144,19 @@
       "slot": "01",
       "name": "Low Taper Fade",
       "slug": "low-taper-fade",
-      "src": "/assets/faceshapes/trending/01-low-taper-fade.png"
+      "src": "/assets/faceshapes/trending/01-low-taper-fade.webp"
     },
     {
       "slot": "02",
       "name": "Textured Modern Mullet",
       "slug": "textured-modern-mullet",
-      "src": "/assets/faceshapes/trending/02-textured-modern-mullet.png"
+      "src": "/assets/faceshapes/trending/02-textured-modern-mullet.webp"
     },
     {
       "slot": "03",
       "name": "Fluffy Edgar Cut",
       "slug": "fluffy-edgar-cut",
-      "src": "/assets/faceshapes/trending/03-fluffy-edgar-cut.png"
+      "src": "/assets/faceshapes/trending/03-fluffy-edgar-cut.webp"
     }
   ]
 }

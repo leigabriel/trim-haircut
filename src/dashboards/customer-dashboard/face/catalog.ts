@@ -34,7 +34,7 @@ export const STYLES: Style[] = [
     strength: 5,
     upkeepWeeks: 2,
     note: 'The safe answer that is never wrong. Movement without length.',
-    image: '/assets/styles/high-fade.png',
+    image: '/assets/styles/high-fade.webp',
     trend: 2,
   },
   {
@@ -44,7 +44,7 @@ export const STYLES: Style[] = [
     strength: 4,
     upkeepWeeks: 3,
     note: 'Weight kept low and soft. Discreet between cuts.',
-    image: '/assets/styles/low-fade.png',
+    image: '/assets/styles/low-fade.webp',
     trend: 3,
   },
   {
@@ -54,7 +54,7 @@ export const STYLES: Style[] = [
     strength: 4,
     upkeepWeeks: 2,
     note: 'A gradient that softens the edge rather than ending it.',
-    image: '/assets/styles/mid-fade.png',
+    image: '/assets/styles/mid-fade.webp',
     trend: null,
   },
   {
@@ -64,7 +64,7 @@ export const STYLES: Style[] = [
     strength: 3,
     upkeepWeeks: 4,
     note: 'The longest gap between cuts of anything here.',
-    image: '/assets/styles/crew-cut.png',
+    image: '/assets/styles/crew-cut.webp',
     trend: 1,
   },
   {
@@ -74,7 +74,7 @@ export const STYLES: Style[] = [
     strength: 4,
     upkeepWeeks: 1,
     note: 'Shows the shape of the head. High upkeep, very low effort.',
-    image: '/assets/styles/buzz-cut.png',
+    image: '/assets/styles/buzz-cut.webp',
     trend: null,
   },
   {
@@ -84,7 +84,7 @@ export const STYLES: Style[] = [
     strength: 3,
     upkeepWeeks: 3,
     note: 'A soft curtain fringe. Suits a narrow face.',
-    image: '/assets/styles/semikal.png',
+    image: '/assets/styles/semikal.webp',
     trend: null,
   },
 ];

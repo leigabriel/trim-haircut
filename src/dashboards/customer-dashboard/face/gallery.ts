@@ -3,8 +3,8 @@ import type { FaceShapeName } from "./shapes";
 /**
  * The shape galleries.
  *
- * Images live in public/assets/faceshapes/<shape>/ as 1:1 800px PNGs. Each is
- * named <slot>-<slug>.png, where the slot is its position in the list below, so
+ * Images live in public/assets/faceshapes/<shape>/ as 1:1 800px WebPs. Each is
+ * named <slot>-<slug>.webp, where the slot is its position in the list below, so
  * swapping one for a real photograph is an overwrite: same name, same
  * extension, same dimensions. Nothing here needs to change when that happens.
  *
@@ -44,7 +44,7 @@ const gallery = (shape: GalleryKey, cuts: readonly Cut[]): HaircutGalleryItem[] 
             );
         }
 
-        return { slot, name, slug, src: `/assets/faceshapes/${shape}/${slot}-${slug}.png` };
+        return { slot, name, slug, src: `/assets/faceshapes/${shape}/${slot}-${slug}.webp` };
     });
 
 export const HAIRCUT_CATALOG: Record<GalleryKey, HaircutGalleryItem[]> = {

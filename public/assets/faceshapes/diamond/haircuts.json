@@ -3,18 +3,18 @@
     "slot": "01",
     "name": "Textured Messy Fringe",
     "slug": "textured-messy-fringe",
-    "src": "/assets/faceshapes/diamond/01-textured-messy-fringe.png"
+    "src": "/assets/faceshapes/diamond/01-textured-messy-fringe.webp"
   },
   {
     "slot": "02",
     "name": "Scissor Cut Full Sides",
     "slug": "scissor-cut-full-sides",
-    "src": "/assets/faceshapes/diamond/02-scissor-cut-full-sides.png"
+    "src": "/assets/faceshapes/diamond/02-scissor-cut-full-sides.webp"
   },
   {
     "slot": "03",
     "name": "Textured Crop Low Fade",
     "slug": "textured-crop-low-fade",
-    "src": "/assets/faceshapes/diamond/03-textured-crop-low-fade.png"
+    "src": "/assets/faceshapes/diamond/03-textured-crop-low-fade.webp"
   }
 ]

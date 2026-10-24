@@ -3,18 +3,18 @@
     "slot": "01",
     "name": "Low Taper Fade",
     "slug": "low-taper-fade",
-    "src": "/assets/faceshapes/trending/01-low-taper-fade.png"
+    "src": "/assets/faceshapes/trending/01-low-taper-fade.webp"
   },
   {
     "slot": "02",
     "name": "Textured Modern Mullet",
     "slug": "textured-modern-mullet",
-    "src": "/assets/faceshapes/trending/02-textured-modern-mullet.png"
+    "src": "/assets/faceshapes/trending/02-textured-modern-mullet.webp"
   },
   {
     "slot": "03",
     "name": "Fluffy Edgar Cut",
     "slug": "fluffy-edgar-cut",
-    "src": "/assets/faceshapes/trending/03-fluffy-edgar-cut.png"
+    "src": "/assets/faceshapes/trending/03-fluffy-edgar-cut.webp"
   }
 ]

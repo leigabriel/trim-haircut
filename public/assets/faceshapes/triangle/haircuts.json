@@ -3,18 +3,18 @@
     "slot": "01",
     "name": "High Volume Quiff",
     "slug": "high-volume-quiff",
-    "src": "/assets/faceshapes/triangle/01-high-volume-quiff.png"
+    "src": "/assets/faceshapes/triangle/01-high-volume-quiff.webp"
   },
   {
     "slot": "02",
     "name": "Textured French Crop High Fade",
     "slug": "textured-french-crop-high-fade",
-    "src": "/assets/faceshapes/triangle/02-textured-french-crop-high-fade.png"
+    "src": "/assets/faceshapes/triangle/02-textured-french-crop-high-fade.webp"
   },
   {
     "slot": "03",
     "name": "Modern Pompadour",
     "slug": "modern-pompadour",
-    "src": "/assets/faceshapes/triangle/03-modern-pompadour.png"
+    "src": "/assets/faceshapes/triangle/03-modern-pompadour.webp"
   }
 ]

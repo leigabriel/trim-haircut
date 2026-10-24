@@ -3,18 +3,18 @@
     "slot": "01",
     "name": "Textured Crop",
     "slug": "textured-crop",
-    "src": "/assets/faceshapes/oval/01-textured-crop.png"
+    "src": "/assets/faceshapes/oval/01-textured-crop.webp"
   },
   {
     "slot": "02",
     "name": "Low Taper Fade",
     "slug": "low-taper-fade",
-    "src": "/assets/faceshapes/oval/02-low-taper-fade.png"
+    "src": "/assets/faceshapes/oval/02-low-taper-fade.webp"
   },
   {
     "slot": "03",
     "name": "Classic Pompadour",
     "slug": "classic-pompadour",
-    "src": "/assets/faceshapes/oval/03-classic-pompadour.png"
+    "src": "/assets/faceshapes/oval/03-classic-pompadour.webp"
   }
 ]
