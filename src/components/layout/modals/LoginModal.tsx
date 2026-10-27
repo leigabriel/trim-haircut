@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IonModal } from '@ionic/react';
+import { IonModal, useIonToast } from '@ionic/react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../../auth/AuthProvider';
@@ -20,10 +20,11 @@ type Tab = 'signin' | 'create';
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
   const { signInWithGoogle, register, signInWithPassword } = useAuth();
   const navigate = useNavigate();
+  const [presentToast, dismissToast] = useIonToast();
 
   const [tab, setTab] = useState<Tab>('signin');
   const [isAgreed, setIsAgreed] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [consentError, setConsentError] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [legalDoc, setLegalDoc] = useState<LegalDoc | null>(null);
@@ -38,16 +39,26 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
   const [confirmation, setConfirmation] = useState('');
   const [errors, setErrors] = useState<RegistrationErrors>({});
 
+  const showToast = (message: string, kind: 'success' | 'error') => {
+    void presentToast({
+      message,
+      duration: kind === 'error' ? 4000 : 2200,
+      position: 'top',
+      cssClass: `trim-toast trim-toast--${kind}`,
+      htmlAttributes: { role: kind === 'error' ? 'alert' : 'status' },
+    });
+  };
+
   const requireConsent = (): boolean => {
     if (isAgreed) return true;
-    setNotice('Please agree to the Terms and Privacy Policy first.');
+    setConsentError(true);
+    showToast('Please agree to the Terms and Privacy Policy first.', 'error');
     return false;
   };
 
   const handleGoogle = async () => {
     if (!requireConsent()) return;
 
-    setNotice(null);
     setIsRedirecting(true);
     try {
       await signInWithGoogle();
@@ -55,7 +66,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
       // The redirect already happened on success, so reaching here is a real
       // failure worth showing.
       setIsRedirecting(false);
-      setNotice('Could not start Google sign in. Check your connection and try again.');
+      showToast('Could not start Google sign in. Check your connection and try again.', 'error');
     }
   };
 
@@ -63,27 +74,29 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
     event.preventDefault();
     if (!requireConsent()) return;
 
-    setNotice(null);
     setIsBusy(true);
 
     const result = await signInWithPassword(normaliseEmail(signInEmail), signInPassword);
     setIsBusy(false);
 
-    if (!result.ok) setNotice(result.error);
+    if (!result.ok) {
+      showToast(result.error, 'error');
+      return;
+    }
+
     // Unlike Google there is no redirect to come back from, so nothing would
     // move the customer on. Without this they are signed in but still looking
-    // at the homepage behind an open modal.
-    if (result.ok) {
-      onDismiss();
-      navigate('/dashboard');
-    }
+    // at the homepage behind an open modal. The toast is an app-level overlay,
+    // so it stays on screen through the modal close and the route change.
+    showToast('Signed in. Welcome back.', 'success');
+    onDismiss();
+    navigate('/dashboard');
   };
 
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!requireConsent()) return;
 
-    setNotice(null);
     setErrors({});
 
     const result = validateRegistration({ email, password, confirmation });
@@ -109,25 +122,29 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
 
     // Straight to the username prompt. The account has no username yet, so
     // going via /dashboard would only bounce through the guard to get here.
+    showToast('Account created. Choose your username.', 'success');
     onDismiss();
     navigate('/welcome');
   };
 
   const switchTab = (next: Tab) => {
     setTab(next);
-    setNotice(null);
+    void dismissToast();
     setErrors({});
   };
 
   const hasConsent = (
-    <label className="trim-login__consent">
+    <label
+      className={`trim-login__consent${consentError ? ' trim-login__consent--error' : ''}`}
+    >
       <input
         className="trim-login__checkbox"
         type="checkbox"
         checked={isAgreed}
+        aria-invalid={consentError || undefined}
         onChange={(event) => {
           setIsAgreed(event.target.checked);
-          if (event.target.checked) setNotice(null);
+          setConsentError(false);
         }}
       />
       <span className="trim-login__legal">
@@ -161,7 +178,28 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
       breakpoints={[0, 1]}
     >
       <div className="trim-login__panel">
-        <img className="trim-login__mark" src="/assets/ui/T-1.png" alt="" aria-hidden="true" />
+        <div className="trim-login__brand">
+          <img
+            className="trim-login__mark"
+            src="/assets/ui/T-1.png"
+            alt=""
+            aria-hidden="true"
+          />
+
+          <h2 className="trim-login__title">
+            {tab === 'signin' ? (
+              <>
+                Trim
+                <br />
+                Your Face Shape,
+                <br />
+                Your Best Haircut
+              </>
+            ) : (
+              'Create your account'
+            )}
+          </h2>
+        </div>
 
         <button
           className="trim-login__close"
@@ -180,20 +218,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
         </button>
 
         <div className="trim-login__body">
-          <h2 className="trim-login__title">
-            {tab === 'signin' ? (
-              <>
-                Trim
-                <br />
-                Your Face Shape,
-                <br />
-                Your Best Haircut
-              </>
-            ) : (
-              'Create your account'
-            )}
-          </h2>
-
           <div className="trim-login__tabs" role="tablist" aria-label="Account">
             <button
               className={`trim-login__tab${tab === 'signin' ? ' trim-login__tab--on' : ''}`}
@@ -319,12 +343,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
           )}
 
           {hasConsent}
-
-          {notice ? (
-            <p className="trim-login__notice" role="alert">
-              {notice}
-            </p>
-          ) : null}
         </div>
       </div>
 

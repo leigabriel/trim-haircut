@@ -11,26 +11,35 @@
 }
 
 .trim-login__panel {
+  /* Shared by the panel padding and the close button so they stay aligned. */
+  --trim-login-pad: clamp(1.25rem, 4vw, 3rem);
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: clamp(1.25rem, 4vw, 3rem);
+  padding: var(--trim-login-pad);
   overflow-y: auto;
   background-color: var(--trim-white);
   color: var(--trim-black);
 }
 
+/* Brand lockup: mark at the top, headline beneath it on phones and at the
+   bottom of the left column on laptops. */
+.trim-login__brand {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 4vw, 2rem);
+}
+
 .trim-login__mark {
   width: clamp(120px, 26vw, 260px);
   height: auto;
-  margin-bottom: clamp(1rem, 3vw, 2rem);
 }
 
 .trim-login__close {
   position: absolute;
-  top: clamp(1.25rem, 4vw, 3rem);
-  right: clamp(1.25rem, 4vw, 3rem);
+  top: var(--trim-login-pad);
+  right: var(--trim-login-pad);
   display: grid;
   place-items: center;
   width: 2.5rem;
@@ -55,14 +64,15 @@
   outline-offset: 2px;
 }
 
+/* Phones pin the form to the bottom of the sheet. */
 .trim-login__body {
   margin-top: auto;
 }
 
 .trim-login__title {
-  margin: 0 0 clamp(1.75rem, 5vw, 3.5rem);
+  margin: 0;
   font-family: var(--trim-font-display);
-  font-size: clamp(2.25rem, 7.5vw, 6.5rem);
+  font-size: clamp(2.5rem, 7.5vw, 6.5rem);
   font-weight: 400;
   line-height: 0.95;
   color: var(--trim-black);
@@ -72,9 +82,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(0.5rem, 1.2vw, 0.9rem);
+  gap: 0.6rem;
   width: 100%;
-  padding: clamp(0.75rem, 1.8vw, 1.25rem);
+  padding: 0.8rem 1.2rem;
   border: 0;
   border-radius: 0;
   /* Filled blue: a white button was for the old black sheet and would vanish
@@ -82,7 +92,8 @@
   background-color: var(--trim-blue);
   color: var(--trim-white);
   font-family: var(--trim-font-display);
-  font-size: clamp(1.25rem, 3vw, 2.75rem);
+  /* Matches the submit button: the two are the same level of action. */
+  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
   font-weight: 400;
   line-height: 1;
   text-align: center;
@@ -93,8 +104,8 @@
 /* Icon scales with the display font. */
 .trim-login__google-icon {
   flex: 0 0 auto;
-  width: 1.15em;
-  height: 1.15em;
+  width: 1.1em;
+  height: 1.1em;
 }
 
 .trim-login__google:hover {
@@ -264,10 +275,10 @@
 .trim-login__legal {
   margin: 0;
   font-family: var(--trim-font-sans);
-  font-size: clamp(0.875rem, 1.5vw, 1.25rem);
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.5;
-  text-align: center;
+  line-height: 1.55;
+  text-align: left;
   color: var(--trim-black);
 }
 
@@ -280,8 +291,14 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  margin-top: clamp(1.5rem, 4vw, 3rem);
+  margin-top: 1.75rem;
   cursor: var(--cursor-pointer);
+}
+
+/* Consent is required before any of the three entry points can run. */
+.trim-login__consent--error .trim-login__checkbox {
+  outline: 2px solid var(--trim-danger);
+  outline-offset: 2px;
 }
 
 .trim-login__checkbox {
@@ -316,21 +333,117 @@
   outline: none;
 }
 
-.trim-login__notice {
-  margin: 0.75rem 0 0;
-  font-family: var(--trim-font-sans);
-  font-size: 0.875rem;
-  line-height: 1.4;
-  color: var(--trim-blue);
-}
-
 .trim-login__google:disabled {
   opacity: 0.7;
   cursor: var(--cursor-default);
 }
 
-@media (max-width: 48rem) {
-  .trim-login__legal {
-    text-align: left;
+/* Toasts are portalled to the app root, outside the modal, so these rules are
+   global rather than nested under the sheet. */
+.trim-toast {
+  --border-radius: 0;
+  --background: var(--trim-black);
+  --color: var(--trim-white);
+  --box-shadow: 0 16px 38px rgb(0 0 0 / 22%);
+  --max-width: min(92vw, 30rem);
+}
+
+/* Top-right, not centred like the stock toast. The end inset clears the
+   modal's close button so the toast never covers it. */
+.trim-toast::part(wrapper) {
+  inset-inline-start: auto;
+  inset-inline-end: clamp(5.5rem, 8vw, 7.5rem);
+  top: clamp(1rem, 2vw, 1.5rem);
+  margin: 0;
+}
+
+.trim-toast--success {
+  --background: var(--trim-blue);
+}
+
+.trim-toast--error {
+  --background: var(--trim-danger);
+}
+
+.trim-toast .toast-message {
+  font-family: var(--trim-font-sans);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* Laptop: an even split at the centre line, brand left, form centred in the
+   right half. Phones stay a single column with the form pinned to the bottom. */
+@media (min-width: 60rem) {
+  .trim-login__panel {
+    --trim-login-pad: clamp(2.25rem, 4vw, 4rem);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+
+  /* Dotted rule on the screen's centre line, inset to the panel padding. */
+  .trim-login__panel::before {
+    content: '';
+    position: absolute;
+    top: var(--trim-login-pad);
+    bottom: var(--trim-login-pad);
+    left: 50%;
+    width: 2px;
+    background-image: radial-gradient(circle, rgb(0 0 0 / 26%) 1px, transparent 1px);
+    background-size: 2px 9px;
+    background-repeat: repeat-y;
+    pointer-events: none;
+  }
+
+  .trim-login__brand {
+    align-self: stretch;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-right: clamp(2rem, 4vw, 4rem);
+  }
+
+  .trim-login__mark {
+    width: clamp(150px, 14vw, 220px);
+  }
+
+  .trim-login__title {
+    font-size: clamp(2.75rem, 4.6vw, 5.5rem);
+  }
+
+  .trim-login__body {
+    justify-self: center;
+    align-self: center;
+    width: 100%;
+    max-width: 26rem;
+    margin-top: 0;
+  }
+
+  /* The sheet handle is a phone affordance; the laptop sheet is full height. */
+  .trim-login::part(handle) {
+    display: none;
+  }
+}
+
+/* Keep the phone toast clear of the close button. */
+@media (max-width: 59.9375rem) {
+  .trim-toast::part(wrapper) {
+    inset-inline-end: 1rem;
+    top: 5rem;
+  }
+}
+
+/* Short phones: tighten the masthead so the form still fits on one screen. */
+@media (max-width: 59.9375rem) and (max-height: 44rem) {
+  .trim-login__brand {
+    gap: 0.75rem;
+  }
+
+  .trim-login__mark {
+    width: 80px;
+  }
+
+  .trim-login__title {
+    font-size: 2rem;
   }
 }

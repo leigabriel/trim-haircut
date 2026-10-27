@@ -144,7 +144,7 @@ const Welcome: React.FC = () => {
                 className="trim-welcome__input"
                 value={value}
                 onChange={(event) => {
-                  // Letters only, enforced as it is typed, so the field can
+                  // Matches the database check constraint, so the field can
                   // never hold a value the save would reject.
                   setValue(toUsernameInput(event.target.value));
                   setError(null);
@@ -162,7 +162,7 @@ const Welcome: React.FC = () => {
 
               <p className="trim-welcome__hint" id="trim-username-help">
                 {USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} characters. Lowercase
-                letters only.
+                letters, numbers and underscores.
               </p>
 
               <p

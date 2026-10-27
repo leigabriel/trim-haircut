@@ -138,16 +138,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!result.ok) return { ok: false, error: result.error };
       if (!userId) return { ok: false, error: 'You are not signed in.' };
 
-      // Upsert, not update: the insert trigger is the only guarantee the row
-      // exists, so an update could hit zero rows and strand the user.
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({ id: userId, username: result.value }, { onConflict: 'id' });
-
-      if (error) {
+      const mapError = (code: string | undefined) => {
         // 23505 is the unique violation on the username index.
-        if (error.code === '23505') return { ok: false, error: 'That name is taken.' };
-        return { ok: false, error: 'Could not save your username. Try again.' };
+        if (code === '23505') return 'That name is taken.';
+        // 23514 is the check constraint on the shape of the name. The client
+        // validates the same pattern, so reaching this means the two rules
+        // drifted apart; say what the database actually accepts.
+        if (code === '23514') {
+          return 'Use lowercase letters, numbers and underscores only.';
+        }
+        return 'Could not save your username. Try again.';
+      };
+
+      // Update first, insert only if the trigger did not create the row.
+      //
+      // Upsert looks simpler, but PostgREST puts every payload column in the
+      // ON CONFLICT DO UPDATE list, including id. Migration 0008 grants update
+      // on the editable columns only, so the whole upsert failed with 42501 and
+      // no username could ever be saved. Two statements keep the grant strict.
+      const { data: updated, error: updateError } = await supabase
+        .from('profiles')
+        .update({ username: result.value })
+        .eq('id', userId)
+        .select('id');
+
+      if (updateError) return { ok: false, error: mapError(updateError.code) };
+
+      if (!updated || updated.length === 0) {
+        // The signup trigger normally creates the row before the session
+        // exists, so this is the fallback for a provisioned account whose row
+        // is missing.
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({ id: userId, username: result.value });
+
+        if (insertError) return { ok: false, error: mapError(insertError.code) };
       }
 
       // Built from scratch when there is no profile yet. The old version only
