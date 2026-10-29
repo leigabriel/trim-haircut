@@ -10,6 +10,7 @@ import type { DashboardView } from './data';
 import { useNotifications } from './useNotifications';
 import Account from './sections/Account';
 import Booking from './sections/Booking';
+import Camera from './sections/Camera';
 import FaceShape from './sections/FaceShape';
 import Overview from './sections/Overview';
 import Recommendation from './sections/Recommendation';
@@ -138,6 +139,7 @@ const CustomerDashboard: React.FC = () => {
                       onAskTrimo={askTrimo}
                     />
                   ) : null}
+                  {view === 'camera' ? <Camera /> : null}
                   {view === 'booking' ? <Booking bookings={bookings} /> : null}
                 </div>
               )}

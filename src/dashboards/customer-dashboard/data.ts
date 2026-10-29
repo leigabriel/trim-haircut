@@ -1,5 +1,6 @@
 import {
   BookmarkSquare2,
+  Camera,
   FaceScanCircle,
   Handshake,
   HomeSmile2,
@@ -12,6 +13,7 @@ export type DashboardView =
   | 'overview'
   | 'recommendation'
   | 'face-shape'
+  | 'camera'
   | 'booking'
   | 'ai'
   | 'account';
@@ -41,6 +43,11 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
     id: 'face-shape',
     label: 'Faceshape Analyzer',
     icon: FaceScanCircle,
+  },
+  {
+    id: 'camera',
+    label: 'Camera',
+    icon: Camera,
   },
   {
     id: 'booking',
