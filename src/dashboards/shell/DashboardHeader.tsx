@@ -68,9 +68,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         >
           {/* Decorative: the count beside it carries the meaning. */}
           <Bell size={19} aria-hidden="true" />
-          <span className="trim-dash__badge">{unreadCount}</span>
+          {unreadCount > 0 ? (
+            <span className="trim-dash__badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+          ) : null}
           <span className="trim-visually-hidden">
-            Notifications, {unreadCount} unread
+            Notifications{unreadCount > 0 ? `, ${unreadCount} unread` : ', none unread'}
           </span>
         </button>
       ) : null}

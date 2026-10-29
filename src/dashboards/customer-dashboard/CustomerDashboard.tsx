@@ -7,7 +7,7 @@ import { useConversations } from './ai/useConversations';
 import { useFaceProfile } from './face/useFaceProfile';
 import { DASHBOARD_NAV } from './data';
 import type { DashboardView } from './data';
-import { UNREAD_COUNT } from './notifications';
+import { useNotifications } from './useNotifications';
 import Account from './sections/Account';
 import Booking from './sections/Booking';
 import FaceShape from './sections/FaceShape';
@@ -44,6 +44,15 @@ const CustomerDashboard: React.FC = () => {
   // the window and ordering handled by the page.
   const bookings = useBookings();
 
+  // The bell is derived from the rows above, not a placeholder feed. Read
+  // state is local to this account and device.
+  const notifications = useNotifications({
+    bookings,
+    face,
+    conversations: chat.conversations,
+    conversationsLoading: chat.isLoading,
+  });
+
   // The dashboard's type is all rem, so the only lever that scales it (and the
   // rail with it) is the root size. Shared with the admin and barber surfaces.
   useDashboardScale();
@@ -72,7 +81,7 @@ const CustomerDashboard: React.FC = () => {
             sectionLabel={sectionLabel}
             isRailOpen={isRailOpen}
             onToggleRail={() => setIsRailOpen((open) => !open)}
-            unreadCount={UNREAD_COUNT}
+            unreadCount={notifications.unreadCount}
             isPanelOpen={isPanelOpen}
             onTogglePanel={() => setIsPanelOpen((open) => !open)}
           />
@@ -109,9 +118,12 @@ const CustomerDashboard: React.FC = () => {
                   {view === 'overview' ? (
                     <Overview
                       face={face}
+                      bookings={bookings}
                       conversations={chat.conversations}
+                      isConversationsLoading={chat.isLoading}
                       onAnalyzeFace={() => select('face-shape')}
                       onOpenAi={() => select('ai')}
+                      onOpenBooking={() => select('booking')}
                     />
                   ) : null}
                   {view === 'recommendation' ? (
@@ -135,6 +147,13 @@ const CustomerDashboard: React.FC = () => {
           <NotificationPanel
             isOpen={isPanelOpen}
             onClose={() => setIsPanelOpen(false)}
+            items={notifications.items}
+            unreadCount={notifications.unreadCount}
+            isLoading={notifications.isLoading}
+            hasError={notifications.hasError}
+            onMarkRead={notifications.markRead}
+            onMarkAllRead={notifications.markAllRead}
+            onOpenView={select}
           />
         </div>
       </IonContent>
