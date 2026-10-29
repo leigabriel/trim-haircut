@@ -4,6 +4,7 @@ import type { Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 
 import { supabase } from '../lib/supabase';
+import { avatarOption } from './avatars';
 import { normaliseEmail } from './credentials';
 import { isUserRole } from './roles';
 import { validateUsername } from './username';
@@ -34,22 +35,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
+  // The user id whose profile query has finished. Kept separate from the
+  // profile object because a missing row is a settled answer too.
+  const [profileResolvedFor, setProfileResolvedFor] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // One subscription for the whole app.
   useEffect(() => {
     let active = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      setSession(data.session);
-      setIsLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        if (!active) return;
+        setSession(data.session);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        // A rejected getSession used to leave isLoading true forever, which the
+        // guard renders as its full-screen loading shell. Treat it as a normal
+        // signed-out start instead.
+        if (!active) return;
+        setSession(null);
+        setIsLoading(false);
+      });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       if (!active) return;
       setSession(next);
       setIsLoading(false);
+
+      // Clear immediately on sign-out rather than waiting for the effect below.
+      // Re-login in the same tab then starts from a clean profile state.
+      if (!next) {
+        setProfile(null);
+        setProfileResolvedFor(null);
+        setIsProfileLoading(false);
+      }
     });
 
     return () => {
@@ -63,6 +84,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (!userId) {
       setProfile(null);
+      setProfileResolvedFor(null);
       setIsProfileLoading(false);
       return;
     }
@@ -72,10 +94,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // callback page before this resolves, and a stale false here would read
     // as "no username" and send them through the form again.
     setIsProfileLoading(true);
+    // A new session has not been resolved yet, even if a profile object from
+    // the previous session is still in state for this render.
+    setProfileResolvedFor(null);
 
     // try/finally, because this flag gates a full-screen shell. A rejected
     // request used to skip the only line that cleared it, leaving the guard on
-    // its black loading branch forever — which is exactly the "page went black
+    // its loading branch forever — which is exactly the "page went black
     // after signup" report.
     const loadProfile = async () => {
       try {
@@ -98,7 +123,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch {
         if (active) setProfile(null);
       } finally {
-        if (active) setIsProfileLoading(false);
+        if (active) {
+          setIsProfileLoading(false);
+          setProfileResolvedFor(userId);
+        }
       }
     };
 
@@ -189,6 +217,52 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         avatarUrl: current?.avatarUrl ?? null,
         role: current?.role ?? 'customer',
       }));
+      return { ok: true };
+    },
+    [userId],
+  );
+
+  /**
+   * Writes one of Trim's own avatars to the caller's row.
+   *
+   * avatar_url already holds the Google photo for OAuth accounts, so this
+   * overwrites it rather than adding a second column. Migration 0008 grants
+   * update on this column for every signed-in role, which is what lets the same
+   * picker work on the customer, barber and admin dashboards.
+   */
+  const saveAvatar = useCallback(
+    async (avatarUrl: string) => {
+      if (!userId) return { ok: false, error: 'You are not signed in.' };
+
+      const option = avatarOption(avatarUrl);
+      if (!option) return { ok: false, error: 'Pick one of the Trim avatars.' };
+
+      const { data: updated, error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: option.src })
+        .eq('id', userId)
+        .select('id');
+
+      if (updateError) {
+        return { ok: false, error: 'Could not save your avatar. Try again.' };
+      }
+
+      if (!updated || updated.length === 0) {
+        // The row is normally created by the signup trigger. This covers the
+        // same fallback as saveUsername, in case that trigger has not run.
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({ id: userId, avatar_url: option.src });
+
+        if (insertError) {
+          return { ok: false, error: 'Could not save your avatar. Try again.' };
+        }
+      }
+
+      setProfile((current) =>
+        current ? { ...current, avatarUrl: option.src } : current,
+      );
+
       return { ok: true };
     },
     [userId],
@@ -288,15 +362,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     [readAuthError],
   );
 
+  const isProfileReady = Boolean(userId && profileResolvedFor === userId);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
       profile,
       isLoading,
       isProfileLoading,
+      isProfileReady,
       signInWithGoogle,
       signOut,
       saveUsername,
+      saveAvatar,
       register,
       signInWithPassword,
       isUsernameAvailable,
@@ -306,9 +384,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       profile,
       isLoading,
       isProfileLoading,
+      isProfileReady,
       signInWithGoogle,
       signOut,
       saveUsername,
+      saveAvatar,
       register,
       signInWithPassword,
       isUsernameAvailable,

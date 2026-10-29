@@ -32,9 +32,25 @@ export interface AuthContextValue {
    * to send a returning customer back through the username form.
    */
   isProfileLoading: boolean;
+
+  /**
+   * True only once the profile query for the current session has settled,
+   * including when it settled with no row. This is what the auth guards check:
+   * isProfileLoading starts false, so on the render immediately after a sign-in
+   * it still looks like "no profile" and used to bounce a returning account to
+   * /welcome before the query had even started.
+   */
+  isProfileReady: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   saveUsername: (input: string) => Promise<{ ok: boolean; error?: string }>;
+
+  /**
+   * Stores one of the avatars from /assets/avatar on the caller's own profile.
+   * Only those known paths are accepted, so the column cannot be pointed at an
+   * arbitrary URL through this method.
+   */
+  saveAvatar: (avatarUrl: string) => Promise<{ ok: boolean; error?: string }>;
 
   /**
    * Creates an account and signs the customer straight in.

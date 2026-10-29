@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { useAuth } from '../../../auth/AuthProvider';
 import ConfirmModal from '../../../components/layout/modals/ConfirmModal';
+import AvatarCard from '../../../components/profile/AvatarCard';
 import { supabase } from '../../../lib/supabase';
 import { faceShapeLabel, FACE_SHAPE_DEFINITIONS, FACE_SHAPES } from '../face/shapes';
 import type { FaceProfileState } from '../face/useFaceProfile';
@@ -106,6 +107,8 @@ const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
         ) : null}
 
         <div className="trim-account">
+          <AvatarCard />
+
           <div className="trim-card">
             <h2 className="trim-card__title">Profile</h2>
             <dl className="trim-facts">

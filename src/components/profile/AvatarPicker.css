@@ -1,0 +1,115 @@
+.trim-avatar-picker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.trim-avatar-picker__legend {
+  padding: 0;
+  margin-bottom: 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+.trim-avatar-picker__groups {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.trim-avatar-picker__group {
+  min-width: 0;
+}
+
+.trim-avatar-picker__group-label {
+  margin: 0 0 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--trim-black);
+  opacity: 0.65;
+}
+
+.trim-avatar-picker__options {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.trim-avatar-picker__option {
+  position: relative;
+  display: block;
+  min-width: 0;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-avatar-picker__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.trim-avatar-picker__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background-color: #f3f3f3;
+  object-fit: cover;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.trim-avatar-picker__option:hover .trim-avatar-picker__image {
+  border-color: rgb(0 0 0 / 25%);
+}
+
+.trim-avatar-picker__option--selected .trim-avatar-picker__image,
+.trim-avatar-picker__option--selected:hover .trim-avatar-picker__image {
+  border-color: var(--trim-blue);
+  box-shadow: 0 0 0 3px rgb(0 52 255 / 14%);
+}
+
+.trim-avatar-picker__input:focus-visible + .trim-avatar-picker__image {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 2px;
+}
+
+.trim-avatar-picker__check {
+  position: absolute;
+  right: 0.1rem;
+  bottom: 0.1rem;
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  opacity: 0;
+  transform: scale(0.75);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.trim-avatar-picker__option--selected .trim-avatar-picker__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.trim-avatar-picker:disabled .trim-avatar-picker__option {
+  cursor: var(--cursor-default);
+  opacity: 0.65;
+}

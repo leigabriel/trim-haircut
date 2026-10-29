@@ -16,12 +16,12 @@ const NOTHING_TO_VERIFY = 'That link is no longer valid. Start sign in again fro
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
-  const { profile, isProfileLoading } = useAuth();
+  const { profile, isProfileReady } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   const hasUsername = Boolean(profile?.username);
-  const isSettled = isSignedIn && !isProfileLoading;
+  const isSettled = isSignedIn && isProfileReady;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -70,7 +70,7 @@ const AuthCallback: React.FC = () => {
 
   // Returning customer: straight through to the dashboard, no confirmation
   // step. Sending them to /welcome is what re-prompted for a username they had
-  // already set. Gated on isProfileLoading so a slow profiles query does not
+  // already set. Gated on isProfileReady so a slow profiles query does not
   // read as "no username yet".
   if (isSettled && hasUsername) return <Navigate to="/dashboard" replace />;
 

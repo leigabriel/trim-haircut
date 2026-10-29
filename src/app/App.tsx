@@ -4,6 +4,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 import { AuthProvider } from '../auth/AuthProvider';
+import AvatarOnboarding from '../auth/AvatarOnboarding';
 import { RequireAuth } from '../auth/RequireAuth';
 import IntroOverlay from '../components/layout/IntroOverlay';
 import AdminDashboard from '../dashboards/admin-dashboard/AdminDashboard';
@@ -103,6 +104,10 @@ const App: React.FC = () => (
           />
           <Route path="/" element={<Navigate to="/home" replace />} />
         </IonRouterOutlet>
+
+        {/* Global so the prompt reaches every role, including accounts that
+            sign in with an existing username and never see /welcome. */}
+        <AvatarOnboarding />
       </AuthProvider>
     </IonReactRouter>
   </IonApp>

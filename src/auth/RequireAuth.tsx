@@ -24,22 +24,25 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
   requireUsername,
   requireRole,
 }) => {
-  const { session, profile, isLoading, isProfileLoading } = useAuth();
+  const { session, profile, isLoading, isProfileReady } = useAuth();
 
   // No redirect while loading, or a hard refresh bounces a signed-in customer
   // to /home. The ion-page shell is required: IonRouterOutlet expects one.
   //
-  // isProfileLoading counts too. Email sign in and registration establish a
-  // session here, and the profile row is fetched just after: checking only
-  // isLoading saw a null profile mid-flight and sent a customer who already
-  // has a username back to the form to type it again.
-  if (isLoading || (session && isProfileLoading)) {
+  // isProfileReady, not isProfileLoading, is the correct gate. On the render
+  // immediately after sign-in the profile flag is still false while the query
+  // has not started, so checking it alone redirected a returning account to
+  // /welcome for a frame and then back to /dashboard. That route churn left the
+  // outlet blank after a re-login.
+  if (isLoading || (session && !isProfileReady)) {
     return (
       <IonPage>
         <IonContent>
           <div className="trim-guard" aria-busy="true">
-            <span className="trim-guard__spinner" aria-hidden="true" />
-            <span className="trim-visually-hidden">Loading</span>
+            <div className="trim-guard__panel">
+              <span className="trim-guard__spinner" aria-hidden="true" />
+              <span className="trim-guard__label">Loading your account</span>
+            </div>
           </div>
         </IonContent>
       </IonPage>

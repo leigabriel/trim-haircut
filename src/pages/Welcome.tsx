@@ -23,7 +23,7 @@ type Availability = 'idle' | 'checking' | 'available' | 'taken' | 'unknown';
 const AVAILABILITY_DELAY_MS = 450;
 
 const Welcome: React.FC = () => {
-  const { session, profile, isLoading, isProfileLoading, saveUsername, isUsernameAvailable } =
+  const { session, profile, isLoading, isProfileReady, saveUsername, isUsernameAvailable } =
     useAuth();
   const navigate = useNavigate();
   const [value, setValue] = useState('');
@@ -31,7 +31,7 @@ const Welcome: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [availability, setAvailability] = useState<Availability>('idle');
 
-  const isSettled = !isLoading && !isProfileLoading;
+  const isSettled = !isLoading && (!session || isProfileReady);
   const validation = validateUsername(value);
   // Empty while the name is incomplete, so the effect does not fire a lookup
   // for a partial value.
