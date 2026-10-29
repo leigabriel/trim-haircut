@@ -1,0 +1,435 @@
+/* Booking surfaces: the customer toolbar, the shared list controls, and the
+   booking dialog. Table/card/metric primitives come from dashboard.css. */
+
+.trim-book__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin: 0 0 1.25rem;
+}
+
+.trim-book__toolbar-text {
+  margin: 0;
+  max-width: 48ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+.trim-book__new {
+  padding: 0.7rem 1.15rem;
+  border: 1px solid var(--trim-blue);
+  border-radius: 3px;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.trim-book__new:hover,
+.trim-book__new:focus-visible {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  outline: none;
+}
+
+.trim-book__notice {
+  margin: 0 0 1.25rem;
+  padding: 0.8rem 1rem;
+  border-left: 3px solid var(--trim-blue);
+  background-color: #f2f4ff;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+}
+
+.trim-book__error {
+  margin: 0 0 1.25rem;
+  padding: 0.8rem 1rem;
+  border-left: 3px solid var(--trim-danger);
+  background-color: #fff2f0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+}
+
+.trim-book__empty-action {
+  margin-top: 1rem;
+}
+
+.trim-book__status-select {
+  min-width: 7.5rem;
+  max-width: 9.5rem;
+}
+
+.trim-book__contact {
+  overflow-wrap: anywhere;
+}
+
+/* The customer's note, and a completed/cancelled note, sit under the service. */
+.trim-book__notes {
+  opacity: 0.7;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.trim-book__table-actions {
+  white-space: nowrap;
+}
+
+.trim-book__cancel {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--trim-danger);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-danger);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.trim-book__cancel:hover,
+.trim-book__cancel:focus-visible {
+  background-color: var(--trim-danger);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-status--cancelled {
+  border-color: var(--dash-line);
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+/* Dialog. Portalled to document.body, same reasoning as ConfirmModal: the
+   dashboard's IonContent transform would otherwise become the containing
+   block for position: fixed. */
+
+.trim-book-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 2rem);
+  overflow-y: auto;
+  font-family: var(--trim-font-sans);
+}
+
+.trim-book-modal__scrim {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 45%);
+}
+
+.trim-book-modal__card {
+  position: relative;
+  width: min(100%, 40rem);
+  max-height: 100%;
+  margin: auto;
+  overflow-y: auto;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 25%);
+}
+
+.trim-book-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.trim-book-modal__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trim-blue);
+}
+
+.trim-book-modal__title {
+  margin: 0 0 0.45rem;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.65rem, 4vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--trim-black);
+}
+
+.trim-book-modal__lede {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+.trim-book-modal__close {
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.trim-book-modal__close:hover:not(:disabled),
+.trim-book-modal__close:focus-visible:not(:disabled) {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-book-modal__close:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.trim-book-form__loading {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+.trim-book-form__identity {
+  margin: 0 0 1.1rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 2px solid var(--trim-blue);
+  background-color: #f2f4ff;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--trim-black);
+  overflow-wrap: anywhere;
+}
+
+.trim-book-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.trim-book-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.trim-book-field--wide {
+  grid-column: 1 / -1;
+}
+
+.trim-book-field__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+.trim-book-field__optional {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.trim-book-field__hint {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--trim-black);
+  opacity: 0.55;
+}
+
+.trim-book-field select,
+.trim-book-field input,
+.trim-book-field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 0.62rem 0.75rem;
+  border: 1px solid rgb(0 0 0 / 25%);
+  border-radius: 3px;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+
+.trim-book-field textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.trim-book-field select:focus,
+.trim-book-field input:focus,
+.trim-book-field textarea:focus {
+  border-color: var(--trim-black);
+}
+
+.trim-book-field select:focus-visible,
+.trim-book-field input:focus-visible,
+.trim-book-field textarea:focus-visible {
+  border-color: var(--trim-black);
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+}
+
+.trim-book-field select:disabled,
+.trim-book-field input:disabled,
+.trim-book-field textarea:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.trim-book-form__summary {
+  margin: 0.9rem 0 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--trim-black);
+}
+
+.trim-book-form__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--trim-black);
+  opacity: 0.55;
+}
+
+.trim-book-form__error {
+  margin: 0.9rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid var(--trim-danger);
+  background-color: #fff2f0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--trim-black);
+}
+
+.trim-book-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.trim-book-form__cancel,
+.trim-book-form__submit {
+  flex: 1 1 9rem;
+  padding: 0.72rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.trim-book-form__cancel {
+  border: 1px solid rgb(0 0 0 / 25%);
+  background: none;
+  color: var(--trim-black);
+}
+
+.trim-book-form__cancel:hover:not(:disabled),
+.trim-book-form__cancel:focus-visible:not(:disabled) {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-book-form__submit {
+  border: 1px solid var(--trim-blue);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+}
+
+.trim-book-form__submit:hover:not(:disabled),
+.trim-book-form__submit:focus-visible:not(:disabled) {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  outline: none;
+}
+
+.trim-book-form__cancel:disabled,
+.trim-book-form__submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (max-width: 40rem) {
+  .trim-book__toolbar {
+    align-items: stretch;
+  }
+
+  .trim-book__toolbar-text {
+    max-width: none;
+  }
+
+  .trim-book__new {
+    width: 100%;
+  }
+
+  .trim-book-modal {
+    place-items: end center;
+    padding: 0.75rem;
+  }
+
+  .trim-book-modal__card {
+    max-height: calc(100vh - 1.5rem);
+    padding: 1.15rem;
+  }
+
+  .trim-book-form__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trim-book-field--wide {
+    grid-column: auto;
+  }
+
+  .trim-book__status-select {
+    max-width: none;
+  }
+}

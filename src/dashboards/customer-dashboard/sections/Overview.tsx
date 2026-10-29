@@ -38,9 +38,10 @@ const conversationLabel = (conversation: Conversation): string => {
  * customer.
  *
  * The previous version showed a six-month match-score chart and a hardcoded
- * next booking. Neither had data behind them — there is no bookings table and
+ * next booking. Neither had data behind them — there was no bookings table and
  * no match history — so both rendered fiction. They are gone rather than
- * re-skinned.
+ * re-skinned. This page still omits bookings on purpose: the Booking section
+ * owns that list, and this view stays a profile/face/Trimo summary.
  */
 const Overview: React.FC<OverviewProps> = ({
   face,

@@ -5,6 +5,7 @@ import AccountPanel from '../shell/AccountPanel';
 import DashboardHeader from '../shell/DashboardHeader';
 import DashboardRail from '../shell/DashboardRail';
 import { useDashboardScale } from '../shell/useDashboardScale';
+import { useBookings } from '../booking/useBookings';
 import { BARBER_NAV } from './data';
 import type { BarberView } from './data';
 import Appointments from './sections/Appointments';
@@ -21,6 +22,10 @@ import '../shell/dashboard.css';
 const BarberDashboard: React.FC = () => {
   const [view, setView] = useState<BarberView>('today');
   const [isRailOpen, setIsRailOpen] = useState(false);
+
+  // RLS narrows this to the bookings assigned to this barber's chair. Shared by
+  // Today and Appointments so a status change on one is visible on the other.
+  const bookings = useBookings();
 
   useDashboardScale();
 
@@ -56,8 +61,8 @@ const BarberDashboard: React.FC = () => {
 
             <main className="trim-dash__main">
               <div className="trim-section">
-                {view === 'today' ? <Today /> : null}
-                {view === 'appointments' ? <Appointments /> : null}
+                {view === 'today' ? <Today bookings={bookings} /> : null}
+                {view === 'appointments' ? <Appointments bookings={bookings} /> : null}
                 {view === 'availability' ? <Availability /> : null}
                 {view === 'clients' ? <Clients /> : null}
                 {view === 'services' ? <Services /> : null}

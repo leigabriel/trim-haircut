@@ -5,6 +5,7 @@ import AccountPanel from '../shell/AccountPanel';
 import DashboardHeader from '../shell/DashboardHeader';
 import DashboardRail from '../shell/DashboardRail';
 import { useDashboardScale } from '../shell/useDashboardScale';
+import { useBookings } from '../booking/useBookings';
 import { ADMIN_NAV } from './data';
 import type { AdminView } from './data';
 import Barbers from './sections/Barbers';
@@ -27,6 +28,7 @@ const AdminDashboard: React.FC = () => {
   const [view, setView] = useState<AdminView>('overview');
   const [isRailOpen, setIsRailOpen] = useState(false);
   const accounts = useAccounts();
+  const bookings = useBookings();
 
   useDashboardScale();
 
@@ -65,7 +67,7 @@ const AdminDashboard: React.FC = () => {
                 {view === 'overview' ? <Overview accounts={accounts} /> : null}
                 {view === 'users' ? <Users accounts={accounts} /> : null}
                 {view === 'barbers' ? <Barbers accounts={accounts} /> : null}
-                {view === 'bookings' ? <Bookings /> : null}
+                {view === 'bookings' ? <Bookings bookings={bookings} /> : null}
                 {view === 'catalog' ? <Catalog /> : null}
                 {view === 'account' ? <AccountPanel role="admin" /> : null}
               </div>

@@ -5,16 +5,16 @@ const Availability: React.FC = () => (
   <>
     <SectionHead
       title="Availability"
-      lede="The hours customers can book against. Nothing is open until these are set, which is why the dashboard does not claim a chair is free."
+      lede="The hours customers can book against: Monday to Saturday, 8:00 AM to 5:00 PM in Naujan time, in half-hour starts."
     />
 
     <PendingPanel
-      title="Working hours not set"
-      text="Hours, days off and the cut-off before a booking are not stored yet. Until they are, Trim cannot tell a customer which slots are real."
+      title="Shop hours are fixed for now"
+      text="create_booking() checks every request against Mon–Sat, 8:00 AM–5:00 PM in Asia/Manila and the last start depends on the service length. Per-day exceptions and per-barber hours are not editable yet."
       facts={[
-        { label: 'Week', value: 'Opening and closing time per day' },
-        { label: 'Exceptions', value: 'Days off, holidays, one-off changes' },
-        { label: 'Rules', value: 'Cut-off, gap between cuts' },
+        { label: 'Open', value: 'Mon–Sat, 8:00 AM–5:00 PM' },
+        { label: 'Closed', value: 'Sundays' },
+        { label: 'Window', value: '90 days ahead' },
       ]}
     />
   </>

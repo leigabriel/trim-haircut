@@ -22,6 +22,11 @@ interface ConfirmModalProps {
    * again.
    */
   pendingLabel?: string;
+  /**
+   * A failed confirm leaves the dialog open so the caller can show why. The
+   * message is owned by the caller and cleared when the dialog closes.
+   */
+  error?: string | null;
   /** May be async. The dialog stays open and disabled until it settles. */
   onConfirm: () => void | Promise<void>;
   onDismiss: () => void;
@@ -48,6 +53,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   cancelLabel = 'Cancel',
   verifyText,
   pendingLabel,
+  error,
   onConfirm,
   onDismiss,
 }) => {
@@ -162,6 +168,12 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
               onChange={(event) => setTyped(event.target.value)}
             />
           </div>
+        ) : null}
+
+        {error ? (
+          <p className="trim-confirm__error" role="alert">
+            {error}
+          </p>
         ) : null}
 
         <div className="trim-confirm__actions">

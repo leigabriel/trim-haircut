@@ -13,6 +13,7 @@ import Booking from './sections/Booking';
 import FaceShape from './sections/FaceShape';
 import Overview from './sections/Overview';
 import Recommendation from './sections/Recommendation';
+import { useBookings } from '../booking/useBookings';
 import DashboardHeader from '../shell/DashboardHeader';
 import DashboardRail from '../shell/DashboardRail';
 import NotificationPanel from './shell/NotificationPanel';
@@ -39,6 +40,9 @@ const CustomerDashboard: React.FC = () => {
   // and Recommendation when the customer clicks through. Three sections reading
   // independently is how a just-saved shape shows up as "not set" next screen.
   const face = useFaceProfile();
+  // One bookings query for the whole dashboard: the customer's own rows, with
+  // the window and ordering handled by the page.
+  const bookings = useBookings();
 
   // The dashboard's type is all rem, so the only lever that scales it (and the
   // rail with it) is the root size. Shared with the admin and barber surfaces.
@@ -122,7 +126,7 @@ const CustomerDashboard: React.FC = () => {
                       onAskTrimo={askTrimo}
                     />
                   ) : null}
-                  {view === 'booking' ? <Booking /> : null}
+                  {view === 'booking' ? <Booking bookings={bookings} /> : null}
                 </div>
               )}
             </main>

@@ -5,16 +5,16 @@ const Services: React.FC = () => (
   <>
     <SectionHead
       title="Services"
-      lede="What can be booked at your chair and what it costs. Prices are per shop, so this needs the shop record before it can be edited."
+      lede="The menu customers book from. Prices and durations live in the services table; editing the menu from this dashboard is not open yet."
     />
 
     <PendingPanel
-      title="No services on the menu"
-      text="Services and prices are not stored yet. Once they are, this page is the menu a customer picks from when they book you."
+      title="Menu is stored, editing is not open"
+      text="The customer booking form reads the active rows from the services table. Change a price or duration in the SQL editor until this page can edit them."
       facts={[
-        { label: 'Row', value: 'Service, duration, price' },
-        { label: 'Options', value: 'Active, hidden, seasonal' },
-        { label: 'Scope', value: 'Per shop, not per barber' },
+        { label: 'Source', value: 'public.services' },
+        { label: 'Customer sees', value: 'Active services only' },
+        { label: 'Booking', value: 'Price and duration locked at request time' },
       ]}
     />
   </>

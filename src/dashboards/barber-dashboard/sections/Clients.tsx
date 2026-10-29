@@ -5,16 +5,16 @@ const Clients: React.FC = () => (
   <>
     <SectionHead
       title="Clients"
-      lede="The people who have sat in your chair, with the cut they left with and how often they come back."
+      lede="The people who book your chair. Until the client history is built, their contact details and notes are on the Appointments page."
     />
 
     <PendingPanel
-      title="No client history yet"
-      text="A client list is derived from completed appointments, so it stays empty until bookings are recorded."
+      title="Client history is not built yet"
+      text="Completed and upcoming appointments are listed in Appointments with each customer's phone, email and notes. A deduplicated client history is a later pass."
       facts={[
-        { label: 'Row', value: 'Customer, visits, last cut' },
-        { label: 'Detail', value: 'Saved cut, notes, reference images' },
-        { label: 'Sort', value: 'Most recent visit' },
+        { label: 'Now', value: 'Appointments page' },
+        { label: 'Source', value: 'Completed bookings' },
+        { label: 'Later', value: 'Visits, last cut, notes' },
       ]}
     />
   </>
