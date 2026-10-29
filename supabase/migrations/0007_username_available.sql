@@ -7,9 +7,9 @@
 -- question without returning any row, so it leaks nothing beyond "in use",
 -- which is exactly what the form has to tell the customer anyway.
 --
--- The profiles.username check constraint stays the broader a-z0-9_ pattern.
--- Narrowing it would fail on any existing row that already contains a digit or
--- underscore, and the app only ever sends lowercase letters now.
+-- The profiles.username check constraint is the a-z0-9_ pattern. The app
+-- validates against the same pattern, so a name the form accepts is never
+-- rejected by the database's shape check.
 --
 -- If this function is not applied, the app treats availability as unknown and
 -- falls back to the unique constraint on save; nothing breaks, the live
