@@ -278,6 +278,15 @@ const ToolModel: React.FC<ToolModelProps> = ({ isEntered, onProgress, onReady })
         root.position.sub(box.getCenter(new THREE.Vector3()));
         const radius = box.getBoundingSphere(new THREE.Sphere()).radius;
 
+        // Hidden until its own turn. Every tool is centred on the same origin,
+        // and a transparent material writes depth even at opacity 0. Left
+        // visible, the six tools waiting their turn were invisible but still
+        // won the depth test against whichever tool was on screen, so chunks of
+        // it were cut away in the silhouettes of the others: the cracked,
+        // shattered look. Hiding does not skip the shader precompile, because
+        // compileAsync walks every mesh whether or not it is visible.
+        root.visible = false;
+
         pivot.add(root);
         tools.push({ root, holder, radius, materials, isScissor });
       });
