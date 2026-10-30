@@ -1,0 +1,150 @@
+.trim-cam__viewport {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: #0d0d0d;
+}
+
+/* Kept in the layout but invisible: the tracker needs a playing video element,
+   and the canvas is what the customer actually sees. */
+.trim-cam__source {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.trim-cam__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trim-cam__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  background: linear-gradient(to top, rgb(0 0 0 / 70%), rgb(0 0 0 / 0%) 70%);
+}
+
+.trim-cam__placeholder-title {
+  margin: 0;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.25rem, 2.6vw, 2rem);
+  line-height: 1;
+  color: var(--trim-white);
+}
+
+.trim-cam__placeholder-body {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgb(255 255 255 / 75%);
+}
+
+.trim-cam__guidance {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  max-width: calc(100% - 2rem);
+  margin: 0;
+  padding: 0.5rem 0.9rem;
+  transform: translateX(-50%);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: var(--trim-font-display);
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.trim-cam__cuts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.trim-cam__cut {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 0;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.trim-cam__cut:hover {
+  border-color: var(--trim-black);
+}
+
+.trim-cam__cut--current {
+  border-color: var(--trim-blue);
+  box-shadow: inset 0 0 0 1px var(--trim-blue);
+}
+
+.trim-cam__cut-audience {
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.trim-cam__cut-label {
+  font-family: var(--trim-font-display);
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.trim-cam__cut-blurb {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  opacity: 0.7;
+}
+
+.trim-cam__colours {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.trim-cam__swatch {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 25%);
+  border-radius: 50%;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-cam__swatch--current {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 2px;
+}
+
+.trim-cam__cut:focus-visible,
+.trim-cam__swatch:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 2px;
+}
+
+@media (max-width: 30rem) {
+  .trim-cam__cuts {
+    grid-template-columns: 1fr;
+  }
+}
