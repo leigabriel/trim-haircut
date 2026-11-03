@@ -17,7 +17,7 @@ import Recommendation from './sections/Recommendation';
 import { useBookings } from '../booking/useBookings';
 import DashboardHeader from '../shell/DashboardHeader';
 import DashboardRail from '../shell/DashboardRail';
-import NotificationPanel from './shell/NotificationPanel';
+import NotificationPanel from '../shell/NotificationPanel';
 import { useDashboardScale } from '../shell/useDashboardScale';
 import '../shell/dashboard.css';
 
@@ -76,7 +76,10 @@ const CustomerDashboard: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent>
+      {/* The dashboard owns its own scroll containers: the main column and the
+          chat thread. Leaving IonContent scrollable as well produced a second
+          scrollbar on tall sections such as Account. */}
+      <IonContent scrollY={false}>
         <div className="trim-dash">
           <DashboardHeader
             sectionLabel={sectionLabel}
@@ -155,7 +158,7 @@ const CustomerDashboard: React.FC = () => {
             hasError={notifications.hasError}
             onMarkRead={notifications.markRead}
             onMarkAllRead={notifications.markAllRead}
-            onOpenView={select}
+            onOpenView={(next) => select(next as DashboardView)}
           />
         </div>
       </IonContent>

@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/AuthProvider';
 import { isCustomAvatar } from '../../auth/avatars';
 import type { AvatarOption } from '../../auth/avatars';
 import AvatarPicker from './AvatarPicker';
+import { resolveAvatarSrc, useAvatarSrc } from './useAvatarSrc';
 import './AvatarCard.css';
 
 /**
@@ -13,8 +14,9 @@ import './AvatarCard.css';
 const AvatarCard: React.FC = () => {
   const { profile, saveAvatar } = useAuth();
 
-  const currentAvatar = profile?.avatarUrl ?? null;
+  const currentAvatar = resolveAvatarSrc(profile?.avatarUrl);
   const currentCustom = isCustomAvatar(currentAvatar) ? currentAvatar : null;
+  const preview = useAvatarSrc(currentAvatar);
   const [selected, setSelected] = useState<string | null>(currentCustom);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,8 +64,14 @@ const AvatarCard: React.FC = () => {
 
       <div className="trim-avatar-card__current">
         <span className="trim-avatar-card__preview">
-          {currentAvatar ? (
-            <img src={currentAvatar} alt="Your current avatar" />
+          {preview.src ? (
+            <img
+              src={preview.src}
+              alt="Your current avatar"
+              decoding="async"
+              referrerPolicy="no-referrer"
+              onError={preview.onError}
+            />
           ) : (
             <span aria-hidden="true">{initial}</span>
           )}

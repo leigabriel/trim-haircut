@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import type { DashboardView } from '../data';
-import type { NotificationItem } from '../notifications';
-import { relativeTime } from '../time';
+import type { NotificationItem } from './notifications';
+import { relativeTime } from './time';
 
 interface NotificationPanelProps {
   isOpen: boolean;
@@ -13,13 +12,14 @@ interface NotificationPanelProps {
   hasError: boolean;
   onMarkRead: (id: string) => void;
   onMarkAllRead: () => void;
-  onOpenView: (view: DashboardView) => void;
+  onOpenView: (view: string) => void;
 }
 
 const KIND_LABEL: Record<NotificationItem['kind'], string> = {
   booking: 'Booking',
   face: 'Face reading',
   chat: 'Trimo',
+  account: 'Account',
 };
 
 /**
@@ -27,8 +27,8 @@ const KIND_LABEL: Record<NotificationItem['kind'], string> = {
  * behind it, so it slides in over the main column instead of taking focus
  * hostage. Escape closes it and returns focus to the bell.
  *
- * Every row is a real booking, face reading or conversation, and opens the
- * section that owns it. Read state is kept locally per account.
+ * Every row is a real booking, reading, conversation or account event, and
+ * opens the section that owns it. Read state is kept locally per account.
  */
 const NotificationPanel: React.FC<NotificationPanelProps> = ({
   isOpen,
@@ -118,10 +118,10 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
           {items.length === 0 ? (
             <li className="trim-notify__state">
               {isLoading
-                ? 'Checking your bookings, reading and Trimo history…'
+                ? 'Checking your activity…'
                 : hasError
-                  ? 'Some account activity could not be loaded. Try again in a moment.'
-                  : 'You are all caught up. New bookings, readings and Trimo activity will show up here.'}
+                  ? 'Some activity could not be loaded. Try again in a moment.'
+                  : 'You are all caught up. New activity will show up here.'}
             </li>
           ) : (
             items.map((item) => (

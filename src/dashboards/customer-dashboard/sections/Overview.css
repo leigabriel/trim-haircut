@@ -15,170 +15,6 @@
   grid-column: 1 / -1;
 }
 
-/* Chart cards */
-
-.trim-chart__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.1rem;
-}
-
-.trim-chart__head .trim-card__title {
-  margin-bottom: 0.3rem;
-}
-
-.trim-chart__summary {
-  margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--trim-black);
-  opacity: 0.6;
-}
-
-.trim-chart__window {
-  flex: 0 0 auto;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--dash-line);
-  border-radius: 999px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--trim-black);
-  opacity: 0.55;
-  white-space: nowrap;
-}
-
-.trim-chart__plot {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  align-items: end;
-  gap: clamp(0.3rem, 1vw, 0.9rem);
-  padding: 1.4rem 0 0;
-}
-
-.trim-chart__plot--compact {
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-}
-
-.trim-chart__col {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) 1.2rem;
-  align-items: end;
-  height: 13rem;
-  min-width: 0;
-}
-
-.trim-chart__value {
-  position: absolute;
-  right: 0;
-  left: 0;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
-  color: var(--trim-black);
-  opacity: 0.55;
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-}
-
-.trim-chart__track {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 100%;
-  padding: 0 12%;
-  border-bottom: 1px solid var(--dash-line);
-  background-image: linear-gradient(to top, rgb(0 0 0 / 6%) 1px, transparent 1px);
-  background-position: bottom;
-  background-size: 100% 25%;
-}
-
-.trim-chart__stack {
-  display: flex;
-  flex-direction: column-reverse;
-  width: 100%;
-  min-height: 0;
-  overflow: hidden;
-  border-radius: 2px 2px 0 0;
-}
-
-.trim-chart__bar {
-  display: block;
-  width: 100%;
-  min-height: 2px;
-}
-
-.trim-chart__bar--completed {
-  background-color: var(--trim-blue);
-}
-
-.trim-chart__bar--scheduled {
-  background-color: rgb(0 0 0 / 18%);
-}
-
-.trim-chart__bar--chat {
-  height: 100%;
-  background-color: var(--trim-blue);
-}
-
-.trim-chart__label {
-  align-self: end;
-  overflow: hidden;
-  font-size: 0.6875rem;
-  line-height: 1;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--trim-black);
-  opacity: 0.55;
-}
-
-.trim-chart__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-  margin: 0.9rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.75rem;
-  color: var(--trim-black);
-  opacity: 0.65;
-}
-
-.trim-chart__legend li {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.trim-chart__key {
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 1px;
-}
-
-.trim-chart__key--completed {
-  background-color: var(--trim-blue);
-}
-
-.trim-chart__key--scheduled {
-  background-color: rgb(0 0 0 / 18%);
-}
-
-.trim-chart__empty {
-  flex: 1;
-  margin: 0 0 1rem;
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: var(--trim-black);
-  opacity: 0.62;
-}
-
 /* Next appointment */
 
 .trim-overview__next {
@@ -277,6 +113,15 @@
   list-style: none;
 }
 
+.trim-meter {
+  border-radius: 4px;
+  transition: background-color 160ms ease;
+}
+
+.trim-meter:hover {
+  background-color: rgb(0 0 0 / 2.5%);
+}
+
 .trim-meter__head {
   display: flex;
   align-items: baseline;
@@ -286,6 +131,11 @@
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--trim-black);
+  transition: color 160ms ease;
+}
+
+.trim-meter:hover .trim-meter__head {
+  color: var(--trim-blue);
 }
 
 .trim-meter__head span:last-child {
@@ -299,6 +149,11 @@
   overflow: hidden;
   border-radius: 999px;
   background-color: rgb(0 0 0 / 6%);
+  transition: background-color 160ms ease;
+}
+
+.trim-meter:hover .trim-meter__track {
+  background-color: rgb(0 0 0 / 10%);
 }
 
 .trim-meter__note {
@@ -316,6 +171,11 @@
   height: 100%;
   border-radius: inherit;
   background-color: var(--trim-blue);
+  transition: filter 160ms ease;
+}
+
+.trim-meter:hover .trim-meter__fill {
+  filter: brightness(1.12);
 }
 
 /* The cheekbone reference line: 100%. */
@@ -367,22 +227,12 @@
   }
 }
 
-@media (max-width: 25rem) {
-  .trim-chart__col {
-    height: 11rem;
-  }
-
-  .trim-chart__label {
-    font-size: 0.625rem;
-  }
-
-  .trim-chart__track {
-    padding: 0 8%;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .trim-overview__cta {
+  .trim-overview__cta,
+  .trim-meter,
+  .trim-meter__head,
+  .trim-meter__track,
+  .trim-meter__fill {
     transition: none;
   }
 }

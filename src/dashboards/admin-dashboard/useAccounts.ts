@@ -9,6 +9,7 @@ export interface StaffAccount {
   id: string;
   username: string | null;
   displayName: string | null;
+  avatarUrl: string | null;
   email: string;
   role: UserRole;
   createdAt: string;
@@ -18,6 +19,8 @@ interface AccountRow {
   id: string;
   username: string | null;
   display_name: string | null;
+  /** Absent until migration 0011 has run. */
+  avatar_url?: string | null;
   email: string | null;
   role: string;
   created_at: string;
@@ -27,6 +30,7 @@ const toAccount = (row: AccountRow): StaffAccount => ({
   id: row.id,
   username: row.username,
   displayName: row.display_name,
+  avatarUrl: row.avatar_url ?? null,
   email: row.email ?? 'No email',
   role: isUserRole(row.role) ? row.role : 'customer',
   createdAt: row.created_at,
@@ -56,21 +60,36 @@ export const useAccounts = () => {
   const [accounts, setAccounts] = useState<StaffAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // A legacy admin_list_accounts() has no avatar_url column at all. The rows
+  // still load, so this is separate from error: the manager pages use it to
+  // explain why every avatar is an initial until 0011 is applied.
+  const [avatarColumnMissing, setAvatarColumnMissing] = useState(false);
 
   const load = useCallback(async () => {
     setIsLoading(true);
 
-    const { data, error: cause } = await supabase.rpc('admin_list_accounts');
+    try {
+      const { data, error: cause } = await supabase.rpc('admin_list_accounts');
 
-    if (cause) {
+      if (cause) {
+        setAccounts([]);
+        setAvatarColumnMissing(false);
+        setError(readError(cause.code, cause.message));
+      } else {
+        const rows = (data ?? []) as AccountRow[];
+        setAccounts(rows.map(toAccount));
+        setAvatarColumnMissing(rows.length > 0 && !('avatar_url' in rows[0]));
+        setError(null);
+      }
+    } catch (cause) {
+      // A rejected request should not leave the managers stuck on "Reading…".
+      console.error('Could not load accounts', cause);
       setAccounts([]);
-      setError(readError(cause.code, cause.message));
-    } else {
-      setAccounts(((data ?? []) as AccountRow[]).map(toAccount));
-      setError(null);
+      setAvatarColumnMissing(false);
+      setError('Could not reach the account service. Check your connection and try again.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -78,12 +97,22 @@ export const useAccounts = () => {
   }, [load]);
 
   const setRole = useCallback(async (id: string, role: UserRole) => {
-    const { error: cause } = await supabase.rpc('admin_set_role', {
-      p_user: id,
-      p_role: role,
-    });
+    try {
+      const { error: cause } = await supabase.rpc('admin_set_role', {
+        p_user: id,
+        p_role: role,
+      });
 
-    if (cause) return { ok: false as const, error: readError(cause.code, cause.message) };
+      if (cause) {
+        return { ok: false as const, error: readError(cause.code, cause.message) };
+      }
+    } catch (cause) {
+      console.error('Could not change the account role', cause);
+      return {
+        ok: false as const,
+        error: 'Could not reach the account service. Check your connection and try again.',
+      };
+    }
 
     setAccounts((current) =>
       current.map((account) => (account.id === id ? { ...account, role } : account)),
@@ -91,7 +120,14 @@ export const useAccounts = () => {
     return { ok: true as const };
   }, []);
 
-  return { accounts, isLoading, error, reload: load, setRole };
+  return {
+    accounts,
+    isLoading,
+    error,
+    avatarColumnMissing,
+    reload: load,
+    setRole,
+  };
 };
 
 export type AccountsState = ReturnType<typeof useAccounts>;

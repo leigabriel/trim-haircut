@@ -1,0 +1,538 @@
+/* Admin manager tables, overview analytics and the booking detail dialog.
+   Shared shell and chart primitives live in ../shell; these are the few pieces
+   the admin surface adds on top. */
+
+/* Overview */
+
+.trim-admin__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.trim-admin__grid > .trim-card {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+.trim-admin__wide {
+  grid-column: 1 / -1;
+}
+
+/* Avatars */
+
+.trim-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  object-fit: cover;
+}
+
+.trim-avatar--initial {
+  user-select: none;
+}
+
+.trim-avatar--sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.6875rem;
+}
+
+.trim-avatar--row {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 0.875rem;
+}
+
+.trim-avatar--lg {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.25rem;
+}
+
+/* Account cell shared by the manager tables and the booking list. */
+
+.trim-admin-account {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.trim-admin-account__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* An address has no break opportunities; the full row stops a mid-word split
+   from widening the table. */
+.trim-admin-email {
+  overflow-wrap: anywhere;
+}
+
+/* Newest-account metadata includes an email for the same reason. */
+.trim-admin__grid .trim-saved__meta {
+  overflow-wrap: anywhere;
+}
+
+/* Read-only role. User Manager shows this instead of a select, so the page
+   cannot grant access by accident. */
+.trim-role-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: rgb(0 0 0 / 55%);
+}
+
+.trim-role-badge--admin {
+  border-color: var(--trim-blue);
+  color: var(--trim-blue);
+}
+
+.trim-role-badge--barber {
+  border-color: var(--trim-black);
+  color: var(--trim-black);
+}
+
+/* Clickable booking rows. The View button remains the keyboard path. */
+
+.trim-admin-row {
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease;
+}
+
+.trim-admin-row:hover,
+.trim-admin-row:focus-within {
+  background-color: rgb(0 0 0 / 3%);
+}
+
+.trim-admin-view {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--trim-black);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-admin-view:hover,
+.trim-admin-view:focus-visible {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+/* Result of a role change that removes the account from the current list. */
+.trim-admin__notice {
+  margin: 0 0 1.25rem;
+  padding: 0.8rem 1rem;
+  border-left: 3px solid var(--trim-blue);
+  background-color: #f2f4ff;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+}
+
+/* Horizontal bars used by the status split and the barber ranking. */
+
+.trim-admin-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-admin-bars__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--trim-black);
+  transition: color 160ms ease;
+}
+
+.trim-admin-bars__item:hover .trim-admin-bars__head {
+  color: var(--trim-blue);
+}
+
+.trim-admin-bars__count {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+
+.trim-admin-bars__track {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background-color: rgb(0 0 0 / 6%);
+  transition: background-color 160ms ease;
+}
+
+.trim-admin-bars__item:hover .trim-admin-bars__track {
+  background-color: rgb(0 0 0 / 10%);
+}
+
+.trim-admin-bars__fill {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background-color: var(--trim-blue);
+  transition: filter 160ms ease;
+}
+
+.trim-admin-bars__item:hover .trim-admin-bars__fill {
+  filter: brightness(1.12);
+}
+
+.trim-admin-bars__fill--requested {
+  background-color: rgb(0 0 0 / 18%);
+}
+
+.trim-admin-bars__fill--confirmed {
+  background-color: rgb(0 0 0 / 38%);
+}
+
+.trim-admin-bars__fill--completed {
+  background-color: var(--trim-blue);
+}
+
+.trim-admin-bars__fill--cancelled {
+  background-color: rgb(0 0 0 / 55%);
+}
+
+/* Booking detail dialog. The frame comes from booking.css; these are the
+   record-specific blocks inside it. */
+
+.trim-admin-modal__customer {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-admin-modal__customer .trim-status {
+  flex: 0 0 auto;
+}
+
+.trim-admin-modal__identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.trim-admin-modal__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--trim-black);
+  overflow-wrap: anywhere;
+}
+
+.trim-admin-modal__meta {
+  margin: 0.12rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--trim-black);
+  opacity: 0.58;
+  overflow-wrap: anywhere;
+}
+
+.trim-admin-modal__notes {
+  margin-top: 1.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--dash-line);
+}
+
+.trim-admin-modal__subhead {
+  margin: 0 0 0.45rem;
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+.trim-admin-modal__notes p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--trim-black);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Bookings across the full admin width. The wrapper scrolls horizontally on
+   narrower screens rather than squeezing six content columns into a phone. */
+
+.trim-admin-bookings {
+  min-width: 64rem;
+}
+
+.trim-admin-bookings td[data-label='When'] {
+  white-space: nowrap;
+}
+
+/* Report period controls and the date-bounded tables. */
+
+.trim-report__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.trim-report__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.9rem 1.1rem;
+  min-width: 0;
+}
+
+.trim-report__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.trim-report__preset {
+  padding: 0.42rem 0.7rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.trim-report__preset:hover,
+.trim-report__preset:focus-visible {
+  border-color: var(--trim-blue);
+  color: var(--trim-blue);
+  outline: none;
+}
+
+.trim-report__preset--active,
+.trim-report__preset--active:hover {
+  border-color: var(--trim-blue);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+}
+
+.trim-report__field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+}
+
+/* Dim the caption, not the control: opacity on the label would dim the input
+   too, and a child cannot undo a parent's compositing group. */
+.trim-report__field > span {
+  opacity: 0.65;
+}
+
+.trim-report__field input {
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 3px;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.875rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.trim-report__field input:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+}
+
+.trim-report__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
+}
+
+.trim-report__period {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--trim-black);
+  opacity: 0.55;
+  white-space: nowrap;
+}
+
+.trim-report__export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.62rem 0.95rem;
+  border: 1px solid var(--trim-blue);
+  border-radius: 3px;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.trim-report__export:hover:not(:disabled),
+.trim-report__export:focus-visible:not(:disabled) {
+  border-color: #002bd6;
+  background-color: #002bd6;
+  outline: none;
+}
+
+.trim-report__export:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.trim-report__error {
+  margin: 0 0 1.25rem;
+  padding: 0.7rem 1rem;
+  border-left: 3px solid var(--trim-danger);
+  background-color: #fff3f3;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+}
+
+.trim-report__note {
+  margin: 0 0 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.65;
+  overflow-wrap: anywhere;
+}
+
+.trim-report__table-wrap {
+  overflow-x: auto;
+}
+
+/* Only the six-column ledger needs a guaranteed measure. The three- and
+   four-column tables wrap inside their cards instead of forcing a scrollbar. */
+.trim-report__table--wide {
+  min-width: 44rem;
+}
+
+.trim-report__table th:first-child,
+.trim-report__table td:first-child {
+  padding-left: 0;
+}
+
+.trim-report__table th:last-child,
+.trim-report__table td:last-child {
+  padding-right: 0;
+}
+
+.trim-report__when {
+  white-space: nowrap;
+}
+
+/* The report tables need more room than the overview cards, so the report
+   grid drops to one column before the shared admin grid does. */
+@media (max-width: 64rem) {
+  .trim-report__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trim-report__grid .trim-admin__wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 56rem) {
+  .trim-admin__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trim-admin__wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 40rem) {
+  /* The stacked table renders the avatar inside the Customer/Account cell, so
+     the row already has a clear label above it. */
+  .trim-admin-row {
+    cursor: default;
+  }
+
+  .trim-admin-modal__customer {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .trim-admin-bookings {
+    min-width: 0;
+  }
+
+  .trim-report__table--wide {
+    min-width: 0;
+  }
+
+  .trim-report__actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trim-admin-row,
+  .trim-admin-view,
+  .trim-admin-bars__head,
+  .trim-admin-bars__track,
+  .trim-admin-bars__fill,
+  .trim-report__preset,
+  .trim-report__export {
+    transition: none;
+  }
+}

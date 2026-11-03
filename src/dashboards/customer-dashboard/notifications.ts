@@ -1,26 +1,17 @@
 import { formatBookingWhen, shopDateKey } from '../booking/format';
 import type { Booking } from '../booking/types';
+import type { AppNotification as SharedAppNotification } from '../shell/notifications';
 import type { Conversation } from './ai/trimo';
+import type { DashboardView } from './data';
 import type { FaceProfile } from './face/api';
 import { faceShapeLabel } from './face/shapes';
-import type { DashboardView } from './data';
 
-export type NotificationKind = 'booking' | 'face' | 'chat';
+export type {
+  NotificationItem,
+  NotificationKind,
+} from '../shell/notifications';
 
-export interface AppNotification {
-  /** Stable while the underlying record does not change. Used for read state. */
-  id: string;
-  title: string;
-  body: string;
-  /** When the thing happened. The panel turns this into "2 hr ago". */
-  at: string;
-  view: DashboardView;
-  kind: NotificationKind;
-}
-
-export interface NotificationItem extends AppNotification {
-  isUnread: boolean;
-}
+export type AppNotification = SharedAppNotification<DashboardView>;
 
 export interface BuildNotificationsInput {
   bookings: Booking[];

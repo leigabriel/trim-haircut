@@ -1,87 +1,74 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import type { UserRole } from '../../../auth/roles';
-import SectionHead from '../../shell/SectionHead';
 import type { AccountsState } from '../useAccounts';
-import AccountList from './AccountList';
+import AccountManager from './AccountManager';
 
 interface BarbersProps {
   accounts: AccountsState;
 }
 
+/** Barber Manager can promote a barber, but cannot demote one to customer. */
+const BARBER_ROLE_OPTIONS: readonly UserRole[] = ['barber', 'admin'];
+
 /**
- * The barber subset of the same account list. Shop assignment is not modelled
- * yet, so it is stated as missing rather than shown as an empty field.
+ * The barber subset, with the role select the User Manager intentionally omits.
+ * This is the one place an administrator promotes a barber; the database
+ * re-checks the caller in admin_set_role.
+ *
+ * A promoted barber leaves this list and appears in User Manager, so the two
+ * pages never show the same account twice.
  */
 const Barbers: React.FC<BarbersProps> = ({ accounts }) => {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const barbers = accounts.accounts.filter((account) => account.role === 'barber');
+  const barbers = useMemo(
+    () => accounts.accounts.filter((account) => account.role === 'barber'),
+    [accounts.accounts],
+  );
 
   const changeRole = async (id: string, role: UserRole) => {
+    const account = accounts.accounts.find((entry) => entry.id === id);
+
     setPendingId(id);
     setSaveError(null);
+    setNotice(null);
 
     const result = await accounts.setRole(id, role);
-    if (!result.ok) setSaveError(result.error);
+    if (!result.ok) {
+      setSaveError(result.error);
+    } else if (role === 'admin') {
+      const name = account?.username ?? account?.displayName ?? 'The account';
+      setNotice(`${name} now has administrator access and has moved to User Manager.`);
+    }
 
     setPendingId(null);
   };
 
   return (
-    <>
-      <SectionHead
-        title="Barber Manager"
-        lede="Everyone who can sign in to the barber dashboard. Promote a customer here once their chair is confirmed."
-      />
-
-      {accounts.error ? (
-        <div className="trim-card trim-card--danger">
-          <h2 className="trim-card__title">Barber list unavailable</h2>
-          <p className="trim-card__text">{accounts.error}</p>
-          <button
-            className="trim-account__analyze"
-            type="button"
-            onClick={() => void accounts.reload()}
-          >
-            Try again
-          </button>
-        </div>
-      ) : null}
-
-      {saveError ? (
-        <div className="trim-card trim-card--danger">
-          <h2 className="trim-card__title">Role not changed</h2>
-          <p className="trim-card__text">{saveError}</p>
-        </div>
-      ) : null}
-
-      <div className="trim-card">
-        <h2 className="trim-card__title">
-          {accounts.isLoading ? 'Reading barbers…' : `${barbers.length} barbers`}
-        </h2>
-
-        {accounts.isLoading ? (
-          <p className="trim-card__text">Reading the profiles table…</p>
-        ) : (
-          <AccountList
-            accounts={barbers}
-            pendingId={pendingId}
-            onChangeRole={(id, role) => void changeRole(id, role)}
-            emptyText="No barber accounts yet. Promote one in User Manager."
-          />
-        )}
-      </div>
-
-      <div className="trim-card">
-        <h2 className="trim-card__title">Shop assignment</h2>
-        <p className="trim-card__text">
-          Trim has no shops table yet, so a barber is not tied to a location.
-          Once it exists, this page gains a shop column and a transfer action.
-        </p>
-      </div>
-    </>
+    <AccountManager
+      title="Barber Manager"
+      lede="Everyone who can sign in to the barber dashboard. Use the role control to promote a barber to administrator; they then move to User Manager."
+      accounts={barbers}
+      isLoading={accounts.isLoading}
+      error={accounts.error}
+      onReload={() => void accounts.reload()}
+      noun="barbers"
+      emptyText="No barber accounts yet."
+      noMatchText="No barber matches that search."
+      searchPlaceholder="Search by name or email"
+      errorTitle="Barber list unavailable"
+      loadingLabel="Reading barbers…"
+      loadingText="Reading the profiles table…"
+      pendingId={pendingId}
+      onChangeRole={(id, role) => void changeRole(id, role)}
+      roleOptions={BARBER_ROLE_OPTIONS}
+      notice={notice}
+      saveError={saveError}
+      avatarsAvailable={!accounts.avatarColumnMissing}
+    />
   );
 };
 

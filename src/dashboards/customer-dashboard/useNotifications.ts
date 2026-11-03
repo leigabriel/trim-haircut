@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-import { useAuth } from '../../auth/AuthProvider';
+import { useReadNotifications } from '../shell/notifications';
+import type {
+  AppNotification,
+  ReadNotificationsState,
+} from '../shell/notifications';
 import type { BookingsState } from '../booking/types';
 import type { Conversation } from './ai/trimo';
+import type { DashboardView } from './data';
 import type { FaceProfileState } from './face/useFaceProfile';
-import {
-  buildNotifications,
-  type NotificationItem,
-} from './notifications';
+import { buildNotifications } from './notifications';
 
 interface NotificationSources {
   bookings: BookingsState;
@@ -16,45 +18,17 @@ interface NotificationSources {
   conversationsLoading: boolean;
 }
 
-export interface NotificationsState {
-  items: NotificationItem[];
-  unreadCount: number;
+export type NotificationsState = ReadNotificationsState<DashboardView> & {
   isLoading: boolean;
   hasError: boolean;
-  markRead: (id: string) => void;
-  markAllRead: () => void;
-}
-
-const storageKey = (userId: string): string => `trim:notifications:read:${userId}`;
-
-const readStored = (userId: string): Set<string> => {
-  try {
-    const raw = window.localStorage.getItem(storageKey(userId));
-    const parsed: unknown = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(parsed)) return new Set();
-
-    return new Set(parsed.filter((value): value is string => typeof value === 'string'));
-  } catch {
-    // Private mode or a blocked storage API. Read state simply starts empty.
-    return new Set();
-  }
-};
-
-const writeStored = (userId: string, ids: Set<string>): void => {
-  try {
-    window.localStorage.setItem(storageKey(userId), JSON.stringify([...ids]));
-  } catch {
-    // Not worth interrupting the dashboard over.
-  }
 };
 
 /**
  * Read state for the derived notification feed.
  *
  * The notifications themselves come from bookings, face readings and Trimo
- * conversations, so there is no table to store a read column on. Local storage
- * per user id is enough for this device: it is what drives the bell badge and
- * the unread marker, and a new device starts with the feed unread.
+ * conversations, so there is no table to store a read column on. The shared
+ * hook keeps the per-account local storage in one place for both dashboards.
  */
 export const useNotifications = ({
   bookings,
@@ -62,21 +36,10 @@ export const useNotifications = ({
   conversations,
   conversationsLoading,
 }: NotificationSources): NotificationsState => {
-  const { session } = useAuth();
-  const userId = session?.user.id ?? null;
-  const [readIds, setReadIds] = useState<Set<string>>(() =>
-    userId ? readStored(userId) : new Set(),
-  );
-
-  useEffect(() => {
-    setReadIds(userId ? readStored(userId) : new Set());
-  }, [userId]);
-
-  const isLoading =
-    bookings.isLoading || face.isLoading || conversationsLoading;
+  const isLoading = bookings.isLoading || face.isLoading || conversationsLoading;
   const hasError = Boolean(bookings.error || face.error);
 
-  const baseItems = useMemo(
+  const baseItems = useMemo<AppNotification<DashboardView>[]>(
     () =>
       buildNotifications({
         bookings: bookings.bookings,
@@ -100,52 +63,7 @@ export const useNotifications = ({
     ],
   );
 
-  const items = useMemo<NotificationItem[]>(
-    () =>
-      baseItems.map((item) => ({
-        ...item,
-        isUnread: !readIds.has(item.id),
-      })),
-    [baseItems, readIds],
-  );
+  const read = useReadNotifications(baseItems);
 
-  const unreadCount = useMemo(
-    () => items.filter((item) => item.isUnread).length,
-    [items],
-  );
-
-  const markRead = useCallback(
-    (id: string) => {
-      if (!userId) return;
-
-      setReadIds((current) => {
-        if (current.has(id)) return current;
-        const next = new Set(current);
-        next.add(id);
-        writeStored(userId, next);
-        return next;
-      });
-    },
-    [userId],
-  );
-
-  const markAllRead = useCallback(() => {
-    if (!userId || items.length === 0) return;
-
-    setReadIds((current) => {
-      const next = new Set(current);
-      for (const item of items) next.add(item.id);
-      writeStored(userId, next);
-      return next;
-    });
-  }, [items, userId]);
-
-  return {
-    items,
-    unreadCount,
-    isLoading,
-    hasError,
-    markRead,
-    markAllRead,
-  };
+  return { ...read, isLoading, hasError };
 };

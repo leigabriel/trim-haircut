@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '../../auth/AuthProvider';
+import { useAvatarSrc } from '../profile/useAvatarSrc';
 import LoginModal from './modals/LoginModal';
 import './Nav.css';
 
@@ -20,6 +21,7 @@ interface NavProps {
 const Nav: React.FC<NavProps> = ({ tone = 'dark' }) => {
   const { session, profile } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const avatar = useAvatarSrc(profile?.avatarUrl);
 
   const name = profile?.username ?? profile?.displayName ?? 'your account';
 
@@ -35,8 +37,14 @@ const Nav: React.FC<NavProps> = ({ tone = 'dark' }) => {
             {session ? (
               <li>
                 <Link className="trim-nav__avatar" to="/dashboard" aria-label={`Dashboard, signed in as ${name}`}>
-                  {profile?.avatarUrl ? (
-                    <img src={profile.avatarUrl} alt="" />
+                  {avatar.src ? (
+                    <img
+                      src={avatar.src}
+                      alt=""
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      onError={avatar.onError}
+                    />
                   ) : (
                     <span aria-hidden="true">
                       {(profile?.username ?? '?').charAt(0).toUpperCase()}

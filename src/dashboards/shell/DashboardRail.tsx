@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { useAuth } from '../../auth/AuthProvider';
 import ConfirmModal from '../../components/layout/modals/ConfirmModal';
+import { useAvatarSrc } from '../../components/profile/useAvatarSrc';
 import type { DashboardNavItem } from './types';
 
 interface DashboardRailProps {
@@ -33,6 +34,7 @@ const DashboardRail: React.FC<DashboardRailProps> = ({
 }) => {
   const { session, profile, signOut } = useAuth();
   const [isConfirmingOut, setIsConfirmingOut] = useState(false);
+  const avatar = useAvatarSrc(profile?.avatarUrl);
 
   const name = profile?.username ?? profile?.displayName ?? 'Guest';
   const initial = name.charAt(0).toUpperCase();
@@ -77,11 +79,14 @@ const DashboardRail: React.FC<DashboardRailProps> = ({
             onClick={() => onSelect(accountId)}
             aria-current={isAccount ? 'page' : undefined}
           >
-            {profile?.avatarUrl ? (
+            {avatar.src ? (
               <img
                 className="trim-dash__identity-avatar"
-                src={profile.avatarUrl}
+                src={avatar.src}
                 alt=""
+                decoding="async"
+                referrerPolicy="no-referrer"
+                onError={avatar.onError}
               />
             ) : (
               <span className="trim-dash__identity-initial" aria-hidden="true">

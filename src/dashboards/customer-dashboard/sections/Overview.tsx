@@ -8,6 +8,7 @@ import {
   isUpcoming,
 } from '../../booking/format';
 import type { BookingsState } from '../../booking/types';
+import '../../shell/charts.css';
 import SectionHead from '../../shell/SectionHead';
 import type { Conversation } from '../ai/trimo';
 import { shapeAdvice } from '../face/advice';
@@ -96,7 +97,13 @@ const BookingChart: React.FC<{
               point.total > 0 ? (point.scheduled / point.total) * 100 : 0;
 
             return (
-              <div className="trim-chart__col" key={point.key}>
+              <div
+                className="trim-chart__col"
+                key={point.key}
+                title={`${point.label}: ${point.total} appointment${
+                  point.total === 1 ? '' : 's'
+                } · ${point.completed} completed · ${point.scheduled} scheduled`}
+              >
                 <div className="trim-chart__track">
                   {point.total > 0 ? (
                     <span
@@ -184,7 +191,13 @@ const ChatChart: React.FC<{
             const height = Math.max(0, (point.count / max) * 100);
 
             return (
-              <div className="trim-chart__col" key={point.key}>
+              <div
+                className="trim-chart__col"
+                key={point.key}
+                title={`${point.label}: ${point.count} active ${
+                  point.count === 1 ? 'conversation' : 'conversations'
+                }`}
+              >
                 <div className="trim-chart__track">
                   {point.count > 0 ? (
                     <span
@@ -278,7 +291,11 @@ const FaceReading: React.FC<{
                   const baseline = (1 / METER_MAX) * 100;
 
                   return (
-                    <li className="trim-meter" key={reading.label}>
+                    <li
+                      className="trim-meter"
+                      key={reading.label}
+                      title={`${reading.label}: ${percent}% of cheekbone width`}
+                    >
                       <div className="trim-meter__head">
                         <span>{reading.label}</span>
                         <span>{percent}%</span>

@@ -354,6 +354,9 @@
 
 .trim-dash__main {
   min-width: 0;
+  /* A grid item can otherwise refuse to shrink below its content, which leaks
+     the overflow to IonContent and shows a second scrollbar. */
+  min-height: 0;
   overflow-y: auto;
   background-color: var(--trim-white);
 }
@@ -369,6 +372,11 @@
   max-width: 60rem;
   margin: 0 auto;
   padding: var(--dash-pad) var(--dash-pad) 4rem;
+}
+
+/* Bookings and Reports carry wide tables rather than a reading column. */
+.trim-section--wide {
+  max-width: 88rem;
 }
 
 .trim-section__head {

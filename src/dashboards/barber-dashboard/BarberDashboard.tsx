@@ -41,7 +41,9 @@ const BarberDashboard: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent>
+      {/* The main column is the scroll container, as on the other dashboards.
+          IonContent must not add a second scrollbar of its own. */}
+      <IonContent scrollY={false}>
         <div className="trim-dash">
           <DashboardHeader
             sectionLabel={sectionLabel}
