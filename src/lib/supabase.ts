@@ -15,6 +15,18 @@ if (missing.length > 0) {
   );
 }
 
+// Every tab gets its own auth namespace. A shared storage key would also give
+// every tab the same BroadcastChannel, so signing in elsewhere would update
+// this tab. The id lives in sessionStorage: a reload keeps it, a new tab gets
+// a fresh one.
+const projectRef = new URL(url).hostname.split('.')[0];
+const tabIdKey = 'trim:auth-tab';
+const tabId =
+  window.sessionStorage.getItem(tabIdKey) ??
+  window.crypto?.randomUUID?.() ??
+  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+window.sessionStorage.setItem(tabIdKey, tabId);
+
 // PKCE, not the default implicit flow: implicit returns tokens in the URL
 // fragment, which /auth/callback does not read. PKCE returns a ?code=, and
 // keeps tokens out of the address bar and history.
@@ -25,5 +37,10 @@ export const supabase = createClient(url, key, {
     // Left on, the client consumes it on init and the callback fails on a spent
     // code.
     detectSessionInUrl: false,
+    // localStorage is shared by every tab on this origin, so a new tab would
+    // inherit the account signed in elsewhere. sessionStorage is per tab:
+    // reloading keeps this tab's session, while a new tab starts signed out.
+    storage: window.sessionStorage,
+    storageKey: `sb-${projectRef}-auth-token-${tabId}`,
   },
 });

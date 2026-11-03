@@ -45,7 +45,7 @@ const AuthCallback: React.FC = () => {
     };
 
     // exchangeCodeForSession rejects on non-AuthError failures too: blocked or
-    // full localStorage, failed client init.
+    // full browser storage, failed client init.
     const failed = () => {
       if (active) setError(EXCHANGE_FAILED);
     };
