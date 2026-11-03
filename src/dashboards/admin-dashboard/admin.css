@@ -157,6 +157,42 @@
   color: var(--trim-black);
 }
 
+/* Barber Manager's primary action, aligned with the section heading. */
+.trim-admin-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--trim-blue);
+  border-radius: 3px;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: var(--trim-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.trim-admin-add:hover,
+.trim-admin-add:focus-visible {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trim-admin-add {
+    transition: none;
+  }
+}
+
 /* Horizontal bars used by the status split and the barber ranking. */
 
 .trim-admin-bars {

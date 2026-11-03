@@ -15,6 +15,20 @@ export interface StaffAccount {
   createdAt: string;
 }
 
+/** Fields the Add barber form sends to the create-barber function. */
+export interface CreateBarberInput {
+  displayName: string;
+  username: string;
+  email: string;
+  password: string;
+}
+
+export type CreateBarberField = 'username' | 'email' | 'password';
+
+export type CreateBarberResult =
+  | { ok: true }
+  | { ok: false; error: string; field?: CreateBarberField };
+
 interface AccountRow {
   id: string;
   username: string | null;
@@ -120,6 +134,98 @@ export const useAccounts = () => {
     return { ok: true as const };
   }, []);
 
+  /**
+   * Creates a barber through the service-role Edge Function.
+   *
+   * This cannot be done with the browser's anon key: signUp would replace the
+   * admin's session, and the new profile would have to be promoted afterwards.
+   * The function verifies the caller, creates the confirmed auth user, sets the
+   * profile role, and rolls the user back if that last step fails.
+   */
+  const createBarber = useCallback(
+    async (input: CreateBarberInput): Promise<CreateBarberResult> => {
+      try {
+        const { data, error: cause } = await supabase.functions.invoke('create-barber', {
+          body: input,
+        });
+
+        if (cause) {
+          // supabase-js puts the raw Response on error.context for non-2xx.
+          const context = (cause as { context?: unknown }).context;
+          const response = context instanceof Response ? context : null;
+          const status = response?.status ?? null;
+          const body = response
+            ? ((await response.json().catch(() => null)) as
+                | { error?: unknown; field?: unknown }
+                | null)
+            : null;
+          const detail = typeof body?.error === 'string' ? body.error : null;
+          const field =
+            body?.field === 'username' ||
+            body?.field === 'email' ||
+            body?.field === 'password'
+              ? body.field
+              : undefined;
+
+          if (status === 404) {
+            return {
+              ok: false,
+              error:
+                'Barber creation is not available yet. Deploy supabase/functions/create-barber, then try again.',
+            };
+          }
+          if (status === 401) {
+            return {
+              ok: false,
+              error: 'Your session expired. Sign out, sign back in, then try again.',
+            };
+          }
+          if (status === 403) {
+            return {
+              ok: false,
+              error: detail ?? 'This account does not have admin access.',
+            };
+          }
+          if (status === null) {
+            return {
+              ok: false,
+              error:
+                'Could not reach the account service. Check your connection and try again.',
+            };
+          }
+
+          return {
+            ok: false,
+            error: detail ?? 'Could not create the barber account. Try again.',
+            field,
+          };
+        }
+
+        const account = (data as { account?: AccountRow } | null)?.account;
+
+        if (account) {
+          // The function returns the row it just created, so the table updates
+          // without a second round trip and without dropping the admin's place.
+          setAccounts((current) => [
+            toAccount(account),
+            ...current.filter((entry) => entry.id !== account.id),
+          ]);
+        } else {
+          await load();
+        }
+
+        return { ok: true };
+      } catch (cause) {
+        console.error('Could not create the barber account', cause);
+        return {
+          ok: false,
+          error: 'Could not reach the account service. Check your connection and try again.',
+        };
+      }
+    },
+    [load],
+  );
+
   return {
     accounts,
     isLoading,
@@ -127,6 +233,7 @@ export const useAccounts = () => {
     avatarColumnMissing,
     reload: load,
     setRole,
+    createBarber,
   };
 };
 

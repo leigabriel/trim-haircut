@@ -383,6 +383,24 @@
   margin-bottom: clamp(1.5rem, 2.5vw, 2.25rem);
 }
 
+/* Section-level action, e.g. Barber Manager's "Add barber" button. */
+.trim-section__head--with-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+}
+
+.trim-section__head-copy {
+  min-width: 0;
+}
+
+.trim-section__head-action {
+  flex: 0 0 auto;
+  padding-top: 0.25rem;
+}
+
 .trim-section__title {
   margin: 0 0 0.6rem;
   font-size: clamp(1.75rem, 2.6vw, 2.5rem);
@@ -399,6 +417,17 @@
   line-height: 1.65;
   color: var(--trim-black);
   opacity: 0.7;
+}
+
+@media (max-width: 40rem) {
+  .trim-section__head--with-action {
+    flex-direction: column;
+  }
+
+  .trim-section__head-action,
+  .trim-section__head-action > * {
+    width: 100%;
+  }
 }
 
 /* Notification panel */

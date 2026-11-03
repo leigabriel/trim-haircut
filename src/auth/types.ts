@@ -46,6 +46,12 @@ export interface AuthContextValue {
   saveUsername: (input: string) => Promise<{ ok: boolean; error?: string }>;
 
   /**
+   * Stores a display name on the caller's own profile. Used when an account
+   * was created without one (email signup, for example).
+   */
+  saveDisplayName: (input: string) => Promise<{ ok: boolean; error?: string }>;
+
+  /**
    * Stores one of the avatars from /assets/avatar on the caller's own profile.
    * Only those known paths are accepted, so the column cannot be pointed at an
    * arbitrary URL through this method.

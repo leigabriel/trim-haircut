@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { avatarOption } from './avatars';
 import { normaliseEmail } from './credentials';
+import { validateDisplayName } from './displayName';
 import { isUserRole } from './roles';
 import { validateUsername } from './username';
 import type { AuthContextValue, Profile, ProfileRow } from './types';
@@ -223,6 +224,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 
   /**
+   * Fills in a display name when the account did not arrive with one. Google
+   * usually supplies a name; email signup does not, which is the case this
+   * form exists for.
+   */
+  const saveDisplayName = useCallback(
+    async (input: string) => {
+      const result = validateDisplayName(input);
+      if (!result.ok) return { ok: false, error: result.error };
+      if (!userId) return { ok: false, error: 'You are not signed in.' };
+
+      const { data: updated, error: updateError } = await supabase
+        .from('profiles')
+        .update({ display_name: result.value })
+        .eq('id', userId)
+        .select('id');
+
+      if (updateError) {
+        return { ok: false, error: 'Could not save your name. Try again.' };
+      }
+
+      if (!updated || updated.length === 0) {
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({ id: userId, display_name: result.value });
+
+        if (insertError) {
+          return { ok: false, error: 'Could not save your name. Try again.' };
+        }
+      }
+
+      setProfile((current) =>
+        current
+          ? { ...current, displayName: result.value }
+          : {
+              id: userId,
+              username: null,
+              displayName: result.value,
+              avatarUrl: null,
+              role: 'customer',
+            },
+      );
+
+      return { ok: true };
+    },
+    [userId],
+  );
+
+  /**
    * Writes one of Trim's own avatars to the caller's row.
    *
    * avatar_url already holds the Google photo for OAuth accounts, so this
@@ -374,6 +423,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signInWithGoogle,
       signOut,
       saveUsername,
+      saveDisplayName,
       saveAvatar,
       register,
       signInWithPassword,
@@ -388,6 +438,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signInWithGoogle,
       signOut,
       saveUsername,
+      saveDisplayName,
       saveAvatar,
       register,
       signInWithPassword,

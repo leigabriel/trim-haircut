@@ -14,8 +14,11 @@ The admin-only additions are in `./admin.css`.
   email, join date and a read-only role badge. Barbers live on the next page,
   so no account row appears twice.
 - **Barber Manager** — the barber subset in the same shared table. The role
-  control lives here, so granting administrator access has one home. A
-  promoted barber moves to User Manager.
+  control lives here, so granting administrator access has one home. Add barber
+  opens a form for name, username, email, password and password confirmation;
+  the auth user and profile are created by
+  `supabase/functions/create-barber`, then promoted to barber. A promoted barber
+  moves to User Manager.
 - **Bookings** — every appointment with the customer's avatar, plus a details
   dialog opened by clicking a row or its View button. The section widens past
   the reading measure so the table has room.
@@ -23,7 +26,8 @@ The admin-only additions are in `./admin.css`.
   status/services/barber breakdowns, new accounts and an appointment ledger.
   Export PDF builds a formatted document on demand with jsPDF; the library is
   loaded only when the button is pressed.
-- **Account** — read-only identity, opened from the rail foot.
+- **Account** — identity and avatar, opened from the rail foot. If the profile
+  has no display name, the same page offers a one-time form to add one.
 
 ## Notifications
 
@@ -52,6 +56,22 @@ initial if the image fails to load.
 
 Role is enforced twice: `RequireAuth` sends the wrong role to its own
 dashboard, and the two RPCs re-check the caller in the database.
+
+Barber creation is the one write that needs the service role. The browser sends
+the form to `supabase/functions/create-barber`, which verifies the caller's JWT
+and reads their role from `profiles`, creates a confirmed auth user through the
+Admin API, and sets the profile role to `barber`. If the role update fails, the
+function deletes the new auth user so no half-provisioned customer is left
+behind. Deploy it alongside the existing functions:
+
+```sh
+supabase functions deploy create-barber
+```
+
+The function uses the service-role secret Supabase provides to every Edge
+Function; no additional secret is required. `verify_jwt` is off in
+`supabase/config.toml` because the browser preflight carries no Authorization
+header, so the handler performs the check itself.
 
 ## Not built yet
 

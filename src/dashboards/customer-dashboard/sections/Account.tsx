@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../../../auth/AuthProvider';
 import ConfirmModal from '../../../components/layout/modals/ConfirmModal';
 import AvatarCard from '../../../components/profile/AvatarCard';
+import DisplayNameForm from '../../../components/profile/DisplayNameForm';
 import { supabase } from '../../../lib/supabase';
 import { faceShapeLabel, FACE_SHAPE_DEFINITIONS, FACE_SHAPES } from '../face/shapes';
 import type { FaceProfileState } from '../face/useFaceProfile';
@@ -20,7 +21,7 @@ interface AccountProps {
  * them as a row of thin slivers.
  */
 const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
-  const { session, profile, signOut } = useAuth();
+  const { session, profile, signOut, saveDisplayName } = useAuth();
   const [isConfirmingOut, setIsConfirmingOut] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -91,9 +92,9 @@ const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
         <header className="trim-section__head">
           <h1 className="trim-section__title">Account</h1>
           <p className="trim-section__lede">
-            Your Trim profile is created the first time you sign in and lives
-            under your Google account. Change your name or email in Google and
-            it updates here on your next sign in.
+            Your Trim profile is created the first time you sign in. If it does
+            not have a name yet, add one below; it is what barbers see with your
+            booking.
           </p>
         </header>
 
@@ -118,7 +119,7 @@ const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
               </div>
               <div>
                 <dt>Name</dt>
-                <dd>{profile?.displayName ?? 'Not provided'}</dd>
+                <dd>{profile?.displayName?.trim() || 'Not provided'}</dd>
               </div>
               {/* Full width: the longest value here, and it splits mid-word. */}
               <div className="trim-facts__wide">
@@ -136,6 +137,10 @@ const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
                 </div>
               ) : null}
             </dl>
+
+            {profile && !profile.displayName?.trim() ? (
+              <DisplayNameForm onSave={saveDisplayName} />
+            ) : null}
           </div>
 
           <div className="trim-card">

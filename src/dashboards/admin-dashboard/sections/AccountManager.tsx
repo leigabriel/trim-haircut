@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import type { UserRole } from '../../../auth/roles';
 import SectionHead from '../../shell/SectionHead';
@@ -26,6 +27,8 @@ interface AccountManagerProps {
   roleOptions?: readonly UserRole[];
   notice?: string | null;
   saveError?: string | null;
+  /** A page-specific control rendered beside the heading. */
+  action?: ReactNode;
   /** False when the RPC predates 0011 and cannot return avatar_url. */
   avatarsAvailable?: boolean;
 }
@@ -60,6 +63,7 @@ const AccountManager: React.FC<AccountManagerProps> = ({
   roleOptions,
   notice = null,
   saveError = null,
+  action,
   avatarsAvailable = true,
 }) => {
   const [query, setQuery] = useState('');
@@ -97,7 +101,7 @@ const AccountManager: React.FC<AccountManagerProps> = ({
 
   return (
     <>
-      <SectionHead title={title} lede={lede} />
+      <SectionHead title={title} lede={lede} action={action} />
 
       {error ? (
         <div className="trim-card trim-card--danger">

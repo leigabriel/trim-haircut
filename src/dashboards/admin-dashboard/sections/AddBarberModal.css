@@ -1,0 +1,215 @@
+/* Admin-only barber provisioning dialog. Portalled to body, like the other
+   Trim dialogs, so an Ionic transform cannot offset the fixed frame. */
+
+.trim-barber-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 2rem);
+  overflow-y: auto;
+  font-family: var(--trim-font-sans);
+}
+
+.trim-barber-modal__scrim {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 45%);
+}
+
+.trim-barber-modal__card {
+  position: relative;
+  margin: auto;
+  width: min(100%, 38rem);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: clamp(1.5rem, 3vw, 2rem);
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 25%);
+}
+
+.trim-barber-modal__eyebrow {
+  margin: 0 0 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.45;
+}
+
+.trim-barber-modal__title {
+  margin: 0 0 0.6rem;
+  font-family: var(--trim-font-display);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--trim-black);
+}
+
+.trim-barber-modal__lede {
+  max-width: 54ch;
+  margin: 0 0 1.35rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--trim-black);
+  opacity: 0.7;
+}
+
+.trim-barber-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.trim-barber-modal__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.trim-barber-modal__label {
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+.trim-barber-modal__input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgb(0 0 0 / 25%);
+  border-radius: 3px;
+  background-color: var(--trim-white);
+  color: var(--trim-black);
+  font-family: var(--trim-font-sans);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.trim-barber-modal__input:focus {
+  outline: none;
+  border-color: var(--trim-blue);
+  box-shadow: inset 0 0 0 1px var(--trim-blue);
+}
+
+.trim-barber-modal__input:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+}
+
+.trim-barber-modal__input[aria-invalid='true'] {
+  border-color: var(--trim-danger);
+  box-shadow: inset 0 0 0 1px var(--trim-danger);
+}
+
+.trim-barber-modal__input:disabled {
+  background-color: rgb(0 0 0 / 4%);
+  color: rgb(0 0 0 / 55%);
+}
+
+.trim-barber-modal__hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--trim-black);
+  opacity: 0.55;
+}
+
+.trim-barber-modal__field-error,
+.trim-barber-modal__error {
+  margin: 0.4rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--trim-danger);
+}
+
+.trim-barber-modal__error {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border-left: 3px solid var(--trim-danger);
+  background-color: #fff2f0;
+  color: var(--trim-black);
+}
+
+.trim-barber-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgb(0 0 0 / 12%);
+}
+
+.trim-barber-modal__cancel,
+.trim-barber-modal__save {
+  padding: 0.7rem 1.1rem;
+  border-radius: 3px;
+  font-family: var(--trim-font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.trim-barber-modal__cancel {
+  border: 1px solid rgb(0 0 0 / 25%);
+  background: none;
+  color: var(--trim-black);
+}
+
+.trim-barber-modal__save {
+  border: 1px solid var(--trim-blue);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+}
+
+.trim-barber-modal__cancel:hover:not(:disabled),
+.trim-barber-modal__cancel:focus-visible:not(:disabled) {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-barber-modal__save:hover:not(:disabled),
+.trim-barber-modal__save:focus-visible:not(:disabled) {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+}
+
+.trim-barber-modal__cancel:disabled,
+.trim-barber-modal__save:disabled {
+  border-color: rgb(0 0 0 / 20%);
+  background-color: rgb(0 0 0 / 10%);
+  color: rgb(0 0 0 / 35%);
+  cursor: not-allowed;
+}
+
+@media (max-width: 34rem) {
+  .trim-barber-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .trim-barber-modal__cancel,
+  .trim-barber-modal__save {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trim-barber-modal__cancel,
+  .trim-barber-modal__save {
+    transition: none;
+  }
+}

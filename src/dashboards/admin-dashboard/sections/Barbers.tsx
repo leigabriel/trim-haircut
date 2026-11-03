@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import type { UserRole } from '../../../auth/roles';
 import type { AccountsState } from '../useAccounts';
 import AccountManager from './AccountManager';
+import AddBarberModal from './AddBarberModal';
 
 interface BarbersProps {
   accounts: AccountsState;
@@ -23,6 +24,7 @@ const Barbers: React.FC<BarbersProps> = ({ accounts }) => {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   const barbers = useMemo(
     () => accounts.accounts.filter((account) => account.role === 'barber'),
@@ -47,28 +49,57 @@ const Barbers: React.FC<BarbersProps> = ({ accounts }) => {
     setPendingId(null);
   };
 
+  const handleCreated = (displayName: string) => {
+    setIsAdding(false);
+    setSaveError(null);
+    setNotice(`Barber account created for ${displayName}.`);
+  };
+
   return (
-    <AccountManager
-      title="Barber Manager"
-      lede="Everyone who can sign in to the barber dashboard. Use the role control to promote a barber to administrator; they then move to User Manager."
-      accounts={barbers}
-      isLoading={accounts.isLoading}
-      error={accounts.error}
-      onReload={() => void accounts.reload()}
-      noun="barbers"
-      emptyText="No barber accounts yet."
-      noMatchText="No barber matches that search."
-      searchPlaceholder="Search by name or email"
-      errorTitle="Barber list unavailable"
-      loadingLabel="Reading barbers…"
-      loadingText="Reading the profiles table…"
-      pendingId={pendingId}
-      onChangeRole={(id, role) => void changeRole(id, role)}
-      roleOptions={BARBER_ROLE_OPTIONS}
-      notice={notice}
-      saveError={saveError}
-      avatarsAvailable={!accounts.avatarColumnMissing}
-    />
+    <>
+      <AccountManager
+        title="Barber Manager"
+        lede="Everyone who can sign in to the barber dashboard. Add a barber here, or use the role control to promote one to administrator; they then move to User Manager."
+        accounts={barbers}
+        isLoading={accounts.isLoading}
+        error={accounts.error}
+        onReload={() => void accounts.reload()}
+        noun="barbers"
+        emptyText="No barber accounts yet."
+        noMatchText="No barber matches that search."
+        searchPlaceholder="Search by name or email"
+        errorTitle="Barber list unavailable"
+        loadingLabel="Reading barbers…"
+        loadingText="Reading the profiles table…"
+        pendingId={pendingId}
+        onChangeRole={(id, role) => void changeRole(id, role)}
+        roleOptions={BARBER_ROLE_OPTIONS}
+        notice={notice}
+        saveError={saveError}
+        avatarsAvailable={!accounts.avatarColumnMissing}
+        action={
+          <button
+            className="trim-admin-add"
+            type="button"
+            aria-haspopup="dialog"
+            onClick={() => {
+              setNotice(null);
+              setSaveError(null);
+              setIsAdding(true);
+            }}
+          >
+            Add barber
+          </button>
+        }
+      />
+
+      <AddBarberModal
+        isOpen={isAdding}
+        onDismiss={() => setIsAdding(false)}
+        onCreate={accounts.createBarber}
+        onCreated={handleCreated}
+      />
+    </>
   );
 };
 

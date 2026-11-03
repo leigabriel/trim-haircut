@@ -1,6 +1,7 @@
 import { useAuth } from '../../auth/AuthProvider';
 import { roleLabel } from '../../auth/roles';
 import AvatarCard from '../../components/profile/AvatarCard';
+import DisplayNameForm from '../../components/profile/DisplayNameForm';
 import SectionHead from './SectionHead';
 
 interface AccountPanelProps {
@@ -9,15 +10,16 @@ interface AccountPanelProps {
 }
 
 /**
- * Read-only identity card for staff accounts, plus the avatar picker.
+ * Identity card for staff accounts, plus the avatar picker and a one-time name
+ * prompt.
  *
- * There is deliberately no name or email editor: staff accounts are
- * provisioned, and the customer Account page's delete flow does not belong on a
- * surface that manages other people's records. The avatar is the exception:
- * it is the caller's own row and is shown throughout their dashboard.
+ * Email is still read-only: staff accounts are provisioned, and the customer
+ * Account page's delete flow does not belong on a surface that manages other
+ * people's records. The avatar and a missing display name are the exceptions:
+ * both are the caller's own row and are shown throughout their dashboard.
  */
 const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
-  const { session, profile } = useAuth();
+  const { session, profile, saveDisplayName } = useAuth();
 
   const memberSince = session?.user.created_at
     ? new Date(session.user.created_at).toLocaleDateString(undefined, {
@@ -31,7 +33,7 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
     <>
       <SectionHead
         title="Account"
-        lede="The credentials this dashboard is signed in with, and the avatar shown across Trim. Staff accounts are provisioned, so the identity details are read-only."
+        lede="The credentials this dashboard is signed in with, and the avatar shown across Trim. Staff accounts are provisioned; if your name is missing, you can add it below."
       />
 
       <AvatarCard />
@@ -43,6 +45,10 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
           <div>
             <dt>Username</dt>
             <dd>{profile?.username ?? 'Not set'}</dd>
+          </div>
+          <div>
+            <dt>Name</dt>
+            <dd>{profile?.displayName?.trim() || 'Not provided'}</dd>
           </div>
           <div>
             <dt>Role</dt>
@@ -57,6 +63,10 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
             <dd>{memberSince}</dd>
           </div>
         </dl>
+
+        {profile && !profile.displayName?.trim() ? (
+          <DisplayNameForm onSave={saveDisplayName} />
+        ) : null}
       </div>
     </>
   );
