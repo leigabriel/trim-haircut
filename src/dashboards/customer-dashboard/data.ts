@@ -51,7 +51,7 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   },
   {
     id: 'booking',
-    label: 'Booking',
+    label: 'Bookings',
     icon: BookmarkSquare2,
   },
   {
