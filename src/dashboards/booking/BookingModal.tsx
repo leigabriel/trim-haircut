@@ -12,6 +12,8 @@ import {
   isSlotPast,
   maxBookingDate,
   readBookingError,
+  shopDateKey,
+  shopTimeValue,
   shopToday,
   slotLabel,
   slotOptions,
@@ -24,12 +26,15 @@ import type {
   ServiceOption,
 } from './types';
 import { toBooking } from './types';
+import BarberPicker from './BarberPicker';
 import './booking.css';
 
 interface BookingModalProps {
   isOpen: boolean;
+  /** The appointment being edited, or null for a new request. */
+  booking?: Booking | null;
   onDismiss: () => void;
-  onCreated: (booking: Booking) => void;
+  onSaved: (booking: Booking, mode: 'created' | 'updated') => void;
 }
 
 interface ServiceRow {
@@ -44,6 +49,9 @@ interface BarberRow {
   id: string;
   username: string | null;
   display_name: string | null;
+  /** Absent until migration 0012 has run. */
+  avatar_url?: string | null;
+  is_available?: boolean | null;
 }
 
 const toService = (row: ServiceRow): ServiceOption => ({
@@ -58,14 +66,9 @@ const toBarber = (row: BarberRow): BarberOption => ({
   id: row.id,
   username: row.username,
   displayName: row.display_name,
+  avatarUrl: row.avatar_url ?? null,
+  isAvailable: row.is_available !== false,
 });
-
-const barberLabel = (barber: BarberOption): string => {
-  const name = barber.displayName?.trim();
-  const handle = barber.username ? `@${barber.username}` : null;
-  if (name && handle) return `${name} (${handle})`;
-  return name || handle || 'Trim barber';
-};
 
 const phonePattern = /^[+\d][\d\s().-]{6,23}$/;
 
@@ -76,11 +79,13 @@ const phonePattern = /^[+\d][\d\s().-]{6,23}$/;
  */
 const BookingModal: React.FC<BookingModalProps> = ({
   isOpen,
+  booking = null,
   onDismiss,
-  onCreated,
+  onSaved,
 }) => {
   const { session, profile } = useAuth();
   const titleId = useId();
+  const isEdit = Boolean(booking);
 
   const [services, setServices] = useState<ServiceOption[]>([]);
   const [barbers, setBarbers] = useState<BarberOption[]>([]);
@@ -181,16 +186,34 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
         setServices(nextServices);
         setBarbers(nextBarbers);
-        setServiceId(nextServices[0]?.id ?? '');
-        setBarberId(nextBarbers[0]?.id ?? '');
 
-        const first = nextServices[0];
-        if (first) {
+        const service =
+          nextServices.find((item) => item.id === booking?.serviceId) ??
+          nextServices[0] ??
+          null;
+        const barber = booking
+          ? (nextBarbers.find((item) => item.id === booking.barberId) ??
+            nextBarbers.find((item) => item.isAvailable) ??
+            nextBarbers[0] ??
+            null)
+          : (nextBarbers.find((item) => item.isAvailable) ?? null);
+
+        setServiceId(service?.id ?? '');
+        setBarberId(barber?.id ?? '');
+
+        if (booking) {
+          // Editing starts from the appointment being changed, not from the
+          // shop's next open slot.
+          setDate(shopDateKey(booking.startsAt));
+          setTime(shopTimeValue(booking.startsAt));
+          setPhone(booking.customerPhone);
+          setNotes(booking.notes ?? '');
+        } else if (service) {
           setDate((current) => {
-            const fits = slotOptions(current, first.durationMinutes).some(
+            const fits = slotOptions(current, service.durationMinutes).some(
               (slot) => !isSlotPast(current, slot),
             );
-            return fits ? current : defaultBookingDate(first.durationMinutes);
+            return fits ? current : defaultBookingDate(service.durationMinutes);
           });
         }
 
@@ -208,7 +231,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, optionsVersion]);
+  }, [isOpen, optionsVersion, booking]);
 
   // Return focus to the button that opened the dialog.
   useEffect(() => {
@@ -361,34 +384,56 @@ const BookingModal: React.FC<BookingModalProps> = ({
     submittingRef.current = true;
 
     try {
-      const { data, error: createError } = await supabase.rpc('create_booking', {
-        p_barber_id: barberId,
-        p_service_id: service.id,
-        p_starts_at: toShopIso(date, time),
-        p_customer_phone: trimmedPhone,
-        p_notes: trimmedNotes || null,
-      });
+      const startsAt = toShopIso(date, time);
+      const result = booking
+        ? await supabase.rpc('update_booking', {
+            p_booking_id: booking.id,
+            p_barber_id: barberId,
+            p_service_id: service.id,
+            p_starts_at: startsAt,
+            p_customer_phone: trimmedPhone,
+            p_notes: trimmedNotes || null,
+          })
+        : await supabase.rpc('create_booking', {
+            p_barber_id: barberId,
+            p_service_id: service.id,
+            p_starts_at: startsAt,
+            p_customer_phone: trimmedPhone,
+            p_notes: trimmedNotes || null,
+          });
 
-      if (createError) {
-        console.error('Could not create booking', createError);
+      if (result.error) {
+        console.error(
+          isEdit ? 'Could not update booking' : 'Could not create booking',
+          result.error,
+        );
         setError(
           readBookingError(
-            createError,
-            'Could not create the appointment. Try again.',
+            result.error,
+            isEdit
+              ? 'Could not update the appointment. Try again.'
+              : 'Could not create the appointment. Try again.',
           ),
         );
         return;
       }
 
-      const row = Array.isArray(data) ? data[0] : data;
+      const row = Array.isArray(result.data) ? result.data[0] : result.data;
       if (!row) {
-        setError('Could not create the appointment. Try again.');
+        setError(
+          isEdit
+            ? 'Could not update the appointment. Try again.'
+            : 'Could not create the appointment. Try again.',
+        );
         return;
       }
 
-      onCreated(toBooking(row as BookingRow));
+      onSaved(toBooking(row as BookingRow), isEdit ? 'updated' : 'created');
     } catch (cause) {
-      console.error('Could not create booking', cause);
+      console.error(
+        isEdit ? 'Could not update booking' : 'Could not create booking',
+        cause,
+      );
       setError(
         'Could not reach the booking service. Check your connection and try again.',
       );
@@ -398,7 +443,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
     }
   };
 
-  const emptyOptions = services.length === 0 || barbers.length === 0;
+  const hasSelectableBarber = isEdit
+    ? barbers.length > 0
+    : barbers.some((barber) => barber.isAvailable);
+  const emptyOptions = services.length === 0 || !hasSelectableBarber;
 
   return createPortal(
     <div className="trim-book-modal">
@@ -420,13 +468,16 @@ const BookingModal: React.FC<BookingModalProps> = ({
       >
         <header className="trim-book-modal__head">
           <div>
-            <p className="trim-book-modal__eyebrow">New appointment</p>
+            <p className="trim-book-modal__eyebrow">
+              {isEdit ? 'Edit appointment' : 'New appointment'}
+            </p>
             <h2 className="trim-book-modal__title" id={titleId}>
-              Book a chair
+              {isEdit ? 'Update your chair' : 'Book a chair'}
             </h2>
             <p className="trim-book-modal__lede">
-              Pick a service, barber and time. Your barber confirms the request
-              from their dashboard.
+              {isEdit
+                ? 'Change the service, barber or time. Saving keeps the same booking and updates the price from the menu.'
+                : 'Pick a service, barber and time. Your barber confirms the request from their dashboard.'}
             </p>
           </div>
           <button
@@ -471,7 +522,9 @@ const BookingModal: React.FC<BookingModalProps> = ({
             <p className="trim-book-form__error" role="alert">
               {services.length === 0
                 ? 'The service menu is empty.'
-                : 'No barbers are available yet.'}{' '}
+                : barbers.length === 0
+                  ? 'No barbers are listed yet.'
+                  : 'No barber is taking appointments right now.'}{' '}
               Try again in a moment.
             </p>
             <div className="trim-book-form__actions">
@@ -494,7 +547,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
         ) : (
           <form className="trim-book-form" onSubmit={submit} noValidate>
             <p className="trim-book-form__identity">
-              Booking as{' '}
+              {isEdit ? 'Editing as' : 'Booking as'}{' '}
               {profile?.username
                 ? `@${profile.username}`
                 : (session?.user.email ?? 'your account')}
@@ -521,21 +574,14 @@ const BookingModal: React.FC<BookingModalProps> = ({
                 </select>
               </label>
 
-              <label className="trim-book-field">
-                <span className="trim-book-field__label">Barber</span>
-                <select
+              <div className="trim-book-field trim-book-field--wide">
+                <BarberPicker
+                  barbers={barbers}
                   value={barberId}
                   disabled={isSubmitting}
-                  required
-                  onChange={(event) => setBarberId(event.target.value)}
-                >
-                  {barbers.map((barber) => (
-                    <option key={barber.id} value={barber.id}>
-                      {barberLabel(barber)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  onChange={setBarberId}
+                />
+              </div>
 
               <label className="trim-book-field">
                 <span className="trim-book-field__label">Date</span>
@@ -641,7 +687,13 @@ const BookingModal: React.FC<BookingModalProps> = ({
                 className="trim-book-form__submit"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Requesting…' : 'Request appointment'}
+                {isSubmitting
+                  ? isEdit
+                    ? 'Saving…'
+                    : 'Requesting…'
+                  : isEdit
+                    ? 'Save changes'
+                    : 'Request appointment'}
               </button>
             </div>
           </form>
