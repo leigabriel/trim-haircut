@@ -29,7 +29,7 @@ const Nav: React.FC<NavProps> = ({ tone = 'dark' }) => {
     <>
       <header className={`trim-nav trim-nav--${tone}`}>
         <Link className="trim-nav__brand" to="/home" aria-label="Trim, home">
-          <span aria-hidden="true">T</span>
+          <span aria-hidden="true">Trim</span>
         </Link>
 
         <nav className="trim-nav__menu" aria-label="Main">
@@ -59,7 +59,7 @@ const Nav: React.FC<NavProps> = ({ tone = 'dark' }) => {
                   type="button"
                   onClick={() => setIsLoginOpen(true)}
                 >
-                  login
+                  LOGIN
                 </button>
               </li>
             )}
