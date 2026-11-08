@@ -17,6 +17,54 @@ interface LoginModalProps {
 
 type Tab = 'signin' | 'create';
 
+interface PasswordToggleProps {
+  visible: boolean;
+  onToggle: () => void;
+  label: string;
+  disabled?: boolean;
+}
+
+const PasswordToggle: React.FC<PasswordToggleProps> = ({
+  visible,
+  onToggle,
+  label,
+  disabled,
+}) => (
+  <button
+    className="trim-login__password-toggle"
+    type="button"
+    aria-label={label}
+    aria-pressed={visible}
+    onClick={onToggle}
+    disabled={disabled}
+  >
+    {visible ? (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+        <path
+          d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.75" />
+        <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      </svg>
+    ) : (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+        <path
+          d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.75" />
+      </svg>
+    )}
+  </button>
+);
+
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
   const { signInWithGoogle, register, signInWithPassword } = useAuth();
   const navigate = useNavigate();
@@ -28,6 +76,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [legalDoc, setLegalDoc] = useState<LegalDoc | null>(null);
+
+  // Show / hide password
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Sign in
   const [signInEmail, setSignInEmail] = useState('');
@@ -225,6 +278,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
               role="tab"
               aria-selected={tab === 'signin'}
               onClick={() => switchTab('signin')}
+              disabled={isBusy}
             >
               Sign in
             </button>
@@ -234,6 +288,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
               role="tab"
               aria-selected={tab === 'create'}
               onClick={() => switchTab('create')}
+              disabled={isBusy}
             >
               Create account
             </button>
@@ -251,26 +306,38 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
                     autoComplete="email"
                     value={signInEmail}
                     onChange={(event) => setSignInEmail(event.target.value)}
+                    disabled={isBusy}
                   />
                 </label>
 
                 <label className="trim-login__field">
                   <span className="trim-login__field-label">Password</span>
-                  <input
-                    className="trim-login__input"
-                    type="password"
-                    autoComplete="current-password"
-                    value={signInPassword}
-                    onChange={(event) => setSignInPassword(event.target.value)}
-                  />
+                  <span className="trim-login__password-wrap">
+                    <input
+                      className="trim-login__input trim-login__input--password"
+                      type={showSignInPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      value={signInPassword}
+                      onChange={(event) => setSignInPassword(event.target.value)}
+                      disabled={isBusy}
+                    />
+                    <PasswordToggle
+                      visible={showSignInPassword}
+                      onToggle={() => setShowSignInPassword((visible) => !visible)}
+                      label={showSignInPassword ? 'Hide password' : 'Show password'}
+                      disabled={isBusy}
+                    />
+                  </span>
                 </label>
 
                 <button
-                  className="trim-login__submit"
+                  className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`}
                   type="submit"
                   disabled={isBusy}
+                  aria-busy={isBusy || undefined}
                 >
-                  {isBusy ? 'Signing in' : 'Sign in'}
+                  {isBusy ? <span className="trim-login__spinner" aria-hidden="true" /> : null}
+                  <span>{isBusy ? 'Signing in' : 'Sign in'}</span>
                 </button>
               </form>
 
@@ -300,6 +367,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
                   value={email}
                   aria-invalid={errors.email ? true : undefined}
                   onChange={(event) => setEmail(event.target.value)}
+                  disabled={isBusy}
                 />
                 {errors.email ? (
                   <span className="trim-login__field-error">{errors.email}</span>
@@ -308,14 +376,23 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
 
               <label className="trim-login__field">
                 <span className="trim-login__field-label">Password</span>
-                <input
-                  className="trim-login__input"
-                  type="password"
-                  autoComplete="new-password"
-                  value={password}
-                  aria-invalid={errors.password ? true : undefined}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
+                <span className="trim-login__password-wrap">
+                  <input
+                    className="trim-login__input trim-login__input--password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    value={password}
+                    aria-invalid={errors.password ? true : undefined}
+                    onChange={(event) => setPassword(event.target.value)}
+                    disabled={isBusy}
+                  />
+                  <PasswordToggle
+                    visible={showPassword}
+                    onToggle={() => setShowPassword((visible) => !visible)}
+                    label={showPassword ? 'Hide password' : 'Show password'}
+                    disabled={isBusy}
+                  />
+                </span>
                 {errors.password ? (
                   <span className="trim-login__field-error">{errors.password}</span>
                 ) : null}
@@ -323,21 +400,36 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
 
               <label className="trim-login__field">
                 <span className="trim-login__field-label">Confirm password</span>
-                <input
-                  className="trim-login__input"
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirmation}
-                  aria-invalid={errors.confirmation ? true : undefined}
-                  onChange={(event) => setConfirmation(event.target.value)}
-                />
+                <span className="trim-login__password-wrap">
+                  <input
+                    className="trim-login__input trim-login__input--password"
+                    type={showConfirmation ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    value={confirmation}
+                    aria-invalid={errors.confirmation ? true : undefined}
+                    onChange={(event) => setConfirmation(event.target.value)}
+                    disabled={isBusy}
+                  />
+                  <PasswordToggle
+                    visible={showConfirmation}
+                    onToggle={() => setShowConfirmation((visible) => !visible)}
+                    label={showConfirmation ? 'Hide confirm password' : 'Show confirm password'}
+                    disabled={isBusy}
+                  />
+                </span>
                 {errors.confirmation ? (
                   <span className="trim-login__field-error">{errors.confirmation}</span>
                 ) : null}
               </label>
 
-              <button className="trim-login__submit" type="submit" disabled={isBusy}>
-                {isBusy ? 'Creating account' : 'Create account'}
+              <button
+                className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`}
+                type="submit"
+                disabled={isBusy}
+                aria-busy={isBusy || undefined}
+              >
+                {isBusy ? <span className="trim-login__spinner" aria-hidden="true" /> : null}
+                <span>{isBusy ? 'Creating account' : 'Create account'}</span>
               </button>
             </form>
           )}
