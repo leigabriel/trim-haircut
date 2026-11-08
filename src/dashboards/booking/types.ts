@@ -17,6 +17,8 @@ export interface BookingRow {
   customer_name: string;
   customer_email: string | null;
   customer_phone: string;
+  /** Absent until migration 0012 has run. */
+  customer_avatar_url?: string | null;
   barber_id: string | null;
   barber_name: string;
   shop: string;
@@ -38,6 +40,7 @@ export interface Booking {
   customerName: string;
   customerEmail: string | null;
   customerPhone: string;
+  customerAvatarUrl: string | null;
   barberId: string | null;
   barberName: string;
   shop: string;
@@ -64,6 +67,8 @@ export interface BarberOption {
   id: string;
   username: string | null;
   displayName: string | null;
+  avatarUrl: string | null;
+  isAvailable: boolean;
 }
 
 export interface BookingsState {
@@ -75,7 +80,15 @@ export interface BookingsState {
     id: string,
     status: BookingStatus,
   ) => Promise<{ ok: boolean; error?: string }>;
+  deleteBooking: (id: string) => Promise<{ ok: boolean; error?: string }>;
 }
+
+export const barberLabel = (barber: BarberOption): string => {
+  const name = barber.displayName?.trim();
+  const handle = barber.username ? `@${barber.username}` : null;
+  if (name && handle) return `${name} (${handle})`;
+  return name || handle || 'Trim barber';
+};
 
 export const toBooking = (row: BookingRow): Booking => ({
   id: row.id,
@@ -83,6 +96,7 @@ export const toBooking = (row: BookingRow): Booking => ({
   customerName: row.customer_name,
   customerEmail: row.customer_email,
   customerPhone: row.customer_phone,
+  customerAvatarUrl: row.customer_avatar_url ?? null,
   barberId: row.barber_id,
   barberName: row.barber_name,
   shop: row.shop,
