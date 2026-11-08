@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
+import { useSearchParams } from 'react-router-dom';
 
 import ChatView from './ai/ChatView';
 import ConversationList from './ai/ConversationList';
@@ -30,7 +31,23 @@ import '../shell/dashboard.css';
  * No site Nav here: this is an app surface, not a marketing page.
  */
 const CustomerDashboard: React.FC = () => {
-  const [view, setView] = useState<DashboardView>('overview');
+  const [searchParams] = useSearchParams();
+  const requestedView = searchParams.get('view');
+  const isValidView = (value: string | null): value is DashboardView =>
+    value !== null &&
+    (
+      value === 'account' ||
+      DASHBOARD_NAV.some((item) => item.id === value)
+    );
+
+  const [view, setView] = useState<DashboardView>(() =>
+    isValidView(requestedView) ? requestedView : 'overview',
+  );
+
+  useEffect(() => {
+    if (isValidView(requestedView)) setView(requestedView);
+  }, [requestedView]);
+
   const [isRailOpen, setIsRailOpen] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [trimoPrompt, setTrimoPrompt] = useState<string | null>(null);
