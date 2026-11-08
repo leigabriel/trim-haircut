@@ -8,6 +8,8 @@ export interface Profile {
   displayName: string | null;
   avatarUrl: string | null;
   role: UserRole;
+  /** The barber's chair availability. True for every other role. */
+  isAvailable: boolean;
 }
 
 /** Row shape from the profiles table. */
@@ -18,6 +20,8 @@ export interface ProfileRow {
   avatar_url: string | null;
   /** Absent until migration 0008 has run. */
   role?: string | null;
+  /** Absent until migration 0012 has run. */
+  is_available?: boolean | null;
 }
 
 export interface AuthContextValue {
@@ -57,6 +61,12 @@ export interface AuthContextValue {
    * arbitrary URL through this method.
    */
   saveAvatar: (avatarUrl: string) => Promise<{ ok: boolean; error?: string }>;
+
+  /**
+   * Toggles the barber's chair availability. Customers see this state when
+   * they choose a barber in the booking form.
+   */
+  saveAvailability: (available: boolean) => Promise<{ ok: boolean; error?: string }>;
 
   /**
    * Creates an account and signs the customer straight in.
