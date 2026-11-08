@@ -157,6 +157,11 @@
   outline-offset: -2px;
 }
 
+.trim-login__tab:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 /* Divider between Google and the email form. */
 
 .trim-login__rule {
@@ -223,6 +228,55 @@
   box-shadow: inset 0 0 0 1px var(--trim-danger);
 }
 
+.trim-login__input:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Show / hide password. The wrapper holds the input and its eye toggle. */
+.trim-login__password-wrap {
+  position: relative;
+  display: block;
+}
+
+.trim-login__input--password {
+  padding-right: 3.25rem;
+}
+
+.trim-login__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: rgb(0 0 0 / 55%);
+  cursor: var(--cursor-pointer);
+  transform: translateY(-50%);
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+.trim-login__password-toggle:hover:not(:disabled) {
+  background-color: rgb(0 0 0 / 6%);
+  color: var(--trim-blue);
+}
+
+.trim-login__password-toggle:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+  color: var(--trim-blue);
+}
+
+.trim-login__password-toggle:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .trim-login__field-error {
   display: block;
   margin-top: 0.35rem;
@@ -242,6 +296,10 @@
 }
 
 .trim-login__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   width: 100%;
   margin-top: 0.5rem;
   padding: 0.8rem 1.2rem;
@@ -266,9 +324,39 @@
   cursor: var(--cursor-default);
 }
 
+/* Keep the loading button legible: a faded blue behind a white spinner reads
+   as a stall rather than progress. */
+.trim-login__submit--loading {
+  opacity: 1;
+}
+
 .trim-login__submit:focus-visible {
   outline: 2px solid var(--trim-black);
   outline-offset: 3px;
+}
+
+/* Button loading indicator. White on the blue submit so it reads as progress,
+   not a new colour. */
+.trim-login__spinner {
+  flex: 0 0 auto;
+  width: 1.1em;
+  height: 1.1em;
+  border: 2px solid rgb(255 255 255 / 45%);
+  border-top-color: var(--trim-white);
+  border-radius: 50%;
+  animation: trim-login-spin 700ms linear infinite;
+}
+
+@keyframes trim-login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trim-login__spinner {
+    animation: none;
+  }
 }
 
 /* The consent block supplies the top margin. */
