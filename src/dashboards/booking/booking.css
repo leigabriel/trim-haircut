@@ -88,7 +88,15 @@
   white-space: nowrap;
 }
 
-.trim-book__cancel {
+.trim-book__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.trim-book__edit,
+.trim-book__cancel,
+.trim-book__delete {
   padding: 0.35rem 0.55rem;
   border: 1px solid var(--trim-danger);
   border-radius: 3px;
@@ -102,14 +110,162 @@
   cursor: var(--cursor-pointer);
   transition:
     background-color 180ms ease,
+    border-color 180ms ease,
     color 180ms ease;
 }
 
+.trim-book__edit {
+  border-color: var(--trim-black);
+  color: var(--trim-black);
+}
+
+.trim-book__edit:hover,
+.trim-book__edit:focus-visible {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
 .trim-book__cancel:hover,
-.trim-book__cancel:focus-visible {
+.trim-book__cancel:focus-visible,
+.trim-book__delete:hover,
+.trim-book__delete:focus-visible {
   background-color: var(--trim-danger);
   color: var(--trim-white);
   outline: none;
+}
+
+/* Avatars on booking surfaces. The admin manager keeps its own copy; this is
+   the shared shape for the customer and barber dashboards. */
+
+.trim-book-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  object-fit: cover;
+}
+
+.trim-book-avatar--initial {
+  user-select: none;
+}
+
+.trim-book-avatar--row {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 0.875rem;
+}
+
+.trim-book-avatar--lg {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.25rem;
+}
+
+/* Barber profile cards inside the booking dialog. */
+
+.trim-barber-picker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.trim-barber-picker legend {
+  padding: 0;
+}
+
+.trim-barber-picker__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.55rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-barber-picker__card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgb(0 0 0 / 15%);
+  border-radius: 4px;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.trim-barber-picker__card:hover {
+  border-color: var(--trim-blue);
+}
+
+.trim-barber-picker__card:focus-within {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+}
+
+.trim-barber-picker__card--selected {
+  border-color: var(--trim-blue);
+  background-color: #f2f4ff;
+  box-shadow: inset 0 0 0 1px var(--trim-blue);
+}
+
+.trim-barber-picker__card--away:not(.trim-barber-picker__card--selected) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.trim-barber-picker__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.trim-barber-picker__name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--trim-black);
+  overflow-wrap: anywhere;
+}
+
+.trim-barber-picker__state {
+  margin-top: 0.1rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--trim-blue);
+}
+
+.trim-barber-picker__state--away {
+  color: var(--trim-danger);
+}
+
+.trim-barber-picker__check {
+  flex: 0 0 auto;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--trim-blue);
+}
+
+@media (max-width: 40rem) {
+  .trim-barber-picker__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .trim-status--cancelled {
