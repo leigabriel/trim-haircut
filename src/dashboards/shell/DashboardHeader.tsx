@@ -5,7 +5,7 @@ interface DashboardHeaderProps {
   sectionLabel: string;
   isRailOpen: boolean;
   onToggleRail: () => void;
-  /** Omitted by surfaces that have no notification feed, such as barber. */
+  /** Omitted by surfaces that have no notification feed. */
   unreadCount?: number;
   isPanelOpen?: boolean;
   onTogglePanel?: () => void;
