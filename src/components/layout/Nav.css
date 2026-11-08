@@ -62,9 +62,11 @@
   display: inline-flex;
   align-items: center;
   padding: 0 0.06em;
-  font-family: var(--trim-font-brand);
-  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
-  line-height: 0.8;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
 }
 
 .trim-nav__brand:focus-visible {
@@ -103,11 +105,12 @@
   padding: 0.12em 0.28em;
   border: 0;
   background: none;
-  font-family: var(--trim-font-display);
+  font-family: var(--trim-font-sans);
   font-size: clamp(1.375rem, 2.2vw, 2rem);
   font-weight: 400;
   line-height: 1;
   color: inherit;
+  text-transform: uppercase;
   cursor: var(--cursor-pointer);
 }
 
