@@ -4,28 +4,30 @@ import { IonContent, IonPage } from '@ionic/react';
 import AccountPanel from '../shell/AccountPanel';
 import DashboardHeader from '../shell/DashboardHeader';
 import DashboardRail from '../shell/DashboardRail';
+import NotificationPanel from '../shell/NotificationPanel';
 import { useDashboardScale } from '../shell/useDashboardScale';
 import { useBookings } from '../booking/useBookings';
 import { BARBER_NAV } from './data';
 import type { BarberView } from './data';
 import Appointments from './sections/Appointments';
-import Availability from './sections/Availability';
-import Clients from './sections/Clients';
-import Services from './sections/Services';
-import Today from './sections/Today';
+import Overview from './sections/Overview';
+import { useBarberNotifications } from './useNotifications';
 import '../shell/dashboard.css';
+import './barber.css';
 
 /**
- * Barber dashboard. The customer shell with a different rail; no bell, because
- * there is no notification feed behind it yet.
+ * Barber dashboard. The customer shell with a different rail; the bell is
+ * backed by the bookings feed derived from this chair.
  */
 const BarberDashboard: React.FC = () => {
-  const [view, setView] = useState<BarberView>('today');
+  const [view, setView] = useState<BarberView>('overview');
   const [isRailOpen, setIsRailOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   // RLS narrows this to the bookings assigned to this barber's chair. Shared by
-  // Today and Appointments so a status change on one is visible on the other.
+  // Overview and Appointments so a status change on one is visible on the other.
   const bookings = useBookings();
+  const notifications = useBarberNotifications({ bookings });
 
   useDashboardScale();
 
@@ -49,6 +51,9 @@ const BarberDashboard: React.FC = () => {
             sectionLabel={sectionLabel}
             isRailOpen={isRailOpen}
             onToggleRail={() => setIsRailOpen((open) => !open)}
+            unreadCount={notifications.unreadCount}
+            isPanelOpen={isPanelOpen}
+            onTogglePanel={() => setIsPanelOpen((open) => !open)}
           />
 
           <div className="trim-dash__grid">
@@ -63,15 +68,26 @@ const BarberDashboard: React.FC = () => {
 
             <main className="trim-dash__main">
               <div className="trim-section">
-                {view === 'today' ? <Today bookings={bookings} /> : null}
-                {view === 'appointments' ? <Appointments bookings={bookings} /> : null}
-                {view === 'availability' ? <Availability /> : null}
-                {view === 'clients' ? <Clients /> : null}
-                {view === 'services' ? <Services /> : null}
+                {view === 'overview' ? <Overview bookings={bookings} /> : null}
+                {view === 'appointments' ? (
+                  <Appointments bookings={bookings} />
+                ) : null}
                 {view === 'account' ? <AccountPanel role="barber" /> : null}
               </div>
             </main>
           </div>
+
+          <NotificationPanel
+            isOpen={isPanelOpen}
+            onClose={() => setIsPanelOpen(false)}
+            items={notifications.items}
+            unreadCount={notifications.unreadCount}
+            isLoading={notifications.isLoading}
+            hasError={notifications.hasError}
+            onMarkRead={notifications.markRead}
+            onMarkAllRead={notifications.markAllRead}
+            onOpenView={select}
+          />
         </div>
       </IonContent>
     </IonPage>
