@@ -95,5 +95,41 @@ export const useBookings = (): BookingsState => {
     [],
   );
 
-  return { bookings, isLoading, error, reload, setStatus };
+  const deleteBooking = useCallback(async (id: string) => {
+    try {
+      const { error: deleteError } = await supabase.rpc('delete_booking', {
+        p_booking_id: id,
+      });
+
+      if (deleteError) {
+        console.error('Could not delete booking', deleteError);
+        return {
+          ok: false,
+          error: readBookingError(
+            deleteError,
+            'Could not delete the appointment. Try again.',
+          ),
+        };
+      }
+
+      setBookings((current) => current.filter((booking) => booking.id !== id));
+      return { ok: true };
+    } catch (cause) {
+      console.error('Could not delete booking', cause);
+      return {
+        ok: false,
+        error:
+          'Could not reach the booking service. Check your connection and try again.',
+      };
+    }
+  }, []);
+
+  return {
+    bookings,
+    isLoading,
+    error,
+    reload,
+    setStatus,
+    deleteBooking,
+  };
 };
