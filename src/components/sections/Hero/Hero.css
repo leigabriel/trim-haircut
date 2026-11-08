@@ -35,34 +35,51 @@
   text-align: center;
 }
 
-.trim-hero__title {
+.trim-hero__action {
   position: relative;
+  /* Above the tool canvas (z-index 3) so the button is not swallowed by it.
+     pointer-events on the container itself are off: only the button takes
+     clicks, so clicks beside it still reach the stage. */
+  z-index: 4;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   margin: 0;
-  font-weight: normal;
+  pointer-events: none;
 }
 
-.trim-hero__wordmark {
-  font-family: var(--trim-font-brand);
-  font-size: clamp(3.5rem, 11vw, 10rem);
-  /* Tritopani's T has a deep swash, so the line box holds the ink. */
-  line-height: 1.05;
-}
-
-.trim-hero__tagline {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+.trim-hero__book {
+  flex: 0 0 auto;
+  position: relative;
+  pointer-events: auto;
+  padding: 0.9rem 1.75rem;
+  border: 1px solid var(--trim-white);
+  border-radius: 0;
+  background-color: var(--trim-white);
+  color: var(--trim-blue);
   font-family: var(--trim-font-display);
-  font-size: clamp(1.50rem, 2.5vw, 3.5rem);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
   font-weight: 400;
-  line-height: 0.75;
-  letter-spacing: -0.01em;
-  text-align: right;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  cursor: var(--cursor-pointer);
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.trim-hero__book:hover {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+}
+
+.trim-hero__book:focus-visible {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: 2px solid var(--trim-white);
+  outline-offset: 3px;
 }
 
 @media (max-width: 48rem) {
@@ -71,14 +88,7 @@
     width: 92%;
   }
 
-  .trim-hero__title {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-
-  .trim-hero__tagline {
-    align-items: flex-start;
-    text-align: left;
+  .trim-hero__book {
+    align-self: center;
   }
 }
