@@ -20,11 +20,27 @@ const DATE_KEY = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 });
 
+const TIME_KEY = new Intl.DateTimeFormat('en-GB', {
+  timeZone: SHOP_TIME_ZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
 const pad = (value: number): string => String(value).padStart(2, '0');
 
 /** YYYY-MM-DD in shop time. */
 export const shopDateKey = (value: Date | string): string =>
   DATE_KEY.format(typeof value === 'string' ? new Date(value) : value);
+
+/** "14:30" wall-clock time in shop time, for prefilling the edit form. */
+export const shopTimeValue = (value: Date | string): string => {
+  const date = typeof value === 'string' ? new Date(value) : value;
+  const parts = TIME_KEY.formatToParts(date);
+  const hour = parts.find((part) => part.type === 'hour')?.value ?? '00';
+  const minute = parts.find((part) => part.type === 'minute')?.value ?? '00';
+  return `${hour === '24' ? '00' : hour}:${minute}`;
+};
 
 export const shopToday = (): string => shopDateKey(new Date());
 
