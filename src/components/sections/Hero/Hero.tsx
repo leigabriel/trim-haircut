@@ -1,5 +1,8 @@
-import { lazy, Suspense, useRef } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../../../auth/AuthProvider';
+import LoginModal from '../../layout/modals/LoginModal';
 import HeroLede from './HeroLede';
 import { useHeroFade } from './useHeroFade';
 import './Hero.css';
@@ -18,28 +21,42 @@ interface HeroProps {
   onReady: () => void;
 }
 
-// Lede centred, wordmark bottom left, tagline bottom right.
+// Lede centred, Book Now centred at the bottom.
 const Hero: React.FC<HeroProps> = ({ isEntered, onProgress, onReady }) => {
   const ref = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
+  const { session } = useAuth();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   useHeroFade(ref, isEntered);
 
+  const handleBookNow = () => {
+    if (session) {
+      navigate('/dashboard?view=booking');
+      return;
+    }
+    setIsLoginOpen(true);
+  };
+
   return (
-    <section ref={ref} className="trim-hero" aria-labelledby="trim-hero-title">
+    <section ref={ref} className="trim-hero" aria-label="Trim">
       <Suspense fallback={null}>
         <ToolModel isEntered={isEntered} onProgress={onProgress} onReady={onReady} />
       </Suspense>
 
       <HeroLede />
 
-      <h1 className="trim-hero__title" id="trim-hero-title">
-        <span className="trim-hero__wordmark">Trim</span>
+      <div className="trim-hero__action">
+        <button
+          className="trim-hero__book"
+          type="button"
+          onClick={handleBookNow}
+        >
+          Book Now
+        </button>
+      </div>
 
-        <span className="trim-hero__tagline">
-          <span className="trim-hero__tagline-line">Your best</span>
-          <span className="trim-hero__tagline-line">haircut</span>
-        </span>
-      </h1>
+      <LoginModal isOpen={isLoginOpen} onDismiss={() => setIsLoginOpen(false)} />
     </section>
   );
 };
