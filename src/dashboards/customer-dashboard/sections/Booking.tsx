@@ -19,9 +19,12 @@ interface BookingProps {
 
 const Booking: React.FC<BookingProps> = ({ bookings }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Booking | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Booking | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Booking | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const ordered = useMemo(() => displayOrder(bookings.bookings), [bookings.bookings]);
   const isLoading = bookings.isLoading && bookings.bookings.length === 0;
@@ -50,14 +53,32 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
 
   const openForm = () => {
     setNotice(null);
+    setEditTarget(null);
     setIsFormOpen(true);
   };
 
-  const handleCreated = (booking: Booking) => {
+  const openEdit = (booking: Booking) => {
+    setNotice(null);
+    setEditTarget(booking);
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
     setIsFormOpen(false);
-    setNotice(
-      `Requested ${formatBookingWhen(booking.startsAt)} with ${booking.barberName}. The barber confirms it from their dashboard.`,
-    );
+    setEditTarget(null);
+  };
+
+  const handleSaved = (booking: Booking, mode: 'created' | 'updated') => {
+    closeForm();
+    if (mode === 'updated') {
+      setNotice(
+        `Updated ${formatBookingWhen(booking.startsAt)} with ${booking.barberName} for ${booking.service}.`,
+      );
+    } else {
+      setNotice(
+        `Requested ${formatBookingWhen(booking.startsAt)} with ${booking.barberName}. The barber confirms it from their dashboard.`,
+      );
+    }
     void bookings.reload();
   };
 
@@ -77,17 +98,34 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
     setNotice('Appointment cancelled. The slot is open again.');
   };
 
+  const dismissDelete = () => {
+    setDeleteTarget(null);
+    setDeleteError(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const result = await bookings.deleteBooking(deleteTarget.id);
+    if (!result.ok) {
+      setDeleteError(result.error ?? 'Could not delete the appointment. Try again.');
+      return;
+    }
+    dismissDelete();
+    setNotice('Appointment deleted.');
+  };
+
   return (
     <>
       <SectionHead
-        title="Booking"
-        lede="Request a chair with a Trim barber. Your barber confirms from their dashboard, and every confirmed cut keeps your recommendation history in order."
+        title="Bookings"
+        lede="Request a chair with a Trim barber, then edit or cancel it until the cut is done. Your barber confirms from their dashboard, and every confirmed cut keeps your recommendation history in order."
       />
 
       <div className="trim-book__toolbar">
         <p className="trim-book__toolbar-text">
           Pick a service, a barber and a time. Same-day requests are welcome when
-          the chair is open.
+          the chair is open. Upcoming appointments can be edited or cancelled;
+          any appointment can be deleted.
         </p>
         <button type="button" className="trim-book__new" onClick={openForm}>
           Book an appointment
@@ -179,7 +217,8 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
         <div className="trim-table-wrap">
           <table className="trim-table">
             <caption className="trim-visually-hidden">
-              Your appointments by date, barber, service, status and price
+              Your appointments by date, barber, service, status and price, with
+              edit, cancel and delete actions
             </caption>
             <thead>
               <tr>
@@ -221,21 +260,42 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
                     {formatMoney(booking.price)}
                   </td>
                   <td data-label="Actions" className="trim-book__table-actions">
-                    {isUpcoming(booking) ? (
+                    <span className="trim-book__actions">
+                      {isUpcoming(booking) ? (
+                        <>
+                          <button
+                            type="button"
+                            className="trim-book__edit"
+                            aria-label={`Edit ${booking.service} with ${booking.barberName} on ${formatBookingWhen(booking.startsAt)}`}
+                            onClick={() => openEdit(booking)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="trim-book__cancel"
+                            aria-label={`Cancel ${booking.service} with ${booking.barberName} on ${formatBookingWhen(booking.startsAt)}`}
+                            onClick={() => {
+                              setCancelError(null);
+                              setCancelTarget(booking);
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : null}
                       <button
                         type="button"
-                        className="trim-book__cancel"
-                        aria-label={`Cancel ${booking.service} with ${booking.barberName} on ${formatBookingWhen(booking.startsAt)}`}
+                        className="trim-book__delete"
+                        aria-label={`Delete ${booking.service} with ${booking.barberName} on ${formatBookingWhen(booking.startsAt)}`}
                         onClick={() => {
-                          setCancelError(null);
-                          setCancelTarget(booking);
+                          setDeleteError(null);
+                          setDeleteTarget(booking);
                         }}
                       >
-                        Cancel
+                        Delete
                       </button>
-                    ) : (
-                      <span className="trim-table__secondary">—</span>
-                    )}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -246,8 +306,9 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
 
       <BookingModal
         isOpen={isFormOpen}
-        onDismiss={() => setIsFormOpen(false)}
-        onCreated={handleCreated}
+        booking={editTarget}
+        onDismiss={closeForm}
+        onSaved={handleSaved}
       />
 
       <ConfirmModal
@@ -264,6 +325,22 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
         error={cancelError}
         onConfirm={confirmCancel}
         onDismiss={dismissCancel}
+      />
+
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        title="Delete this appointment?"
+        message={
+          deleteTarget
+            ? `${formatBookingWhen(deleteTarget.startsAt)} with ${deleteTarget.barberName} for ${deleteTarget.service}. This removes it from your booking history and cannot be undone.`
+            : ''
+        }
+        confirmLabel="Delete appointment"
+        cancelLabel="Keep it"
+        pendingLabel="Deleting…"
+        error={deleteError}
+        onConfirm={confirmDelete}
+        onDismiss={dismissDelete}
       />
     </>
   );
