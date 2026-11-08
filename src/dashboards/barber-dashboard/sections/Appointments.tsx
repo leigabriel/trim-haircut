@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 
+import { useAuth } from '../../../auth/AuthProvider';
+import BookingAvatar from '../../booking/BookingAvatar';
 import { BookingStatusSelect } from '../../booking/BookingStatus';
 import {
   displayOrder,
@@ -11,14 +13,19 @@ import {
 import type { BookingStatus, BookingsState } from '../../booking/types';
 import SectionHead from '../../shell/SectionHead';
 import '../../booking/booking.css';
+import AppointmentProfileModal from './AppointmentProfileModal';
 
 interface AppointmentsProps {
   bookings: BookingsState;
 }
 
 const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
+  const { profile, saveAvailability } = useAuth();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+  const [isSavingAvailability, setIsSavingAvailability] = useState(false);
 
   const ordered = useMemo(() => displayOrder(bookings.bookings), [bookings.bookings]);
   const isLoading = bookings.isLoading && bookings.bookings.length === 0;
@@ -37,6 +44,14 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
     (booking) => booking.status === 'completed',
   );
 
+  const selected = selectedId
+    ? (bookings.bookings.find((booking) => booking.id === selectedId) ?? null)
+    : null;
+
+  const isAvailable = profile?.isAvailable !== false;
+  const barberName =
+    profile?.displayName?.trim() || profile?.username || 'Trim barber';
+
   const count = (value: number): string => (isLoading ? '…' : String(value));
 
   const changeStatus = async (id: string, status: BookingStatus) => {
@@ -49,12 +64,73 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
     setPendingId(null);
   };
 
+  const toggleAvailability = async () => {
+    setAvailabilityError(null);
+    setIsSavingAvailability(true);
+    const result = await saveAvailability(!isAvailable);
+    if (!result.ok) {
+      setAvailabilityError(result.error ?? 'Could not update availability.');
+    }
+    setIsSavingAvailability(false);
+  };
+
   return (
     <>
       <SectionHead
         title="Appointments"
-        lede="Every booking for your chair, with the customer's contact details and notes. Confirm, complete or cancel from the status menu."
+        lede="Every booking for your chair, with the customer's profile, contact details and notes. Confirm, complete or cancel from the status menu."
       />
+
+      <section className="trim-card trim-barber-profile">
+        <div className="trim-barber-profile__identity">
+          <BookingAvatar
+            src={profile?.avatarUrl}
+            name={barberName}
+            className="trim-book-avatar--row"
+          />
+          <div className="trim-barber-profile__text">
+            <p className="trim-barber-profile__name">{barberName}</p>
+            <p className="trim-barber-profile__meta">
+              {profile?.username ? `@${profile.username}` : 'Barber'} ·{' '}
+              <span
+                className={`trim-barber-profile__state${
+                  isAvailable ? '' : ' trim-barber-profile__state--away'
+                }`}
+              >
+                {isAvailable ? 'Available' : 'Not available'}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className={`trim-barber-profile__toggle${
+            isAvailable ? '' : ' trim-barber-profile__toggle--away'
+          }`}
+          aria-pressed={isAvailable}
+          disabled={isSavingAvailability}
+          onClick={() => void toggleAvailability()}
+        >
+          {isSavingAvailability
+            ? 'Saving…'
+            : isAvailable
+              ? 'Mark not available'
+              : 'Mark available'}
+        </button>
+
+        <p className="trim-barber-profile__hint">
+          {isAvailable
+            ? 'Customers can choose you when they book an appointment.'
+            : 'Your profile is shown as not available on the customer booking form.'}
+        </p>
+
+        {availabilityError ? (
+          <p className="trim-barber-profile__error" role="alert">
+            {availabilityError}
+          </p>
+        ) : null}
+      </section>
 
       <ul className="trim-metrics">
         <li className="trim-metric">
@@ -114,14 +190,16 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
           <h2 className="trim-card__title">No appointments yet</h2>
           <p className="trim-card__text">
             When a customer books your chair, the appointment appears here with
-            their contact details and notes. Confirm it from the status menu.
+            their profile, contact details and notes. Confirm it from the status
+            menu.
           </p>
         </div>
       ) : (
         <div className="trim-table-wrap">
           <table className="trim-table">
             <caption className="trim-visually-hidden">
-              Appointments for your chair with customer, service, price and status
+              Appointments for your chair with customer profile, service, price,
+              status and a button to open the full profile
             </caption>
             <thead>
               <tr>
@@ -132,6 +210,7 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
                   Price
                 </th>
                 <th scope="col">Status</th>
+                <th scope="col">Profile</th>
               </tr>
             </thead>
             <tbody>
@@ -139,15 +218,26 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
                 <tr key={booking.id}>
                   <td data-label="When">{formatBookingWhen(booking.startsAt)}</td>
                   <td data-label="Customer">
-                    <span className="trim-table__primary">{booking.customerName}</span>
-                    <span className="trim-table__secondary trim-book__contact">
-                      {booking.customerPhone}
-                    </span>
-                    {booking.customerEmail ? (
-                      <span className="trim-table__secondary trim-book__contact">
-                        {booking.customerEmail}
+                    <span className="trim-barber-account">
+                      <BookingAvatar
+                        src={booking.customerAvatarUrl}
+                        name={booking.customerName}
+                        className="trim-book-avatar--row"
+                      />
+                      <span className="trim-barber-account__text">
+                        <span className="trim-table__primary">
+                          {booking.customerName}
+                        </span>
+                        <span className="trim-table__secondary trim-book__contact">
+                          {booking.customerPhone}
+                        </span>
+                        {booking.customerEmail ? (
+                          <span className="trim-table__secondary trim-book__contact">
+                            {booking.customerEmail}
+                          </span>
+                        ) : null}
                       </span>
-                    ) : null}
+                    </span>
                   </td>
                   <td data-label="Service">
                     <span className="trim-table__primary">{booking.service}</span>
@@ -170,12 +260,28 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
                       onChange={(status) => void changeStatus(booking.id, status)}
                     />
                   </td>
+                  <td data-label="Profile">
+                    <button
+                      type="button"
+                      className="trim-barber-view"
+                      aria-haspopup="dialog"
+                      aria-label={`Open the profile for ${booking.customerName}'s ${booking.service} on ${formatBookingWhen(booking.startsAt)}`}
+                      onClick={() => setSelectedId(booking.id)}
+                    >
+                      View
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      <AppointmentProfileModal
+        booking={selected}
+        onDismiss={() => setSelectedId(null)}
+      />
     </>
   );
 };
