@@ -11,11 +11,14 @@ import { isUserRole } from './roles';
 import { validateUsername } from './username';
 import type { AuthContextValue, Profile, ProfileRow } from './types';
 
-const PROFILE_COLUMNS = 'id, username, display_name, avatar_url, role';
+const PROFILE_COLUMNS =
+  'id, username, display_name, avatar_url, role, is_available';
 
-// Before migration 0008 the role column does not exist. Selecting it would fail
-// the whole row and the guard would read that as "no profile", so the fallback
-// keeps every existing account working until that migration is applied.
+// Before migration 0008 the role column does not exist, and before 0012 the
+// availability column does not. Selecting a missing column fails the whole
+// row, which the guard would read as "no profile", so each older shape has a
+// fallback that keeps existing accounts working until the migration is applied.
+const ROLE_PROFILE_COLUMNS = 'id, username, display_name, avatar_url, role';
 const LEGACY_PROFILE_COLUMNS = 'id, username, display_name, avatar_url';
 
 export const mapProfile = (row: ProfileRow | null): Profile | null =>
@@ -26,6 +29,7 @@ export const mapProfile = (row: ProfileRow | null): Profile | null =>
         displayName: row.display_name,
         avatarUrl: row.avatar_url,
         role: isUserRole(row.role) ? row.role : 'customer',
+        isAvailable: row.is_available !== false,
       }
     : null;
 
@@ -110,6 +114,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .select(PROFILE_COLUMNS)
           .eq('id', userId)
           .maybeSingle();
+
+        if (error?.code === '42703') {
+          ({ data, error } = await supabase
+            .from('profiles')
+            .select(ROLE_PROFILE_COLUMNS)
+            .eq('id', userId)
+            .maybeSingle());
+        }
 
         if (error?.code === '42703') {
           ({ data, error } = await supabase
@@ -217,6 +229,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         displayName: current?.displayName ?? null,
         avatarUrl: current?.avatarUrl ?? null,
         role: current?.role ?? 'customer',
+        isAvailable: current?.isAvailable ?? true,
       }));
       return { ok: true };
     },
@@ -263,6 +276,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               displayName: result.value,
               avatarUrl: null,
               role: 'customer',
+              isAvailable: true,
             },
       );
 
@@ -313,6 +327,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       );
 
       return { ok: true };
+    },
+    [userId],
+  );
+
+  /**
+   * Sets the barber's chair availability through the role-checked RPC. The
+   * function refuses non-barber accounts, so a customer cannot make themselves
+   * bookable by writing to their own profile.
+   */
+  const saveAvailability = useCallback(
+    async (available: boolean) => {
+      if (!userId) return { ok: false, error: 'You are not signed in.' };
+
+      try {
+        const { error } = await supabase.rpc('set_barber_availability', {
+          p_available: available,
+        });
+
+        if (error) {
+          if (error.code === '42883' || error.code === 'PGRST202') {
+            return {
+              ok: false,
+              error: 'Availability is not available yet. Try again later.',
+            };
+          }
+          if (error.code === '42501') {
+            return {
+              ok: false,
+              error: 'Only barber accounts can change availability.',
+            };
+          }
+          return {
+            ok: false,
+            error: 'Could not update availability. Try again.',
+          };
+        }
+
+        setProfile((current) =>
+          current ? { ...current, isAvailable: available } : current,
+        );
+        return { ok: true };
+      } catch (cause) {
+        console.error('Could not update availability', cause);
+        return {
+          ok: false,
+          error: 'Could not reach the account service. Check your connection and try again.',
+        };
+      }
     },
     [userId],
   );
@@ -425,6 +487,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       saveUsername,
       saveDisplayName,
       saveAvatar,
+      saveAvailability,
       register,
       signInWithPassword,
       isUsernameAvailable,
@@ -440,6 +503,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       saveUsername,
       saveDisplayName,
       saveAvatar,
+      saveAvailability,
       register,
       signInWithPassword,
       isUsernameAvailable,
