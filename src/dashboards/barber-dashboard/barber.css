@@ -1,0 +1,335 @@
+/* Barber surface additions: the overview grid, the chair availability card,
+   the customer profile dialog and the status bars. Shell, table, chart and
+   booking primitives come from the shared dashboard and booking styles. */
+
+.trim-barber__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.trim-barber__grid > .trim-card {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+.trim-barber__wide {
+  grid-column: 1 / -1;
+}
+
+.trim-barber__grid .trim-chart__empty {
+  flex: 1;
+}
+
+/* The status split uses the same horizontal-bar language as the admin
+   overview, kept local so this surface does not import the admin stylesheet. */
+
+.trim-barber-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-barber-bars__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--trim-black);
+}
+
+.trim-barber-bars__count {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+
+.trim-barber-bars__track {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background-color: rgb(0 0 0 / 6%);
+}
+
+.trim-barber-bars__fill {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background-color: var(--trim-blue);
+}
+
+.trim-barber-bars__fill--requested {
+  background-color: rgb(0 0 0 / 18%);
+}
+
+.trim-barber-bars__fill--confirmed {
+  background-color: rgb(0 0 0 / 38%);
+}
+
+.trim-barber-bars__fill--completed {
+  background-color: var(--trim-blue);
+}
+
+.trim-barber-bars__fill--cancelled {
+  background-color: rgb(0 0 0 / 55%);
+}
+
+/* Customer cell and profile action in the appointments table. */
+
+.trim-barber-account {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.trim-barber-account__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.trim-barber-view {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--trim-black);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.trim-barber-view:hover,
+.trim-barber-view:focus-visible {
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+/* Chair availability card on the Appointments page. */
+
+.trim-barber-profile {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.trim-barber-profile__identity {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.85rem;
+  min-width: 12rem;
+}
+
+.trim-barber-profile__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.trim-barber-profile__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--trim-black);
+  overflow-wrap: anywhere;
+}
+
+.trim-barber-profile__meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--trim-black);
+  opacity: 0.58;
+  overflow-wrap: anywhere;
+}
+
+.trim-barber-profile__state {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--trim-blue);
+}
+
+.trim-barber-profile__state--away {
+  color: var(--trim-danger);
+}
+
+.trim-barber-profile__hint {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--trim-black);
+  opacity: 0.6;
+}
+
+.trim-barber-profile__toggle {
+  flex: 0 0 auto;
+  padding: 0.6rem 0.95rem;
+  border: 1px solid var(--trim-blue);
+  border-radius: 3px;
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.trim-barber-profile__toggle:hover:not(:disabled),
+.trim-barber-profile__toggle:focus-visible:not(:disabled) {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  outline: none;
+}
+
+.trim-barber-profile__toggle--away {
+  border-color: var(--trim-danger);
+  background-color: var(--trim-danger);
+}
+
+.trim-barber-profile__toggle:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.trim-barber-profile__error {
+  flex: 1 1 100%;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-left: 3px solid var(--trim-danger);
+  background-color: #fff2f0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--trim-black);
+}
+
+/* Customer profile dialog. The frame is the shared booking dialog; these are
+   the blocks inside it. */
+
+.trim-barber-modal__customer {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.trim-barber-modal__customer .trim-status {
+  flex: 0 0 auto;
+}
+
+.trim-barber-modal__identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.trim-barber-modal__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--trim-black);
+  overflow-wrap: anywhere;
+}
+
+.trim-barber-modal__meta {
+  margin: 0.12rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--trim-black);
+  opacity: 0.58;
+  overflow-wrap: anywhere;
+}
+
+.trim-barber-modal__notes {
+  margin-top: 1.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--dash-line);
+}
+
+.trim-barber-modal__subhead {
+  margin: 0 0 0.45rem;
+  font-size: var(--dash-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trim-black);
+  opacity: 0.5;
+}
+
+.trim-barber-modal__notes p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--trim-black);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* The availability card also appears inside the dialog, so it keeps the same
+   visual language without the page card's bottom margin. */
+.trim-barber-modal__chair {
+  margin-top: 1.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--dash-line);
+}
+
+.trim-barber-modal__chair .trim-barber-profile {
+  margin-bottom: 0;
+}
+
+@media (max-width: 56rem) {
+  .trim-barber__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trim-barber__wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 40rem) {
+  .trim-barber-modal__customer {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .trim-barber-profile__toggle {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trim-barber-profile__toggle,
+  .trim-barber-view {
+    transition: none;
+  }
+}
