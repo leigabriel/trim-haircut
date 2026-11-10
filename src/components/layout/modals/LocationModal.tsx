@@ -90,23 +90,55 @@ const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onDismiss }) => {
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {
-      setStatus('Geolocation is not supported on this device.');
+      setStatus('Geolocation is not supported on this device or browser.');
       return;
     }
 
     setIsBusy(true);
     setStatus('Getting your current location...');
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
+
+    const requestPosition = (highAccuracy: boolean) =>
+      new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: highAccuracy,
+          timeout: highAccuracy ? 10000 : 15000,
+          maximumAge: 30000,
+        });
+      });
+
+    void (async () => {
+      try {
+        const position = await requestPosition(true);
         const from: [number, number] = [position.coords.latitude, position.coords.longitude];
         await fetchRoute(from, 'Your current location');
-      },
-      () => {
-        setStatus('Could not access your location. Allow location access or type your location.');
+        return;
+      } catch (error) {
+        const geoError = error as GeolocationPositionError;
+        if (geoError?.code === 2 || geoError?.code === 3) {
+          try {
+            setStatus('Retrying with lower location accuracy...');
+            const position = await requestPosition(false);
+            const from: [number, number] = [position.coords.latitude, position.coords.longitude];
+            await fetchRoute(from, 'Your current location');
+            return;
+          } catch (retryError) {
+            error = retryError;
+          }
+        }
+
+        const finalError = error as GeolocationPositionError;
+        if (finalError?.code === 1) {
+          setStatus('Location access was denied. Allow location permission for this site, then try again.');
+        } else if (finalError?.code === 2) {
+          setStatus('Your location is unavailable right now. Check device location services or type your location.');
+        } else if (finalError?.code === 3) {
+          setStatus('Getting your location timed out. Try again, or type your location.');
+        } else {
+          setStatus('Could not get your current location. Try again or type your location.');
+        }
         setIsBusy(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+      }
+    })();
   };
 
   return (
