@@ -17,6 +17,83 @@
   min-height: 100%;
 }
 
+.trim-location-modal__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+  padding: 0 var(--trim-gutter) clamp(0.75rem, 1.5vw, 1rem);
+}
+
+.trim-location-modal__search {
+  display: block;
+}
+
+.trim-location-modal__input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 4px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--trim-white);
+  font: inherit;
+  font-size: 0.9375rem;
+}
+
+.trim-location-modal__input::placeholder {
+  color: rgb(255 255 255 / 55%);
+}
+
+.trim-location-modal__input:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 1px;
+  border-color: var(--trim-blue);
+}
+
+.trim-location-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.trim-location-modal__action {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 4px;
+  background: none;
+  color: var(--trim-white);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-location-modal__action--primary {
+  background: var(--trim-blue);
+  border-color: var(--trim-blue);
+  color: var(--trim-black);
+}
+
+.trim-location-modal__action:hover:not(:disabled),
+.trim-location-modal__action:focus-visible:not(:disabled) {
+  background: var(--trim-white);
+  border-color: var(--trim-white);
+  color: var(--trim-black);
+  outline: none;
+}
+
+.trim-location-modal__action:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.trim-location-modal__status {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: rgb(255 255 255 / 75%);
+}
+
 .trim-location-modal__head {
   display: flex;
   align-items: flex-start;
