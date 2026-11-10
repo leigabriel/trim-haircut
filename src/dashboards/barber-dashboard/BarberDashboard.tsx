@@ -11,6 +11,7 @@ import { BARBER_NAV } from './data';
 import type { BarberView } from './data';
 import Appointments from './sections/Appointments';
 import Overview from './sections/Overview';
+import Ratings from './sections/Ratings';
 import { useBarberNotifications } from './useNotifications';
 import '../shell/dashboard.css';
 import './barber.css';
@@ -72,6 +73,7 @@ const BarberDashboard: React.FC = () => {
                 {view === 'appointments' ? (
                   <Appointments bookings={bookings} />
                 ) : null}
+                {view === 'ratings' ? <Ratings /> : null}
                 {view === 'account' ? <AccountPanel role="barber" /> : null}
               </div>
             </main>
