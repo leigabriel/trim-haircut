@@ -255,6 +255,70 @@
   color: var(--trim-danger);
 }
 
+.trim-barber-picker__rating {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--trim-black);
+  opacity: 0.72;
+}
+
+.trim-barber-picker__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.trim-barber-picker__details {
+  padding: 0.2rem 0.45rem;
+  border: 1px solid rgb(0 0 0 / 22%);
+  border-radius: 3px;
+  background: none;
+  color: var(--trim-black);
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-barber-picker__details:hover,
+.trim-barber-picker__details:focus-visible {
+  border-color: var(--trim-black);
+  background-color: var(--trim-black);
+  color: var(--trim-white);
+  outline: none;
+}
+
+.trim-barber-feedback {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-barber-feedback__item {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--dash-line);
+}
+
+.trim-barber-feedback__meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.trim-barber-feedback__comment {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
 .trim-barber-picker__check {
   flex: 0 0 auto;
   font-size: 0.875rem;
