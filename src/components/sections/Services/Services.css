@@ -1,0 +1,71 @@
+.trim-services {
+  position: relative;
+  z-index: 2;
+  padding: var(--trim-gutter);
+  background-color: var(--trim-blue);
+  color: var(--trim-white);
+}
+
+.trim-services__head {
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.trim-services__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--trim-font-display);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.trim-services__lede {
+  margin: 0;
+  max-width: 48ch;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.9375rem, 1.2vw, 1.125rem);
+  line-height: 1.6;
+  color: rgb(255 255 255 / 78%);
+}
+
+.trim-services__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trim-services__card {
+  padding: clamp(1rem, 1.8vw, 1.5rem);
+  border: 1px solid rgb(255 255 255 / 35%);
+  background: transparent;
+}
+
+.trim-services__name {
+  margin: 0 0 0.5rem;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(1rem, 1.3vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.trim-services__description {
+  margin: 0;
+  font-family: var(--trim-font-sans);
+  font-size: clamp(0.875rem, 1vw, 1rem);
+  line-height: 1.55;
+  color: rgb(255 255 255 / 75%);
+}
+
+@media (max-width: 64rem) {
+  .trim-services__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .trim-services__grid {
+    grid-template-columns: 1fr;
+  }
+}
