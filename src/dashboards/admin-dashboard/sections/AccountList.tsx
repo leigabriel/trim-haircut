@@ -15,6 +15,9 @@ interface AccountListProps {
   /** Roles offered by the editable control. Defaults to all three. */
   roleOptions?: readonly UserRole[];
   emptyText: string;
+  /** Optional row action for surfaces like Barber Manager details. */
+  onSelectAccount?: (account: StaffAccount) => void;
+  selectLabel?: string;
 }
 
 const ALL_ROLES: readonly UserRole[] = ['customer', 'barber', 'admin'];
@@ -45,6 +48,8 @@ const AccountList: React.FC<AccountListProps> = ({
   onChangeRole,
   roleOptions = ALL_ROLES,
   emptyText,
+  onSelectAccount,
+  selectLabel = 'View',
 }) => {
   if (accounts.length === 0) {
     return <p className="trim-card__text">{emptyText}</p>;
@@ -63,6 +68,7 @@ const AccountList: React.FC<AccountListProps> = ({
             <th scope="col">Email</th>
             <th scope="col">Joined</th>
             <th scope="col">Role</th>
+            {onSelectAccount ? <th scope="col">Details</th> : null}
           </tr>
         </thead>
 
@@ -75,20 +81,40 @@ const AccountList: React.FC<AccountListProps> = ({
             return (
               <tr key={account.id}>
                 <td data-label="Account">
-                  <span className="trim-admin-account">
-                    <AccountAvatar
-                      src={account.avatarUrl}
-                      name={name}
-                      className="trim-avatar--row"
-                    />
-
-                    <span className="trim-admin-account__text">
-                      <span className="trim-table__primary">{name}</span>
-                      {secondary ? (
-                        <span className="trim-table__secondary">{secondary}</span>
-                      ) : null}
+                  {onSelectAccount ? (
+                    <button
+                      type="button"
+                      className="trim-admin-account trim-admin-account--button"
+                      onClick={() => onSelectAccount(account)}
+                      aria-label={`View details for ${name}`}
+                    >
+                      <AccountAvatar
+                        src={account.avatarUrl}
+                        name={name}
+                        className="trim-avatar--row"
+                      />
+                      <span className="trim-admin-account__text">
+                        <span className="trim-table__primary">{name}</span>
+                        {secondary ? (
+                          <span className="trim-table__secondary">{secondary}</span>
+                        ) : null}
+                      </span>
+                    </button>
+                  ) : (
+                    <span className="trim-admin-account">
+                      <AccountAvatar
+                        src={account.avatarUrl}
+                        name={name}
+                        className="trim-avatar--row"
+                      />
+                      <span className="trim-admin-account__text">
+                        <span className="trim-table__primary">{name}</span>
+                        {secondary ? (
+                          <span className="trim-table__secondary">{secondary}</span>
+                        ) : null}
+                      </span>
                     </span>
-                  </span>
+                  )}
                 </td>
 
                 <td data-label="Email" className="trim-admin-email">
@@ -119,6 +145,18 @@ const AccountList: React.FC<AccountListProps> = ({
                     </span>
                   )}
                 </td>
+                {onSelectAccount ? (
+                  <td data-label="Details">
+                    <button
+                      type="button"
+                      className="trim-barber-view"
+                      aria-label={`View details for ${name}`}
+                      onClick={() => onSelectAccount(account)}
+                    >
+                      {selectLabel}
+                    </button>
+                  </td>
+                ) : null}
               </tr>
             );
           })}
