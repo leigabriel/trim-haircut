@@ -31,6 +31,7 @@ interface AccountManagerProps {
   action?: ReactNode;
   /** False when the RPC predates 0011 and cannot return avatar_url. */
   avatarsAvailable?: boolean;
+  onSelectAccount?: (account: StaffAccount) => void;
 }
 
 const plural = (count: number, singular: string, noun: string): string =>
@@ -65,6 +66,7 @@ const AccountManager: React.FC<AccountManagerProps> = ({
   saveError = null,
   action,
   avatarsAvailable = true,
+  onSelectAccount,
 }) => {
   const [query, setQuery] = useState('');
 
@@ -167,6 +169,7 @@ const AccountManager: React.FC<AccountManagerProps> = ({
             onChangeRole={onChangeRole}
             roleOptions={roleOptions}
             emptyText={listEmptyText}
+            onSelectAccount={onSelectAccount}
           />
         )}
       </div>
