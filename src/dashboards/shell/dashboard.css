@@ -73,6 +73,26 @@
   white-space: nowrap;
 }
 
+.trim-dash__weather {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  min-width: 0;
+  font-size: 0.8125rem;
+  color: var(--trim-black);
+}
+
+.trim-dash__weather-temp {
+  font-weight: 700;
+  color: var(--trim-blue);
+}
+
+.trim-dash__weather-label {
+  opacity: 0.65;
+  white-space: nowrap;
+}
+
 .trim-dash__actions {
   display: flex;
   align-items: center;
@@ -2047,6 +2067,10 @@
 
   .trim-dash__crumb {
     text-align: left;
+  }
+
+  .trim-dash__weather-label {
+    display: none;
   }
 }
 

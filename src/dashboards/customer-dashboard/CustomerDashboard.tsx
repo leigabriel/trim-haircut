@@ -16,11 +16,30 @@ import FaceShape from './sections/FaceShape';
 import Overview from './sections/Overview';
 import Recommendation from './sections/Recommendation';
 import { useBookings } from '../booking/useBookings';
+import { COORDS } from '../../components/sections/Location/shop';
 import DashboardHeader from '../shell/DashboardHeader';
 import DashboardRail from '../shell/DashboardRail';
 import NotificationPanel from '../shell/NotificationPanel';
 import { useDashboardScale } from '../shell/useDashboardScale';
 import '../shell/dashboard.css';
+
+interface DashboardWeather {
+  label: string;
+  temperature: string;
+}
+
+const describeWeatherCode = (code: number): string => {
+  if (code === 0) return 'Clear sky';
+  if (code === 1 || code === 2) return 'Partly cloudy';
+  if (code === 3) return 'Overcast';
+  if (code === 45 || code === 48) return 'Fog';
+  if (code >= 51 && code <= 57) return 'Drizzle';
+  if (code >= 61 && code <= 67) return 'Rain';
+  if (code >= 71 && code <= 77) return 'Snow';
+  if (code >= 80 && code <= 82) return 'Rain showers';
+  if (code >= 95) return 'Thunderstorm';
+  return 'Weather';
+};
 
 /**
  * Customer dashboard. Two column shell: rail and section.
@@ -61,6 +80,38 @@ const CustomerDashboard: React.FC = () => {
   // One bookings query for the whole dashboard: the customer's own rows, with
   // the window and ordering handled by the page.
   const bookings = useBookings();
+  const [weather, setWeather] = useState<DashboardWeather | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const [lat, lon] = COORDS;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=Asia%2FManila`;
+
+    fetch(url)
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Weather request failed');
+        return (await response.json()) as {
+          current?: { temperature_2m?: number; weather_code?: number };
+        };
+      })
+      .then((data) => {
+        if (!active) return;
+        const temp = data.current?.temperature_2m;
+        const code = data.current?.weather_code;
+        if (typeof temp !== 'number' || typeof code !== 'number') return;
+        setWeather({
+          temperature: `${Math.round(temp)}°C`,
+          label: describeWeatherCode(code),
+        });
+      })
+      .catch(() => {
+        if (active) setWeather(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // The bell is derived from the rows above, not a placeholder feed. Read
   // state is local to this account and device.
@@ -105,6 +156,7 @@ const CustomerDashboard: React.FC = () => {
             unreadCount={notifications.unreadCount}
             isPanelOpen={isPanelOpen}
             onTogglePanel={() => setIsPanelOpen((open) => !open)}
+            weather={weather}
           />
 
           <div className={`trim-dash__grid${isAi ? ' trim-dash__grid--with-list' : ''}`}>
