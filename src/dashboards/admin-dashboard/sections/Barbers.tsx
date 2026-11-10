@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 
 import type { UserRole } from '../../../auth/roles';
-import type { AccountsState } from '../useAccounts';
+import BarberDetailsModal from '../../booking/BarberDetailsModal';
+import type { AccountsState, StaffAccount } from '../useAccounts';
 import AccountManager from './AccountManager';
 import AddBarberModal from './AddBarberModal';
 
@@ -25,6 +26,7 @@ const Barbers: React.FC<BarbersProps> = ({ accounts }) => {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [selectedBarber, setSelectedBarber] = useState<StaffAccount | null>(null);
 
   const barbers = useMemo(
     () => accounts.accounts.filter((account) => account.role === 'barber'),
@@ -59,7 +61,7 @@ const Barbers: React.FC<BarbersProps> = ({ accounts }) => {
     <>
       <AccountManager
         title="Barber Manager"
-        lede="Everyone who can sign in to the barber dashboard. Add a barber here, or use the role control to promote one to administrator; they then move to User Manager."
+        lede="Everyone who can sign in to the barber dashboard. Add a barber here, click a barber to view details and ratings, or use the role control to promote one to administrator."
         accounts={barbers}
         isLoading={accounts.isLoading}
         error={accounts.error}
@@ -77,6 +79,7 @@ const Barbers: React.FC<BarbersProps> = ({ accounts }) => {
         notice={notice}
         saveError={saveError}
         avatarsAvailable={!accounts.avatarColumnMissing}
+        onSelectAccount={setSelectedBarber}
         action={
           <button
             className="trim-admin-add"
@@ -98,6 +101,21 @@ const Barbers: React.FC<BarbersProps> = ({ accounts }) => {
         onDismiss={() => setIsAdding(false)}
         onCreate={accounts.createBarber}
         onCreated={handleCreated}
+      />
+
+      <BarberDetailsModal
+        barber={
+          selectedBarber
+            ? {
+                id: selectedBarber.id,
+                username: selectedBarber.username,
+                displayName: selectedBarber.displayName,
+                avatarUrl: selectedBarber.avatarUrl,
+                // availability/rating summary loaded by modal via list_barbers lookup
+              }
+            : null
+        }
+        onDismiss={() => setSelectedBarber(null)}
       />
     </>
   );
