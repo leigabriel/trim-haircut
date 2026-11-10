@@ -6,5 +6,5 @@ export const SHOP = {
   phone: '+63 917 000 0000',
 };
 
-/** Calapan, Oriental Mindoro. */
+/** Naujan, Oriental Mindoro. */
 export const COORDS: [number, number] = [13.320023, 121.256381];
