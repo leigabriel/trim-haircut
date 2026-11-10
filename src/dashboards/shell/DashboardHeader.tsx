@@ -9,6 +9,10 @@ interface DashboardHeaderProps {
   unreadCount?: number;
   isPanelOpen?: boolean;
   onTogglePanel?: () => void;
+  weather?: {
+    label: string;
+    temperature: string;
+  } | null;
 }
 
 /**
@@ -29,6 +33,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   unreadCount,
   isPanelOpen = false,
   onTogglePanel,
+  weather = null,
 }) => (
   <header className="trim-dash__bar">
     <button
@@ -56,6 +61,13 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     </span>
 
     <span className="trim-dash__crumb">{sectionLabel}</span>
+
+    {weather ? (
+      <div className="trim-dash__weather" aria-label={`Weather: ${weather.temperature}, ${weather.label}`}>
+        <span className="trim-dash__weather-temp">{weather.temperature}</span>
+        <span className="trim-dash__weather-label">{weather.label}</span>
+      </div>
+    ) : null}
 
     <div className="trim-dash__actions">
       {unreadCount !== undefined ? (
