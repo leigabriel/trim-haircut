@@ -70,6 +70,28 @@
   min-width: 0;
 }
 
+.trim-admin-account--button {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: var(--cursor-pointer);
+}
+
+.trim-admin-account--button:hover .trim-table__primary,
+.trim-admin-account--button:focus-visible .trim-table__primary {
+  color: var(--trim-blue);
+  text-decoration: underline;
+}
+
+.trim-admin-account--button:focus-visible {
+  outline: 2px solid var(--trim-blue);
+  outline-offset: 2px;
+}
+
 .trim-admin-account__text {
   display: flex;
   flex-direction: column;
