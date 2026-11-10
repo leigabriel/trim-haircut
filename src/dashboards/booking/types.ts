@@ -69,6 +69,18 @@ export interface BarberOption {
   displayName: string | null;
   avatarUrl: string | null;
   isAvailable: boolean;
+  ratingAverage: number | null;
+  ratingCount: number;
+}
+
+export interface BarberRating {
+  id: string;
+  bookingId: string;
+  customerId: string;
+  barberId: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
 }
 
 export interface BookingsState {
