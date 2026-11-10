@@ -26,6 +26,7 @@ import type {
   ServiceOption,
 } from './types';
 import { toBooking } from './types';
+import BarberDetailsModal from './BarberDetailsModal';
 import BarberPicker from './BarberPicker';
 import './booking.css';
 
@@ -52,6 +53,9 @@ interface BarberRow {
   /** Absent until migration 0012 has run. */
   avatar_url?: string | null;
   is_available?: boolean | null;
+  /** Absent until migration 0014 has run. */
+  rating_average?: number | string | null;
+  rating_count?: number | string | null;
 }
 
 const toService = (row: ServiceRow): ServiceOption => ({
@@ -68,6 +72,11 @@ const toBarber = (row: BarberRow): BarberOption => ({
   displayName: row.display_name,
   avatarUrl: row.avatar_url ?? null,
   isAvailable: row.is_available !== false,
+  ratingAverage:
+    row.rating_average === null || row.rating_average === undefined
+      ? null
+      : Number(row.rating_average),
+  ratingCount: Number(row.rating_count ?? 0),
 });
 
 const phonePattern = /^[+\d][\d\s().-]{6,23}$/;
@@ -101,6 +110,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [detailBarber, setDetailBarber] = useState<BarberOption | null>(null);
 
   const serviceRef = useRef<HTMLSelectElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -580,6 +590,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
                   value={barberId}
                   disabled={isSubmitting}
                   onChange={setBarberId}
+                  onViewDetails={setDetailBarber}
                 />
               </div>
 
@@ -699,6 +710,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
           </form>
         )}
       </div>
+
+      <BarberDetailsModal
+        barber={detailBarber}
+        onDismiss={() => setDetailBarber(null)}
+      />
     </div>,
     document.body,
   );
