@@ -20,20 +20,30 @@ interface LeafletPoint {
   y: number;
 }
 
+interface LeafletLatLngBounds {
+  pad(padding: number): LeafletLatLngBounds;
+}
+
 interface LeafletMap {
   remove(): void;
   invalidateSize(animate?: boolean): this;
   on(type: string, handler: () => void): this;
   off(type: string, handler: () => void): this;
   latLngToContainerPoint(position: [number, number]): LeafletPoint;
+  fitBounds(bounds: [number, number][] | LeafletLatLngBounds, options?: Record<string, unknown>): this;
 }
 
 interface LeafletLayer {
   addTo(map: LeafletMap): this;
+  remove(): void;
 }
 
 interface LeafletMarker extends LeafletLayer {
   getElement(): HTMLElement | null;
+}
+
+interface LeafletPolyline extends LeafletLayer {
+  getBounds(): LeafletLatLngBounds;
 }
 
 interface LeafletGlobal {
@@ -41,6 +51,8 @@ interface LeafletGlobal {
   TileLayer: new (url: string, options: Record<string, unknown>) => LeafletLayer;
   Marker: new (position: [number, number], options: Record<string, unknown>) => LeafletMarker;
   DivIcon: new (options: Record<string, unknown>) => unknown;
+  Polyline: new (positions: [number, number][], options?: Record<string, unknown>) => LeafletPolyline;
+  LatLngBounds: new (positions: [number, number][]) => LeafletLatLngBounds;
 }
 
 declare global {
@@ -89,19 +101,32 @@ const loadLeaflet = () =>
     document.head.appendChild(script);
   });
 
+export interface RouteDisplay {
+  from: [number, number];
+  fromLabel?: string;
+  path: [number, number][];
+}
+
 interface LocationMapProps {
   /** Extra class on the frame, so the footer and the modal can size it. */
   className?: string;
+  route?: RouteDisplay | null;
 }
 
 /**
  * The map itself, with no chrome beyond the marker card. Mounted inside the
  * footer modal rather than inline, so it only builds once the modal opens.
  */
-const LocationMap: React.FC<LocationMapProps> = ({ className }) => {
+const LocationMap: React.FC<LocationMapProps> = ({ className, route }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
+  const leafletRef = useRef<LeafletGlobal | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const routeLineRef = useRef<LeafletPolyline | null>(null);
+  const fromMarkerRef = useRef<LeafletMarker | null>(null);
+  const readyRef = useRef(false);
+  const routeRef = useRef<RouteDisplay | null | undefined>(route);
+  routeRef.current = route;
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -110,9 +135,48 @@ const LocationMap: React.FC<LocationMapProps> = ({ className }) => {
     let cancelled = false;
     const teardown: Array<() => void> = [];
 
+    const applyRoute = (nextRoute?: RouteDisplay | null) => {
+      const map = mapRef.current;
+      const L = leafletRef.current;
+      if (!map || !L) return;
+
+      routeLineRef.current?.remove();
+      routeLineRef.current = null;
+      fromMarkerRef.current?.remove();
+      fromMarkerRef.current = null;
+
+      if (!nextRoute || nextRoute.path.length < 2) return;
+
+      fromMarkerRef.current = new L.Marker(nextRoute.from, {
+        icon: new L.DivIcon({
+          className: 'trim-location__pin trim-location__pin--from',
+          html: '<span aria-hidden="true"></span>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        }),
+        title: nextRoute.fromLabel ?? 'Your location',
+        interactive: false,
+        keyboard: false,
+      }).addTo(map);
+
+      routeLineRef.current = new L.Polyline(nextRoute.path, {
+        color: '#0034ff',
+        weight: 5,
+        opacity: 0.85,
+        lineJoin: 'round',
+      }).addTo(map);
+
+      try {
+        map.fitBounds(routeLineRef.current.getBounds().pad(0.2), { animate: false });
+      } catch {
+        // Ignore if bounds are invalid.
+      }
+    };
+
     loadLeaflet()
       .then((L) => {
         if (cancelled) return;
+        leafletRef.current = L;
 
         const map = new L.Map(mount, {
           center: COORDS,
@@ -131,7 +195,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ className }) => {
         new L.Marker(COORDS, {
           // Div icon, so nothing depends on the marker PNGs resolving.
           icon: new L.DivIcon({
-            className: 'trim-location__pin',
+            className: 'trim-location__pin trim-location__pin--shop',
             html: '<span aria-hidden="true"></span>',
             iconSize: [22, 22],
             iconAnchor: [11, 11],
@@ -176,9 +240,11 @@ const LocationMap: React.FC<LocationMapProps> = ({ className }) => {
         teardown.push(() => map.off('move', place), () => map.off('zoom', place));
 
         mapRef.current = map;
+        readyRef.current = true;
         // Measures on attach; without this the tiles clip while settling.
         map.invalidateSize();
         place();
+        applyRoute(routeRef.current);
       })
       .catch((error: unknown) => {
         console.warn('Map unavailable:', error);
@@ -187,10 +253,55 @@ const LocationMap: React.FC<LocationMapProps> = ({ className }) => {
     return () => {
       cancelled = true;
       teardown.forEach((off) => off());
+      routeLineRef.current?.remove();
+      routeLineRef.current = null;
+      fromMarkerRef.current?.remove();
+      fromMarkerRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
+      leafletRef.current = null;
+      readyRef.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!readyRef.current) return;
+    const map = mapRef.current;
+    const L = leafletRef.current;
+    if (!map || !L) return;
+
+    routeLineRef.current?.remove();
+    routeLineRef.current = null;
+    fromMarkerRef.current?.remove();
+    fromMarkerRef.current = null;
+
+    if (!route || route.path.length < 2) return;
+
+    fromMarkerRef.current = new L.Marker(route.from, {
+      icon: new L.DivIcon({
+        className: 'trim-location__pin trim-location__pin--from',
+        html: '<span aria-hidden="true"></span>',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      }),
+      title: route.fromLabel ?? 'Your location',
+      interactive: false,
+      keyboard: false,
+    }).addTo(map);
+
+    routeLineRef.current = new L.Polyline(route.path, {
+      color: '#0034ff',
+      weight: 5,
+      opacity: 0.85,
+      lineJoin: 'round',
+    }).addTo(map);
+
+    try {
+      map.fitBounds(routeLineRef.current.getBounds().pad(0.2), { animate: false });
+    } catch {
+      // Ignore if bounds are invalid.
+    }
+  }, [route]);
 
   return (
     <div className={`trim-location__frame${className ? ` ${className}` : ''}`}>
