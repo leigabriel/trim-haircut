@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import ConfirmModal from '../../../components/layout/modals/ConfirmModal';
+import { supabase } from '../../../lib/supabase';
 import BookingModal from '../../booking/BookingModal';
 import { BookingStatusPill } from '../../booking/BookingStatus';
 import {
@@ -8,8 +9,9 @@ import {
   formatBookingWhen,
   formatMoney,
   isUpcoming,
+  readBookingError,
 } from '../../booking/format';
-import type { Booking, BookingsState } from '../../booking/types';
+import type { BarberRating, Booking, BookingsState } from '../../booking/types';
 import SectionHead from '../../shell/SectionHead';
 import '../../booking/booking.css';
 
@@ -25,6 +27,12 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Booking | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [ratingsByBooking, setRatingsByBooking] = useState<Record<string, BarberRating>>({});
+  const [rateTarget, setRateTarget] = useState<Booking | null>(null);
+  const [rateValue, setRateValue] = useState(5);
+  const [rateComment, setRateComment] = useState('');
+  const [rateError, setRateError] = useState<string | null>(null);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
   const ordered = useMemo(() => displayOrder(bookings.bookings), [bookings.bookings]);
   const isLoading = bookings.isLoading && bookings.bookings.length === 0;
@@ -35,6 +43,56 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
     (booking) => booking.status === 'completed',
   );
   const spend = completed.reduce((total, booking) => total + booking.price, 0);
+
+  useEffect(() => {
+    let active = true;
+    const ids = bookings.bookings.map((booking) => booking.id);
+    if (ids.length === 0) {
+      setRatingsByBooking({});
+      return () => {
+        active = false;
+      };
+    }
+
+    void (async () => {
+      const { data, error } = await supabase
+        .from('barber_ratings')
+        .select('id, booking_id, customer_id, barber_id, rating, comment, created_at')
+        .in('booking_id', ids);
+
+      if (!active) return;
+      if (error) {
+        console.error('Could not load barber ratings', error);
+        return;
+      }
+
+      const map: Record<string, BarberRating> = {};
+      for (const row of (data ?? []) as Array<{
+        id: string;
+        booking_id: string;
+        customer_id: string;
+        barber_id: string;
+        rating: number;
+        comment: string | null;
+        created_at: string;
+      }>) {
+        map[row.booking_id] = {
+          id: row.id,
+          bookingId: row.booking_id,
+          customerId: row.customer_id,
+          barberId: row.barber_id,
+          rating: Number(row.rating),
+          comment: row.comment,
+          createdAt: row.created_at,
+        };
+      }
+      setRatingsByBooking(map);
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [bookings.bookings]);
 
   const usual = useMemo(() => {
     const counts = new Map<string, number>();
@@ -112,6 +170,72 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
     }
     dismissDelete();
     setNotice('Appointment deleted.');
+  };
+
+  const canRate = (booking: Booking): boolean =>
+    (booking.status === 'confirmed' || booking.status === 'completed') &&
+    Boolean(booking.barberId) &&
+    !ratingsByBooking[booking.id];
+
+  const openRate = (booking: Booking) => {
+    setRateTarget(booking);
+    setRateValue(5);
+    setRateComment('');
+    setRateError(null);
+  };
+
+  const dismissRate = () => {
+    setRateTarget(null);
+    setRateComment('');
+    setRateError(null);
+  };
+
+  const submitRating = async () => {
+    if (!rateTarget) return;
+    setIsSubmittingRating(true);
+    setRateError(null);
+    try {
+      const { data, error } = await supabase.rpc('submit_barber_rating', {
+        p_booking_id: rateTarget.id,
+        p_rating: rateValue,
+        p_comment: rateComment.trim() || null,
+      });
+      if (error) {
+        setRateError(readBookingError(error, 'Could not submit rating. Try again.'));
+        return;
+      }
+      const row = Array.isArray(data) ? data[0] : data;
+      if (row) {
+        const typed = row as {
+          id: string;
+          booking_id: string;
+          customer_id: string;
+          barber_id: string;
+          rating: number;
+          comment: string | null;
+          created_at: string;
+        };
+        setRatingsByBooking((current) => ({
+          ...current,
+          [rateTarget.id]: {
+            id: typed.id,
+            bookingId: typed.booking_id,
+            customerId: typed.customer_id,
+            barberId: typed.barber_id,
+            rating: Number(typed.rating),
+            comment: typed.comment,
+            createdAt: typed.created_at,
+          },
+        }));
+      }
+      setNotice(`Thanks for rating ${rateTarget.barberName}.`);
+      dismissRate();
+    } catch (cause) {
+      console.error('Could not submit barber rating', cause);
+      setRateError('Could not submit rating. Check your connection and try again.');
+    } finally {
+      setIsSubmittingRating(false);
+    }
   };
 
   return (
@@ -261,6 +385,20 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
                   </td>
                   <td data-label="Actions" className="trim-book__table-actions">
                     <span className="trim-book__actions">
+                      {canRate(booking) ? (
+                        <button
+                          type="button"
+                          className="trim-book__edit"
+                          aria-label={`Rate ${booking.barberName} for ${booking.service} on ${formatBookingWhen(booking.startsAt)}`}
+                          onClick={() => openRate(booking)}
+                        >
+                          Rate
+                        </button>
+                      ) : ratingsByBooking[booking.id] ? (
+                        <span className="trim-barber-picker__rating">
+                          Rated ★{ratingsByBooking[booking.id].rating}
+                        </span>
+                      ) : null}
                       {isUpcoming(booking) ? (
                         <>
                           <button
@@ -342,6 +480,95 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
         onConfirm={confirmDelete}
         onDismiss={dismissDelete}
       />
+
+      {rateTarget ? (
+        <div className="trim-book-modal" role="presentation">
+          <div className="trim-book-modal__scrim" aria-hidden="true" onClick={dismissRate} />
+          <div
+            className="trim-book-modal__card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="trim-rate-title"
+          >
+            <header className="trim-book-modal__head">
+              <div>
+                <p className="trim-book-modal__eyebrow">Feedback rating</p>
+                <h2 className="trim-book-modal__title" id="trim-rate-title">
+                  Rate {rateTarget.barberName}
+                </h2>
+                <p className="trim-book-modal__lede">
+                  {rateTarget.service} · {formatBookingWhen(rateTarget.startsAt)}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="trim-book-modal__close"
+                aria-label="Close rating form"
+                disabled={isSubmittingRating}
+                onClick={dismissRate}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </header>
+
+            <div className="trim-book-form__grid">
+              <label className="trim-book-field">
+                <span className="trim-book-field__label">Rating</span>
+                <select
+                  value={rateValue}
+                  disabled={isSubmittingRating}
+                  onChange={(event) => setRateValue(Number(event.target.value))}
+                >
+                  {[5, 4, 3, 2, 1].map((value) => (
+                    <option key={value} value={value}>
+                      {value} star{value === 1 ? '' : 's'}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="trim-book-field trim-book-field--wide">
+                <span className="trim-book-field__label">
+                  Feedback <span className="trim-book-field__optional">(optional)</span>
+                </span>
+                <textarea
+                  rows={3}
+                  maxLength={500}
+                  placeholder="Share your experience with this barber."
+                  value={rateComment}
+                  disabled={isSubmittingRating}
+                  onChange={(event) => setRateComment(event.target.value)}
+                />
+              </label>
+            </div>
+
+            {rateError ? (
+              <p className="trim-book-form__error" role="alert">
+                {rateError}
+              </p>
+            ) : null}
+
+            <div className="trim-book-form__actions">
+              <button
+                type="button"
+                className="trim-book-form__cancel"
+                disabled={isSubmittingRating}
+                onClick={dismissRate}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="trim-book-form__submit"
+                disabled={isSubmittingRating}
+                onClick={() => void submitRating()}
+              >
+                {isSubmittingRating ? 'Submitting…' : 'Submit rating'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 };
