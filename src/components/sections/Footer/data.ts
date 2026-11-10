@@ -1,14 +1,3 @@
-export interface FooterLink {
-  index: string;
-  label: string;
-  /** Opens a modal rather than navigating, when set. */
-  action?: 'download';
-}
-
-export const FOOTER_LINKS: FooterLink[] = [
-  { index: '01', label: 'Download App', action: 'download' },
-];
-
 export interface SocialLink {
   label: string;
   href: string;
