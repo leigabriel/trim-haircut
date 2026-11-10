@@ -1,9 +1,8 @@
 import { lazy, Suspense, useState } from 'react';
 
-import DownloadModal from '../../layout/modals/DownloadModal';
 import LocationModal from '../../layout/modals/LocationModal';
 import { SHOP } from '../Location/shop';
-import { FOOTER_LINKS, SOCIAL_LINKS } from './data';
+import { SOCIAL_LINKS } from './data';
 import './Footer.css';
 
 /** Shares its three.js chunk with the hero; nothing here is needed above the fold. */
@@ -16,7 +15,6 @@ const YEAR = String(new Date().getFullYear());
 // scroll travel to settle, which clipped the nav links.
 const Footer: React.FC = () => {
   const [isMapOpen, setIsMapOpen] = useState(false);
-  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   return (
     <section className="trim-footer" aria-labelledby="trim-footer-title">
@@ -35,32 +33,13 @@ const Footer: React.FC = () => {
         </div>
 
         <nav className="trim-footer__nav" aria-label="Footer">
-          {FOOTER_LINKS.map((link) => (
-            <button
-              className="trim-footer__link"
-              key={link.index}
-              type="button"
-              onClick={() => {
-                if (link.action === 'download') setIsDownloadOpen(true);
-              }}
-            >
-              <span className="trim-footer__index" aria-hidden="true">
-                {link.index}
-              </span>
-              <span className="trim-footer__label">{link.label}</span>
-              <span className="trim-footer__hint" aria-hidden="true">
-                View
-              </span>
-            </button>
-          ))}
-
           <button
             className="trim-footer__link"
             type="button"
             onClick={() => setIsMapOpen(true)}
           >
             <span className="trim-footer__index" aria-hidden="true">
-              02
+              01
             </span>
             <span className="trim-footer__label">Location</span>
             <span className="trim-footer__hint" aria-hidden="true">
@@ -104,7 +83,6 @@ const Footer: React.FC = () => {
       </div>
 
       <LocationModal isOpen={isMapOpen} onDismiss={() => setIsMapOpen(false)} />
-      <DownloadModal isOpen={isDownloadOpen} onDismiss={() => setIsDownloadOpen(false)} />
     </section>
   );
 };
