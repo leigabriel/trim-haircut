@@ -3,17 +3,8 @@ import type { FaceShapeName } from "./shapes";
 /**
  * The shape galleries.
  *
- * Images live in public/assets/faceshapes/<shape>/ as 1:1 800px WebPs. Each is
- * named <slot>-<slug>.webp, where the slot is its position in the list below, so
- * swapping one for a real photograph is an overwrite: same name, same
- * extension, same dimensions. Nothing here needs to change when that happens.
- *
- * This module is the single place that knows how an image is addressed, so the
- * naming convention is stated once rather than repeated in components. The same
- * list is mirrored as JSON for tooling: public/assets/faceshapes/manifest.json
- * aggregates every shape, and public/assets/faceshapes/<shape>/haircuts.json
- * holds one shape. The app never fetches those files; keep them in step when
- * this list changes.
+ * Images live in public/assets/faceshapes/<shape>/ and are referenced by their
+ * actual filenames here so the app serves the current assets directly.
  */
 
 export type GalleryKey = FaceShapeName | "trending";
@@ -25,72 +16,76 @@ export interface HaircutGalleryItem {
     src: string;
 }
 
-/**
- * Slot prefixes, in display order. A shape's cuts are numbered by position, so
- * this also fixes how many images a gallery holds.
- */
 const SLOTS = ["01", "02", "03"] as const;
 
-/** A cut as [display name, slug]. The slug is what the file is named after. */
-type Cut = readonly [name: string, slug: string];
+const toName = (file: string): string =>
+    file
+        .replace(/\.[^.]+$/, "")
+        .split(/[-_]+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
 
-const gallery = (shape: GalleryKey, cuts: readonly Cut[]): HaircutGalleryItem[] =>
-    cuts.map(([name, slug], index) => {
-        const slot = SLOTS[index];
-
-        if (slot === undefined) {
-            throw new Error(
-                `gallery("${shape}") has ${cuts.length} cuts but only ${SLOTS.length} slots are defined.`,
-            );
-        }
-
-        return { slot, name, slug, src: `/assets/faceshapes/${shape}/${slot}-${slug}.webp` };
+const gallery = (shape: GalleryKey, files: readonly string[]): HaircutGalleryItem[] =>
+    files.map((file, index) => {
+        const slot = SLOTS[index] ?? String(index + 1).padStart(2, "0");
+        const slug = file.replace(/\.[^.]+$/, "");
+        return {
+            slot,
+            name: toName(file),
+            slug,
+            src: `/assets/faceshapes/${shape}/${file}`,
+        };
     });
 
+const shuffle = <T>(items: readonly T[]): T[] => {
+    const copy = [...items];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+};
+
 export const HAIRCUT_CATALOG: Record<GalleryKey, HaircutGalleryItem[]> = {
-    oval: gallery("oval", [
-        ["Textured Crop", "textured-crop"],
-        ["Low Taper Fade", "low-taper-fade"],
-        ["Classic Pompadour", "classic-pompadour"],
-    ]),
+    oval: gallery("oval", ["buzz-cut.jpg", "crew-cut.jpg", "textured-crop.jpg"]),
     round: gallery("round", [
-        ["High Fade Pompadour", "high-fade-pompadour"],
-        ["Textured Undercut", "textured-undercut"],
-        ["Angular Fringe", "angular-fringe"],
+        "high-volume-blowout.webp",
+        "long-slick-back.webp",
+        "textured-quiff.webp",
     ]),
     square: gallery("square", [
-        ["Textured Crop Fade", "textured-crop-fade"],
-        ["Mid Fade Messy Top", "mid-fade-messy-top"],
-        ["Classic Side Part", "classic-side-part"],
+        "messy-crop.jpg",
+        "short-caesar-cut.jpg",
+        "textured-fringe.jpg",
     ]),
     heart: gallery("heart", [
-        ["Mid-Length Bro Flow", "mid-length-bro-flow"],
-        ["Side-Swept Fringe", "side-swept-fringe"],
-        ["Textured Fringe Low Taper", "textured-fringe-low-taper"],
+        "classic-side-part.webp",
+        "long-fringe.webp",
+        "side-part-fringe.webp",
     ]),
     diamond: gallery("diamond", [
-        ["Textured Messy Fringe", "textured-messy-fringe"],
-        ["Scissor Cut Full Sides", "scissor-cut-full-sides"],
-        ["Textured Crop Low Fade", "textured-crop-low-fade"],
+        "faux-hawk.webp",
+        "sweeping-fringe.webp",
+        "textured-crop.webp",
     ]),
-    long: gallery("long", [
-        ["Heavy Side Swept Fringe", "heavy-side-swept-fringe"],
-        ["Classic Side Parting", "classic-side-parting"],
-        ["Scissor Cut Fuller Sides", "scissor-cut-fuller-sides"],
-    ]),
+    long: gallery("long", ["crop-with-bangs.jpg", "shag.jpg", "side-part.jpg"]),
     triangle: gallery("triangle", [
-        ["High Volume Quiff", "high-volume-quiff"],
-        ["Textured French Crop High Fade", "textured-french-crop-high-fade"],
-        ["Modern Pompadour", "modern-pompadour"],
+        "french-crop.jpg",
+        "modern-pompadour.jpg",
+        "textured-quiff.webp",
     ]),
-    trending: gallery("trending", [
-        ["Low Taper Fade", "low-taper-fade"],
-        ["Textured Modern Mullet", "textured-modern-mullet"],
-        ["Fluffy Edgar Cut", "fluffy-edgar-cut"],
-    ]),
+    trending: [],
 };
 
 export const galleryItemsFor = (
     shape: FaceShapeName | null,
-): HaircutGalleryItem[] =>
-    shape ? (HAIRCUT_CATALOG[shape] ?? []) : HAIRCUT_CATALOG.trending;
+): HaircutGalleryItem[] => {
+    if (shape) return HAIRCUT_CATALOG[shape] ?? [];
+
+    const pool = (Object.keys(HAIRCUT_CATALOG) as GalleryKey[])
+        .filter((key): key is FaceShapeName => key !== "trending")
+        .flatMap((key) => HAIRCUT_CATALOG[key]);
+
+    return shuffle(pool).slice(0, 6);
+};
