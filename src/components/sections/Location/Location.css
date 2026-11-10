@@ -48,6 +48,12 @@
   box-shadow: 0 0 0 1px var(--trim-blue);
 }
 
+.trim-location__pin--from span {
+  background-color: var(--trim-white);
+  border-color: var(--trim-blue);
+  box-shadow: 0 0 0 1px var(--trim-white);
+}
+
 /* Details card. Always open: no open state, no pointer interaction. The
    position is set in script because it tracks the marker. */
 .trim-location__card {
