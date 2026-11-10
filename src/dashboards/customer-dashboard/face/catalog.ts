@@ -105,6 +105,15 @@ const asScored = (style: Style, shape: FaceShapeName | null): ScoredStyle => {
   return { ...style, match: Math.round((style.strength / 5) * 94) };
 };
 
+const shuffle = <T>(items: readonly T[]): T[] => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+
 /** Cuts that suit the shape, strongest first. Empty when there is no shape. */
 export const matchedStyles = (shape: FaceShapeName | null): ScoredStyle[] => {
   if (!shape) return [];
@@ -114,11 +123,11 @@ export const matchedStyles = (shape: FaceShapeName | null): ScoredStyle[] => {
 };
 
 /**
- * Trending, ordered by rank, each carrying its match for the customer's shape.
+ * Trending cuts, randomized, each carrying its match for the customer's shape.
  * Shown whether or not a shape is set, so the section is never empty.
  */
 export const trendingStyles = (shape: FaceShapeName | null): ScoredStyle[] =>
-  TRENDING.map((style) => asScored(style, shape));
+  shuffle(TRENDING).map((style) => asScored(style, shape));
 
 /** Every shape has something to recommend. Guards against a gap in the data. */
 export const everyShapeHasStyles = (): boolean =>
