@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { COORDS, SHOP } from './shop';
 import './Location.css';
@@ -126,6 +126,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ className, route }) => {
   const fromMarkerRef = useRef<LeafletMarker | null>(null);
   const readyRef = useRef(false);
   const routeRef = useRef<RouteDisplay | null | undefined>(route);
+  const [isCardVisible, setIsCardVisible] = useState(true);
   routeRef.current = route;
 
   useEffect(() => {
@@ -303,6 +304,26 @@ const LocationMap: React.FC<LocationMapProps> = ({ className, route }) => {
     }
   }, [route]);
 
+  useEffect(() => {
+    if (!isCardVisible) return;
+    const map = mapRef.current;
+    const mount = mountRef.current;
+    const card = cardRef.current;
+    if (!map || !mount || !card) return;
+
+    const point = map.latLngToContainerPoint(COORDS);
+    if (mount.clientWidth <= NARROW) {
+      card.style.left = `${GAP}px`;
+      card.style.top = `${Math.max(GAP, mount.clientHeight - card.offsetHeight - GAP)}px`;
+      return;
+    }
+
+    const width = card.offsetWidth;
+    const maxLeft = Math.max(GAP, mount.clientWidth - width - GAP);
+    card.style.left = `${Math.min(Math.max(point.x, GAP), maxLeft)}px`;
+    card.style.top = `${point.y}px`;
+  }, [isCardVisible]);
+
   return (
     <div className={`trim-location__frame${className ? ` ${className}` : ''}`}>
       <div
@@ -312,18 +333,30 @@ const LocationMap: React.FC<LocationMapProps> = ({ className, route }) => {
         aria-label={`Map of ${SHOP.name} barbershop, ${SHOP.address}`}
       />
 
+      <button
+        className="trim-location__card-toggle"
+        type="button"
+        onClick={() => setIsCardVisible((visible) => !visible)}
+        aria-pressed={isCardVisible}
+        aria-label={isCardVisible ? 'Hide barbershop details' : 'Show barbershop details'}
+      >
+        {isCardVisible ? 'Hide shop info' : 'Show shop info'}
+      </button>
+
       {/* Anchored to the marker, so positioned in script. Not a dialog: it takes
           no focus and cannot be dismissed with Escape. */}
-      <div ref={cardRef} className="trim-location__card">
-        <p className="trim-location__card-name">{SHOP.name}</p>
-        <p className="trim-location__card-branch">{SHOP.branch}</p>
+      {isCardVisible ? (
+        <div ref={cardRef} className="trim-location__card">
+          <p className="trim-location__card-name">{SHOP.name}</p>
+          <p className="trim-location__card-branch">{SHOP.branch}</p>
 
-        <ul className="trim-location__card-list">
-          <li>{SHOP.address}</li>
-          <li>{SHOP.hours}</li>
-          <li>{SHOP.phone}</li>
-        </ul>
-      </div>
+          <ul className="trim-location__card-list">
+            <li>{SHOP.address}</li>
+            <li>{SHOP.hours}</li>
+            <li>{SHOP.phone}</li>
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 };
