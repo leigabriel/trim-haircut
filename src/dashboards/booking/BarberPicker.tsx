@@ -7,6 +7,7 @@ interface BarberPickerProps {
   value: string;
   disabled: boolean;
   onChange: (id: string) => void;
+  onViewDetails?: (barber: BarberOption) => void;
 }
 
 /**
@@ -24,6 +25,7 @@ const BarberPicker: React.FC<BarberPickerProps> = ({
   value,
   disabled,
   onChange,
+  onViewDetails,
 }) => {
   const hasAvailable = barbers.some((barber) => barber.isAvailable);
 
@@ -76,13 +78,33 @@ const BarberPicker: React.FC<BarberPickerProps> = ({
                       >
                         {barber.isAvailable ? 'Available' : 'Not available'}
                       </span>
+                      <span className="trim-barber-picker__rating">
+                        {barber.ratingCount > 0 && barber.ratingAverage !== null
+                          ? `★ ${barber.ratingAverage.toFixed(1)} (${barber.ratingCount})`
+                          : 'No ratings yet'}
+                      </span>
                     </span>
 
-                    {selected ? (
-                      <span className="trim-barber-picker__check" aria-hidden="true">
-                        ✓
-                      </span>
-                    ) : null}
+                    <span className="trim-barber-picker__actions">
+                      {selected ? (
+                        <span className="trim-barber-picker__check" aria-hidden="true">
+                          ✓
+                        </span>
+                      ) : null}
+                      {onViewDetails ? (
+                        <button
+                          type="button"
+                          className="trim-barber-picker__details"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            onViewDetails(barber);
+                          }}
+                        >
+                          Details
+                        </button>
+                      ) : null}
+                    </span>
                   </label>
                 </li>
               );
