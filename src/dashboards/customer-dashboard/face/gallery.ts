@@ -87,5 +87,5 @@ export const galleryItemsFor = (
         .filter((key): key is FaceShapeName => key !== "trending")
         .flatMap((key) => HAIRCUT_CATALOG[key]);
 
-    return shuffle(pool).slice(0, 6);
+    return shuffle(pool).slice(0, 10);
 };
