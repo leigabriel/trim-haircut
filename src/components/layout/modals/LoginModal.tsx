@@ -15,7 +15,7 @@ interface LoginModalProps {
   onDismiss: () => void;
 }
 
-type Tab = 'signin' | 'create';
+type View = 'signin' | 'create' | 'verify-signup' | 'forgot-email' | 'forgot-sent';
 
 interface PasswordToggleProps {
   visible: boolean;
@@ -66,36 +66,42 @@ const PasswordToggle: React.FC<PasswordToggleProps> = ({
 );
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
-  const { signInWithGoogle, register, signInWithPassword } = useAuth();
+  const {
+    signInWithGoogle,
+    register,
+    signInWithPassword,
+    resendSignupVerification,
+    sendPasswordResetLink,
+  } = useAuth();
   const navigate = useNavigate();
   const [presentToast, dismissToast] = useIonToast();
 
-  const [tab, setTab] = useState<Tab>('signin');
+  const [view, setView] = useState<View>('signin');
   const [isAgreed, setIsAgreed] = useState(false);
   const [consentError, setConsentError] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [legalDoc, setLegalDoc] = useState<LegalDoc | null>(null);
 
-  // Show / hide password
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Sign in
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
 
-  // Create
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [errors, setErrors] = useState<RegistrationErrors>({});
 
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [infoError, setInfoError] = useState<string | null>(null);
+
   const showToast = (message: string, kind: 'success' | 'error') => {
     void presentToast({
       message,
-      duration: kind === 'error' ? 4000 : 2200,
+      duration: kind === 'error' ? 4000 : 2600,
       position: 'top',
       cssClass: `trim-toast trim-toast--${kind}`,
       htmlAttributes: { role: kind === 'error' ? 'alert' : 'status' },
@@ -111,13 +117,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
 
   const handleGoogle = async () => {
     if (!requireConsent()) return;
-
     setIsRedirecting(true);
     try {
       await signInWithGoogle();
     } catch {
-      // The redirect already happened on success, so reaching here is a real
-      // failure worth showing.
       setIsRedirecting(false);
       showToast('Could not start Google sign in. Check your connection and try again.', 'error');
     }
@@ -128,7 +131,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
     if (!requireConsent()) return;
 
     setIsBusy(true);
-
     const result = await signInWithPassword(normaliseEmail(signInEmail), signInPassword);
     setIsBusy(false);
 
@@ -137,10 +139,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
       return;
     }
 
-    // Unlike Google there is no redirect to come back from, so nothing would
-    // move the customer on. Without this they are signed in but still looking
-    // at the homepage behind an open modal. The toast is an app-level overlay,
-    // so it stays on screen through the modal close and the route change.
     showToast('Signed in. Welcome back.', 'success');
     onDismiss();
     navigate('/dashboard');
@@ -151,7 +149,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
     if (!requireConsent()) return;
 
     setErrors({});
-
     const result = validateRegistration({ email, password, confirmation });
 
     if (!result.ok) {
@@ -160,12 +157,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
     }
 
     setIsBusy(true);
-
     const outcome = await register({
       email: result.email,
       password: result.password,
     });
-
     setIsBusy(false);
 
     if (!outcome.ok) {
@@ -173,54 +168,78 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
       return;
     }
 
-    // Straight to the username prompt. The account has no username yet, so
-    // going via /dashboard would only bounce through the guard to get here.
+    if (outcome.needsVerification) {
+      setPendingEmail(outcome.email);
+      setInfoError(null);
+      setView('verify-signup');
+      showToast('Verification email sent. Please check your inbox.', 'success');
+      return;
+    }
+
     showToast('Account created. Choose your username.', 'success');
     onDismiss();
     navigate('/welcome');
   };
 
-  const switchTab = (next: Tab) => {
-    setTab(next);
-    void dismissToast();
-    setErrors({});
+  const handleResendSignup = async () => {
+    if (!pendingEmail) return;
+    setIsBusy(true);
+    setInfoError(null);
+    const result = await resendSignupVerification(pendingEmail);
+    setIsBusy(false);
+    if (!result.ok) {
+      setInfoError(result.error);
+      return;
+    }
+    showToast('Verification email resent.', 'success');
   };
 
-  const hasConsent = (
-    <label
-      className={`trim-login__consent${consentError ? ' trim-login__consent--error' : ''}`}
-    >
-      <input
-        className="trim-login__checkbox"
-        type="checkbox"
-        checked={isAgreed}
-        aria-invalid={consentError || undefined}
-        onChange={(event) => {
-          setIsAgreed(event.target.checked);
-          setConsentError(false);
-        }}
-      />
-      <span className="trim-login__legal">
-        By continuing, you agree to our{' '}
-        <button
-          className="trim-login__legal-link"
-          type="button"
-          onClick={() => setLegalDoc('terms')}
-        >
-          Terms of Service
-        </button>
-        . Read our{' '}
-        <button
-          className="trim-login__legal-link"
-          type="button"
-          onClick={() => setLegalDoc('privacy')}
-        >
-          Privacy Policy
-        </button>
-        .
-      </span>
-    </label>
-  );
+  const handleSendReset = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const target = normaliseEmail(signInEmail || pendingEmail);
+    if (!target) {
+      setInfoError('Enter your email address.');
+      return;
+    }
+    setIsBusy(true);
+    setInfoError(null);
+    const result = await sendPasswordResetLink(target);
+    setIsBusy(false);
+    if (!result.ok) {
+      setInfoError(result.error);
+      return;
+    }
+    setPendingEmail(target);
+    setView('forgot-sent');
+    showToast('Password reset email sent. Please check your inbox.', 'success');
+  };
+
+  const switchAuthTab = (next: 'signin' | 'create') => {
+    setView(next);
+    void dismissToast();
+    setErrors({});
+    setInfoError(null);
+  };
+
+  const title = (() => {
+    if (view === 'signin') {
+      return (
+        <>
+          Trim
+          <br />
+          Your Face Shape,
+          <br />
+          Your Best Haircut
+        </>
+      );
+    }
+    if (view === 'create') return 'Create your account';
+    if (view === 'verify-signup') return 'Verify your account';
+    if (view === 'forgot-email') return 'Forgot password';
+    return 'Check your email';
+  })();
+
+  const showTabs = view === 'signin' || view === 'create';
 
   return (
     <IonModal
@@ -232,69 +251,43 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
     >
       <div className="trim-login__panel">
         <div className="trim-login__brand">
-          <img
-            className="trim-login__mark"
-            src="/assets/ui/T-1.png"
-            alt=""
-            aria-hidden="true"
-          />
-
-          <h2 className="trim-login__title">
-            {tab === 'signin' ? (
-              <>
-                Trim
-                <br />
-                Your Face Shape,
-                <br />
-                Your Best Haircut
-              </>
-            ) : (
-              'Create your account'
-            )}
-          </h2>
+          <img className="trim-login__mark" src="/assets/ui/T-1.png" alt="" aria-hidden="true" />
+          <h2 className="trim-login__title">{title}</h2>
         </div>
 
-        <button
-          className="trim-login__close"
-          type="button"
-          onClick={onDismiss}
-          aria-label="Close login"
-        >
+        <button className="trim-login__close" type="button" onClick={onDismiss} aria-label="Close login">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-            <path
-              d="M6 6l12 12M18 6L6 18"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-            />
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
           </svg>
         </button>
 
         <div className="trim-login__body">
-          <div className="trim-login__tabs" role="tablist" aria-label="Account">
-            <button
-              className={`trim-login__tab${tab === 'signin' ? ' trim-login__tab--on' : ''}`}
-              type="button"
-              role="tab"
-              aria-selected={tab === 'signin'}
-              onClick={() => switchTab('signin')}
-              disabled={isBusy}
-            >
-              Sign in
-            </button>
-            <button
-              className={`trim-login__tab${tab === 'create' ? ' trim-login__tab--on' : ''}`}
-              type="button"
-              role="tab"
-              aria-selected={tab === 'create'}
-              onClick={() => switchTab('create')}
-              disabled={isBusy}
-            >
-              Create account
-            </button>
-          </div>
+          {showTabs ? (
+            <div className="trim-login__tabs" role="tablist" aria-label="Account">
+              <button
+                className={`trim-login__tab${view === 'signin' ? ' trim-login__tab--on' : ''}`}
+                type="button"
+                role="tab"
+                aria-selected={view === 'signin'}
+                onClick={() => switchAuthTab('signin')}
+                disabled={isBusy}
+              >
+                Sign in
+              </button>
+              <button
+                className={`trim-login__tab${view === 'create' ? ' trim-login__tab--on' : ''}`}
+                type="button"
+                role="tab"
+                aria-selected={view === 'create'}
+                onClick={() => switchAuthTab('create')}
+                disabled={isBusy}
+              >
+                Create account
+              </button>
+            </div>
+          ) : null}
 
-          {tab === 'signin' ? (
+          {view === 'signin' ? (
             <>
               <form onSubmit={handleSignIn} noValidate>
                 <label className="trim-login__field">
@@ -323,39 +316,44 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
                     />
                     <PasswordToggle
                       visible={showSignInPassword}
-                      onToggle={() => setShowSignInPassword((visible) => !visible)}
+                      onToggle={() => setShowSignInPassword((v) => !v)}
                       label={showSignInPassword ? 'Hide password' : 'Show password'}
                       disabled={isBusy}
                     />
                   </span>
                 </label>
 
-                <button
-                  className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`}
-                  type="submit"
-                  disabled={isBusy}
-                  aria-busy={isBusy || undefined}
-                >
+                <button className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`} type="submit" disabled={isBusy}>
                   {isBusy ? <span className="trim-login__spinner" aria-hidden="true" /> : null}
                   <span>{isBusy ? 'Signing in' : 'Sign in'}</span>
                 </button>
               </form>
 
-              <div className="trim-login__rule">
-                <span>or</span>
-              </div>
+              <p className="trim-login__field-hint" style={{ marginTop: '0.75rem' }}>
+                <button
+                  type="button"
+                  className="trim-login__legal-link"
+                  onClick={() => {
+                    setInfoError(null);
+                    setPendingEmail(normaliseEmail(signInEmail));
+                    setView('forgot-email');
+                  }}
+                  disabled={isBusy}
+                >
+                  Forgot password?
+                </button>
+              </p>
 
-              <button
-                className="trim-login__google"
-                type="button"
-                onClick={handleGoogle}
-                disabled={isRedirecting}
-              >
+              <div className="trim-login__rule"><span>or</span></div>
+
+              <button className="trim-login__google" type="button" onClick={handleGoogle} disabled={isRedirecting}>
                 <GoogleIcon className="trim-login__google-icon" />
                 <span>{isRedirecting ? 'Opening Google' : 'Continue with Google'}</span>
               </button>
             </>
-          ) : (
+          ) : null}
+
+          {view === 'create' ? (
             <form onSubmit={handleRegister} noValidate>
               <label className="trim-login__field">
                 <span className="trim-login__field-label">Email</span>
@@ -369,9 +367,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
                   onChange={(event) => setEmail(event.target.value)}
                   disabled={isBusy}
                 />
-                {errors.email ? (
-                  <span className="trim-login__field-error">{errors.email}</span>
-                ) : null}
+                {errors.email ? <span className="trim-login__field-error">{errors.email}</span> : null}
               </label>
 
               <label className="trim-login__field">
@@ -388,14 +384,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
                   />
                   <PasswordToggle
                     visible={showPassword}
-                    onToggle={() => setShowPassword((visible) => !visible)}
+                    onToggle={() => setShowPassword((v) => !v)}
                     label={showPassword ? 'Hide password' : 'Show password'}
                     disabled={isBusy}
                   />
                 </span>
-                {errors.password ? (
-                  <span className="trim-login__field-error">{errors.password}</span>
-                ) : null}
+                {errors.password ? <span className="trim-login__field-error">{errors.password}</span> : null}
               </label>
 
               <label className="trim-login__field">
@@ -412,29 +406,130 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onDismiss }) => {
                   />
                   <PasswordToggle
                     visible={showConfirmation}
-                    onToggle={() => setShowConfirmation((visible) => !visible)}
+                    onToggle={() => setShowConfirmation((v) => !v)}
                     label={showConfirmation ? 'Hide confirm password' : 'Show confirm password'}
                     disabled={isBusy}
                   />
                 </span>
-                {errors.confirmation ? (
-                  <span className="trim-login__field-error">{errors.confirmation}</span>
-                ) : null}
+                {errors.confirmation ? <span className="trim-login__field-error">{errors.confirmation}</span> : null}
               </label>
 
-              <button
-                className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`}
-                type="submit"
-                disabled={isBusy}
-                aria-busy={isBusy || undefined}
-              >
+              <button className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`} type="submit" disabled={isBusy}>
                 {isBusy ? <span className="trim-login__spinner" aria-hidden="true" /> : null}
                 <span>{isBusy ? 'Creating account' : 'Create account'}</span>
               </button>
             </form>
-          )}
+          ) : null}
 
-          {hasConsent}
+          {view === 'verify-signup' ? (
+            <div>
+              <p className="trim-login__field-hint" style={{ marginBottom: '1rem' }}>
+                We sent a verification email to <strong>{pendingEmail}</strong>. Open the link in that email to verify your account. After verification, you can sign in and continue to your dashboard.
+              </p>
+              {infoError ? <p className="trim-login__field-error" role="alert">{infoError}</p> : null}
+              <button className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`} type="button" onClick={handleResendSignup} disabled={isBusy}>
+                {isBusy ? <span className="trim-login__spinner" aria-hidden="true" /> : null}
+                <span>{isBusy ? 'Resending' : 'Resend verification email'}</span>
+              </button>
+              <p className="trim-login__field-hint" style={{ marginTop: '0.75rem' }}>
+                <button type="button" className="trim-login__legal-link" onClick={() => setView('signin')} disabled={isBusy}>
+                  Back to sign in
+                </button>
+              </p>
+            </div>
+          ) : null}
+
+          {view === 'forgot-email' ? (
+            <form onSubmit={handleSendReset} noValidate>
+              <p className="trim-login__field-hint" style={{ marginBottom: '1rem' }}>
+                Enter your email and we’ll send you a password reset link.
+              </p>
+              <label className="trim-login__field">
+                <span className="trim-login__field-label">Email</span>
+                <input
+                  className="trim-login__input"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={signInEmail || pendingEmail}
+                  onChange={(event) => {
+                    setSignInEmail(event.target.value);
+                    setPendingEmail(event.target.value);
+                  }}
+                  disabled={isBusy}
+                />
+                {infoError ? <span className="trim-login__field-error">{infoError}</span> : null}
+              </label>
+              <button className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`} type="submit" disabled={isBusy}>
+                {isBusy ? <span className="trim-login__spinner" aria-hidden="true" /> : null}
+                <span>{isBusy ? 'Sending' : 'Send reset link'}</span>
+              </button>
+              <p className="trim-login__field-hint" style={{ marginTop: '0.75rem' }}>
+                <button type="button" className="trim-login__legal-link" onClick={() => setView('signin')} disabled={isBusy}>
+                  Back to sign in
+                </button>
+              </p>
+            </form>
+          ) : null}
+
+          {view === 'forgot-sent' ? (
+            <div>
+              <p className="trim-login__field-hint" style={{ marginBottom: '1rem' }}>
+                We sent a password reset link to <strong>{pendingEmail}</strong>. Open the link in that email to set a new password.
+              </p>
+              {infoError ? <p className="trim-login__field-error" role="alert">{infoError}</p> : null}
+              <button
+                className={`trim-login__submit${isBusy ? ' trim-login__submit--loading' : ''}`}
+                type="button"
+                onClick={async () => {
+                  setIsBusy(true);
+                  setInfoError(null);
+                  const result = await sendPasswordResetLink(pendingEmail);
+                  setIsBusy(false);
+                  if (!result.ok) {
+                    setInfoError(result.error);
+                    return;
+                  }
+                  showToast('Password reset email resent.', 'success');
+                }}
+                disabled={isBusy}
+              >
+                {isBusy ? <span className="trim-login__spinner" aria-hidden="true" /> : null}
+                <span>{isBusy ? 'Resending' : 'Resend reset email'}</span>
+              </button>
+              <p className="trim-login__field-hint" style={{ marginTop: '0.75rem' }}>
+                <button type="button" className="trim-login__legal-link" onClick={() => setView('signin')} disabled={isBusy}>
+                  Back to sign in
+                </button>
+              </p>
+            </div>
+          ) : null}
+
+          {(view === 'signin' || view === 'create') ? (
+            <label className={`trim-login__consent${consentError ? ' trim-login__consent--error' : ''}`}>
+              <input
+                className="trim-login__checkbox"
+                type="checkbox"
+                checked={isAgreed}
+                aria-invalid={consentError || undefined}
+                onChange={(event) => {
+                  setIsAgreed(event.target.checked);
+                  setConsentError(false);
+                }}
+              />
+              <span className="trim-login__legal">
+                By continuing, you agree to our{' '}
+                <button className="trim-login__legal-link" type="button" onClick={() => setLegalDoc('terms')}>
+                  Terms of Service
+                </button>
+                . Read our{' '}
+                <button className="trim-login__legal-link" type="button" onClick={() => setLegalDoc('privacy')}>
+                  Privacy Policy
+                </button>
+                .
+              </span>
+            </label>
+          ) : null}
         </div>
       </div>
 
