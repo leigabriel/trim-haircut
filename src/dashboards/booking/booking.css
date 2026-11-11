@@ -338,6 +338,30 @@
   opacity: 0.7;
 }
 
+.trim-book-row--requested,
+.trim-book-row--requested > td,
+.trim-book-row--requested > th {
+  background-color: #fff8cc;
+}
+
+.trim-book-row--confirmed,
+.trim-book-row--confirmed > td,
+.trim-book-row--confirmed > th {
+  background-color: #dbeafe;
+}
+
+.trim-book-row--completed,
+.trim-book-row--completed > td,
+.trim-book-row--completed > th {
+  background-color: #dcfce7;
+}
+
+.trim-book-row--cancelled,
+.trim-book-row--cancelled > td,
+.trim-book-row--cancelled > th {
+  background-color: #fee2e2;
+}
+
 /* Dialog. Portalled to document.body, same reasoning as ConfirmModal: the
    dashboard's IonContent transform would otherwise become the containing
    block for position: fixed. */
