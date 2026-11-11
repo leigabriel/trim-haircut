@@ -440,22 +440,74 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { data, error } = await supabase.auth.signUp({
         email,
         password: input.password,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
 
       if (error) return { ok: false as const, error: readAuthError(error.message) };
 
-      // No session means one of two things, and a password sign in tells them
-      // apart: the project still requires confirmation, or the address already
-      // had an account and Supabase returned a placeholder user rather than
-      // signing in. Without this the customer would be dropped into the app
-      // with no session and bounce straight back here.
+      // With email confirmations enabled, Supabase creates the user but may not
+      // return a session until the email OTP/code is verified.
       if (!data.session) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password: input.password,
-        });
+        return { ok: true as const, needsVerification: true as const, email };
+      }
 
-        if (signInError) return { ok: false as const, error: readAuthError(signInError.message) };
+      return { ok: true as const, needsVerification: false as const };
+    },
+    [readAuthError],
+  );
+
+  const resendSignupVerification = useCallback(
+    async (email: string) => {
+      const cleanEmail = normaliseEmail(email);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: cleanEmail,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) return { ok: false as const, error: readAuthError(error.message) };
+      return { ok: true as const };
+    },
+    [readAuthError],
+  );
+
+  const sendPasswordResetLink = useCallback(
+    async (email: string) => {
+      const cleanEmail = normaliseEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      });
+      if (error) return { ok: false as const, error: readAuthError(error.message) };
+      return { ok: true as const };
+    },
+    [readAuthError],
+  );
+
+  const setPassword = useCallback(
+    async (password: string) => {
+      if (password.length < 8) {
+        return { ok: false as const, error: 'Password must be at least 8 characters.' };
+      }
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) return { ok: false as const, error: readAuthError(error.message) };
+
+      // updateUser adds email/password credentials for OAuth-only accounts, but
+      // the current session/user state may not include the new identity yet.
+      // Refresh so hasPassword/UI updates immediately.
+      try {
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (refreshed.session) {
+          setSession(refreshed.session);
+        }
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData.user) {
+          setSession((current) => (current ? { ...current, user: userData.user } : current));
+        }
+        if (!refreshed.session) {
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData.session) setSession(sessionData.session);
+        }
+      } catch {
+        // Non-fatal: password was saved; state may refresh on next auth event.
       }
 
       return { ok: true as const };
@@ -474,6 +526,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 
   const isProfileReady = Boolean(userId && profileResolvedFor === userId);
+  const hasPassword = Boolean(
+    session?.user.identities?.some((identity) => identity.provider === 'email') ||
+      session?.user.app_metadata?.providers?.includes?.('email'),
+  );
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -490,6 +546,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       saveAvailability,
       register,
       signInWithPassword,
+      resendSignupVerification,
+      sendPasswordResetLink,
+      setPassword,
+      hasPassword,
       isUsernameAvailable,
     }),
     [
@@ -506,6 +566,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       saveAvailability,
       register,
       signInWithPassword,
+      resendSignupVerification,
+      sendPasswordResetLink,
+      setPassword,
+      hasPassword,
       isUsernameAvailable,
     ],
   );
