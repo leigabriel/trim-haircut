@@ -111,6 +111,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [detailBarber, setDetailBarber] = useState<BarberOption | null>(null);
+  const [busySlots, setBusySlots] = useState<Array<{ startsAt: string; durationMinutes: number }>>([]);
 
   const serviceRef = useRef<HTMLSelectElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -216,7 +217,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
           // shop's next open slot.
           setDate(shopDateKey(booking.startsAt));
           setTime(shopTimeValue(booking.startsAt));
-          setPhone(booking.customerPhone);
+          setPhone(booking.customerPhone ?? '');
           setNotes(booking.notes ?? '');
         } else if (service) {
           setDate((current) => {
@@ -321,15 +322,63 @@ const BookingModal: React.FC<BookingModalProps> = ({
     [serviceId, services],
   );
 
+  useEffect(() => {
+    if (!isOpen || !barberId || !date || isShopClosed(date)) {
+      setBusySlots([]);
+      return;
+    }
+    let active = true;
+
+    void (async () => {
+      try {
+        const { data, error: busyError } = await supabase.rpc('list_barber_busy_slots', {
+          p_barber_id: barberId,
+          p_date: date,
+          p_exclude_booking_id: booking?.id ?? null,
+        });
+        if (!active) return;
+        if (busyError) {
+          console.error('Could not load booked slots', busyError);
+          setBusySlots([]);
+          return;
+        }
+        const rows = (data ?? []) as Array<{ starts_at: string; duration_minutes: number }>;
+        setBusySlots(
+          rows.map((row) => ({
+            startsAt: row.starts_at,
+            durationMinutes: Number(row.duration_minutes),
+          })),
+        );
+      } catch (cause) {
+        if (!active) return;
+        console.error('Could not load booked slots', cause);
+        setBusySlots([]);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [isOpen, barberId, date, booking?.id]);
+
   const slots = useMemo(
     () => (service ? slotOptions(date, service.durationMinutes) : []),
     [date, service],
   );
 
-  const availableSlots = useMemo(
-    () => slots.filter((slot) => !isSlotPast(date, slot)),
-    [date, slots],
-  );
+  const availableSlots = useMemo(() => {
+    if (!service) return [];
+    return slots.filter((slot) => {
+      if (isSlotPast(date, slot)) return false;
+      const start = new Date(toShopIso(date, slot)).getTime();
+      const end = start + service.durationMinutes * 60_000;
+      return !busySlots.some((busy) => {
+        const busyStart = new Date(busy.startsAt).getTime();
+        const busyEnd = busyStart + busy.durationMinutes * 60_000;
+        return start < busyEnd && busyStart < end;
+      });
+    });
+  }, [busySlots, date, service, slots]);
 
   useEffect(() => {
     if (!time) return;
@@ -343,9 +392,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
     ? 'Choose a date first.'
     : dateIsClosed
       ? 'Trim is closed on Sundays.'
-      : availableSlots.length === 0
+      : slots.filter((slot) => !isSlotPast(date, slot)).length === 0
         ? 'No times left on this date.'
-        : null;
+        : availableSlots.length === 0
+          ? 'No available times for this barber on this date.'
+          : null;
 
   const retry = () => setOptionsVersion((version) => version + 1);
 
@@ -381,8 +432,8 @@ const BookingModal: React.FC<BookingModalProps> = ({
       setError('That time is no longer open. Pick another slot.');
       return;
     }
-    if (!phonePattern.test(trimmedPhone)) {
-      setError('Enter a phone number the barber can reach you on.');
+    if (trimmedPhone && !phonePattern.test(trimmedPhone)) {
+      setError('Enter a valid phone number, or leave it blank.');
       return;
     }
     if (trimmedNotes.length > 500) {
@@ -401,14 +452,14 @@ const BookingModal: React.FC<BookingModalProps> = ({
             p_barber_id: barberId,
             p_service_id: service.id,
             p_starts_at: startsAt,
-            p_customer_phone: trimmedPhone,
+            p_customer_phone: trimmedPhone || null,
             p_notes: trimmedNotes || null,
           })
         : await supabase.rpc('create_booking', {
             p_barber_id: barberId,
             p_service_id: service.id,
             p_starts_at: startsAt,
-            p_customer_phone: trimmedPhone,
+            p_customer_phone: trimmedPhone || null,
             p_notes: trimmedNotes || null,
           });
 
@@ -625,9 +676,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
                     <option
                       key={slot}
                       value={slot}
-                      disabled={isSlotPast(date, slot)}
+                      disabled={!availableSlots.includes(slot)}
                     >
                       {slotLabel(slot)}
+                      {!availableSlots.includes(slot) && !isSlotPast(date, slot) ? ' (booked)' : ''}
                     </option>
                   ))}
                 </select>
@@ -637,17 +689,17 @@ const BookingModal: React.FC<BookingModalProps> = ({
               </label>
 
               <label className="trim-book-field">
-                <span className="trim-book-field__label">Phone</span>
+                <span className="trim-book-field__label">
+                  Phone <span className="trim-book-field__optional">(optional)</span>
+                </span>
                 <input
                   type="tel"
                   inputMode="tel"
                   autoComplete="tel"
                   placeholder="+63 917 000 0000"
                   value={phone}
-                  minLength={7}
                   maxLength={24}
                   disabled={isSubmitting}
-                  required
                   onChange={(event) => setPhone(event.target.value)}
                 />
               </label>
