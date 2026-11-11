@@ -6,6 +6,7 @@ import {
   type ReadNotificationsState,
 } from '../shell/notifications';
 import type { BookingsState } from '../booking/types';
+import { useBookingEvents } from '../booking/useBookingEvents';
 import type { BarberView } from './data';
 import { buildBarberNotifications } from './notifications';
 
@@ -19,15 +20,15 @@ export type BarberNotificationsState = ReadNotificationsState<BarberView> & {
 };
 
 /**
- * Read state for the barber feed. The feed itself is derived from the
- * bookings the dashboard already reads, so switching sections does not add
- * another query.
+ * Read state for the barber feed. Derived from bookings and booking change
+ * events (edits/deletes by customers).
  */
 export const useBarberNotifications = ({
   bookings,
 }: BarberNotificationSources): BarberNotificationsState => {
-  const isLoading = bookings.isLoading;
-  const hasError = Boolean(bookings.error);
+  const bookingEvents = useBookingEvents();
+  const isLoading = bookings.isLoading || bookingEvents.isLoading;
+  const hasError = Boolean(bookings.error || bookingEvents.error);
 
   const baseItems = useMemo<AppNotification<BarberView>[]>(
     () =>
@@ -35,8 +36,18 @@ export const useBarberNotifications = ({
         bookings: bookings.bookings,
         bookingsLoading: bookings.isLoading,
         bookingsError: bookings.error,
+        bookingEvents: bookingEvents.events,
+        bookingEventsLoading: bookingEvents.isLoading,
+        bookingEventsError: bookingEvents.error,
       }),
-    [bookings.bookings, bookings.isLoading, bookings.error],
+    [
+      bookings.bookings,
+      bookings.isLoading,
+      bookings.error,
+      bookingEvents.events,
+      bookingEvents.isLoading,
+      bookingEvents.error,
+    ],
   );
 
   const read = useReadNotifications(baseItems);
