@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import AddPasswordModal from '../../../auth/AddPasswordModal';
 import { useAuth } from '../../../auth/AuthProvider';
 import ConfirmModal from '../../../components/layout/modals/ConfirmModal';
 import AvatarCard from '../../../components/profile/AvatarCard';
@@ -21,11 +22,20 @@ interface AccountProps {
  * them as a row of thin slivers.
  */
 const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
-  const { session, profile, signOut, saveDisplayName } = useAuth();
+  const { session, profile, signOut, saveDisplayName, hasPassword } = useAuth();
   const [isConfirmingOut, setIsConfirmingOut] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [shapeError, setShapeError] = useState<string | null>(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordNotice, setPasswordNotice] = useState<string | null>(null);
+
+  const providers = (session?.user.app_metadata?.providers as string[] | undefined) ?? [];
+  const signedInWith = providers.includes('google') && providers.includes('email')
+    ? 'Google and password'
+    : providers.includes('google')
+      ? 'Google'
+      : 'Email and password';
 
   const deleteAccount = async () => {
     setDeleteError(null);
@@ -128,7 +138,7 @@ const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
               </div>
               <div>
                 <dt>Signed in with</dt>
-                <dd>Google</dd>
+                <dd>{signedInWith}</dd>
               </div>
               {created ? (
                 <div>
@@ -247,11 +257,31 @@ const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
           </div>
 
           <div className="trim-card">
+            <h2 className="trim-card__title">Password</h2>
+            <p className="trim-card__text">
+              {hasPassword
+                ? 'You can sign in with your email and password.'
+                : 'Add a password so you can also sign in with your email and password.'}
+            </p>
+            {passwordNotice ? <p className="trim-card__text" role="status">{passwordNotice}</p> : null}
+            <button
+              className="trim-account__analyze"
+              type="button"
+              onClick={() => {
+                setPasswordNotice(null);
+                setIsPasswordModalOpen(true);
+              }}
+            >
+              {hasPassword ? 'Change password' : 'Add password'}
+            </button>
+          </div>
+
+          <div className="trim-card">
             <h2 className="trim-card__title">Session</h2>
             <dl className="trim-facts">
               <div>
                 <dt>Provider</dt>
-                <dd>Google</dd>
+                <dd>{signedInWith}</dd>
               </div>
               <div>
                 <dt>Refreshes</dt>
@@ -307,6 +337,13 @@ const Account: React.FC<AccountProps> = ({ face, onAnalyzeFace }) => {
         verifyText="DELETE"
         onConfirm={deleteAccount}
         onDismiss={() => setIsConfirmingDelete(false)}
+      />
+
+      <AddPasswordModal
+        isOpen={isPasswordModalOpen}
+        allowLater={false}
+        onDismiss={() => setIsPasswordModalOpen(false)}
+        onSaved={() => setPasswordNotice('Password saved. You can now sign in with email and password.')}
       />
     </>
   );
