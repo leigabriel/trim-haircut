@@ -6,6 +6,7 @@ import {
   type ReadNotificationsState,
 } from '../shell/notifications';
 import type { BookingsState } from '../booking/types';
+import { useBookingEvents } from '../booking/useBookingEvents';
 import type { AdminView } from './data';
 import { buildAdminNotifications } from './notifications';
 import type { AccountsState } from './useAccounts';
@@ -21,16 +22,17 @@ export type AdminNotificationsState = ReadNotificationsState<AdminView> & {
 };
 
 /**
- * Read state for the admin feed. The feed itself is derived from the accounts
- * and bookings the dashboard already reads, so switching sections does not add
- * another query.
+ * Read state for the admin feed. Derived from accounts, bookings, and booking
+ * change events (edits/deletes by customers).
  */
 export const useAdminNotifications = ({
   bookings,
   accounts,
 }: AdminNotificationSources): AdminNotificationsState => {
-  const isLoading = bookings.isLoading || accounts.isLoading;
-  const hasError = Boolean(bookings.error || accounts.error);
+  const bookingEvents = useBookingEvents();
+  const isLoading =
+    bookings.isLoading || accounts.isLoading || bookingEvents.isLoading;
+  const hasError = Boolean(bookings.error || accounts.error || bookingEvents.error);
 
   const baseItems = useMemo<AppNotification<AdminView>[]>(
     () =>
@@ -41,6 +43,9 @@ export const useAdminNotifications = ({
         accounts: accounts.accounts,
         accountsLoading: accounts.isLoading,
         accountsError: accounts.error,
+        bookingEvents: bookingEvents.events,
+        bookingEventsLoading: bookingEvents.isLoading,
+        bookingEventsError: bookingEvents.error,
       }),
     [
       bookings.bookings,
@@ -49,6 +54,9 @@ export const useAdminNotifications = ({
       accounts.accounts,
       accounts.isLoading,
       accounts.error,
+      bookingEvents.events,
+      bookingEvents.isLoading,
+      bookingEvents.error,
     ],
   );
 
