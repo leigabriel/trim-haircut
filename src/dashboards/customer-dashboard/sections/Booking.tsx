@@ -360,7 +360,7 @@ const Booking: React.FC<BookingProps> = ({ bookings }) => {
             </thead>
             <tbody>
               {ordered.map((booking) => (
-                <tr key={booking.id}>
+                <tr key={booking.id} className={`trim-book-row trim-book-row--${booking.status}`}>
                   <td data-label="When">{formatBookingWhen(booking.startsAt)}</td>
                   <td data-label="Barber">
                     <span className="trim-table__primary">{booking.barberName}</span>
