@@ -6,152 +6,135 @@ import { useAuth } from '../auth/AuthProvider';
 import { supabase } from '../lib/supabase';
 import './AuthCallback.css';
 
-// Shared by both failure paths: the customer only needs to know it failed.
 const EXCHANGE_FAILED = 'Could not complete sign in. Try again.';
-
-// Reached when the URL carries no code, which means the link was altered or
-// already spent. The old copy blamed Google, which read as nonsense to anyone
-// arriving from anywhere else.
-const NOTHING_TO_VERIFY = 'That link is no longer valid. Start sign in again from the app.';
+const NOTHING_TO_VERIFY = 'That link is no longer valid. Start again from the app.';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const { profile, isProfileReady } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isRecovery, setIsRecovery] = useState(false);
 
   const hasUsername = Boolean(profile?.username);
   const isSettled = isSignedIn && isProfileReady;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const providerError = params.get('error');
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const providerError = params.get('error') || hashParams.get('error');
+    const type = params.get('type') || hashParams.get('type');
 
     if (providerError) {
-      // `||`, not `??`: an empty error_description is falsy, so `??` would store
-      // '' and the ternary would fall through to the pending state.
       setError(
         params.get('error_description') ||
-          'Sign in was cancelled. You can try again whenever you like.',
+          hashParams.get('error_description') ||
+          'Sign in or verification was cancelled. You can try again whenever you like.',
       );
       return;
     }
 
     let active = true;
-
-    // Held here rather than redirected, so the customer chooses where to land.
-    const done = () => {
-      if (active) setIsSignedIn(true);
+    const done = (recovery = false) => {
+      if (!active) return;
+      setIsRecovery(recovery);
+      setIsSignedIn(true);
     };
-
-    // exchangeCodeForSession rejects on non-AuthError failures too: blocked or
-    // full browser storage, failed client init.
     const failed = () => {
       if (active) setError(EXCHANGE_FAILED);
     };
 
-    // Google is the only flow that lands here. Email signup never sends a link,
-    // so there is no token hash to verify.
-    const code = params.get('code');
-    if (!code) {
-      setError(NOTHING_TO_VERIFY);
-      return;
-    }
+    const run = async () => {
+      try {
+        const code = params.get('code');
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) return failed();
+          return done(type === 'recovery');
+        }
 
-    supabase.auth
-      .exchangeCodeForSession(code)
-      .then(({ error: exchangeError }) => (exchangeError ? failed() : done()))
-      .catch(failed);
+        const tokenHash = params.get('token_hash') || hashParams.get('token_hash');
+        const otpType = (type || params.get('type') || hashParams.get('type')) as
+          | 'signup'
+          | 'recovery'
+          | 'invite'
+          | 'magiclink'
+          | 'email_change'
+          | 'email'
+          | null;
 
+        if (tokenHash && otpType) {
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: otpType,
+          });
+          if (verifyError) return failed();
+          return done(otpType === 'recovery');
+        }
+
+        // Some flows establish session via URL hash and Supabase client parsing.
+        const { data } = await supabase.auth.getSession();
+        if (data.session) return done(type === 'recovery');
+
+        return setError(NOTHING_TO_VERIFY);
+      } catch {
+        return failed();
+      }
+    };
+
+    void run();
     return () => {
       active = false;
     };
-  }, [navigate]);
+  }, []);
 
-  // Returning customer: straight through to the dashboard, no confirmation
-  // step. Sending them to /welcome is what re-prompted for a username they had
-  // already set. Gated on isProfileReady so a slow profiles query does not
-  // read as "no username yet".
+  if (isSettled && isRecovery) return <Navigate to="/reset-password" replace />;
   if (isSettled && hasUsername) return <Navigate to="/dashboard" replace />;
 
   return (
-      <IonPage>
-          <IonContent>
-              <main className="trim-callback">
-                  {error && (
-                      <>
-                          <p className="trim-callback__error">{error}</p>
-                          <button
-                              className="trim-callback__back"
-                              type="button"
-                              onClick={() => navigate("/home")}
-                          >
-                              Back to Trim
-                          </button>
-                      </>
-                  )}
+    <IonPage>
+      <IonContent>
+        <main className="trim-callback">
+          {error && (
+            <>
+              <p className="trim-callback__error">{error}</p>
+              <button className="trim-callback__back" type="button" onClick={() => navigate('/home')}>
+                Back to Trim
+              </button>
+            </>
+          )}
 
-                  {!error && isSettled && (
-                      <div className="trim-callback__panel">
-                          <span className="trim-callback__tick" aria-hidden="true">
-                              <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
-                                  <path
-                                      d="M5 13l4.5 4.5L19 7"
-                                      stroke="currentColor"
-                                      strokeWidth="2.25"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                  />
-                              </svg>
-                          </span>
+          {!error && isSettled && !isRecovery && (
+            <div className="trim-callback__panel">
+              <span className="trim-callback__tick" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
+                  <path
+                    d="M5 13l4.5 4.5L19 7"
+                    stroke="currentColor"
+                    strokeWidth="2.25"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <h1 className="trim-callback__title">Account verified</h1>
+              <p className="trim-callback__note">
+                Your account is ready. Continue to set up your profile and access your dashboard.
+              </p>
+              <div className="trim-callback__actions">
+                <button className="trim-callback__primary" type="button" onClick={() => navigate('/dashboard', { replace: true })}>
+                  Continue
+                </button>
+              </div>
+            </div>
+          )}
 
-                          <h1 className="trim-callback__title">
-                              You&apos;re signed in to Trim
-                          </h1>
-
-                          {/*
-                              Only reached without a username, since a profile
-                              that already has one redirects to the dashboard
-                              above. Google is the only provider that lands here.
-                          */}
-                          <p className="trim-callback__note">
-                              You&apos;re signed in. Choose a username for your
-                              profile, then Trim will start matching styles to your
-                              face shape.
-                          </p>
-
-                          <div className="trim-callback__actions">
-                              <button
-                                  className="trim-callback__primary"
-                                  type="button"
-                                  onClick={() =>
-                                      navigate("/welcome", { replace: true })
-                                  }
-                              >
-                                  Continue
-                              </button>
-
-                              <button
-                                  className="trim-callback__back"
-                                  type="button"
-                                  onClick={() =>
-                                      navigate("/home", { replace: true })
-                                  }
-                              >
-                                  Back to Trim
-                              </button>
-                          </div>
-                      </div>
-                  )}
-
-                  {/* Stays pending until the profile settles too, otherwise there is a blank
-                      frame between "signed in" and the redirect firing. */}
-                  {!error && !isSettled && (
-                      <p className="trim-callback__pending">Signing you in</p>
-                  )}
-              </main>
-          </IonContent>
-      </IonPage>
+          {!error && !isSettled && (
+            <p className="trim-callback__pending">Verifying your account</p>
+          )}
+        </main>
+      </IonContent>
+    </IonPage>
   );
 };
 
