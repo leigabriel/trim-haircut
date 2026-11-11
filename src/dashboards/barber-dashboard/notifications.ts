@@ -1,5 +1,6 @@
 import { formatBookingWhen, shopDateKey } from '../booking/format';
 import type { Booking } from '../booking/types';
+import type { BookingEvent } from '../booking/useBookingEvents';
 import type { AppNotification } from '../shell/notifications';
 import type { BarberView } from './data';
 
@@ -7,6 +8,9 @@ export interface BuildBarberNotificationsInput {
   bookings: Booking[];
   bookingsLoading: boolean;
   bookingsError: string | null;
+  bookingEvents?: BookingEvent[];
+  bookingEventsLoading?: boolean;
+  bookingEventsError?: string | null;
 }
 
 const MAX_NOTIFICATIONS = 12;
@@ -42,13 +46,41 @@ export const buildBarberNotifications = ({
   bookings,
   bookingsLoading,
   bookingsError,
+  bookingEvents = [],
+  bookingEventsLoading = false,
+  bookingEventsError = null,
 }: BuildBarberNotificationsInput): AppNotification<BarberView>[] => {
   // Wait for the source. An empty feed while a query is still running would
   // read as "nothing has happened" rather than "we have not looked yet".
-  if (bookingsLoading) return [];
+  if (bookingsLoading || bookingEventsLoading) return [];
 
   const items: AppNotification<BarberView>[] = [];
   const now = Date.now();
+
+  if (!bookingEventsError) {
+    for (const event of bookingEvents) {
+      if (!isWithinDays(event.createdAt, now, RECENT_EVENT_DAYS)) continue;
+      if (event.eventType === 'updated') {
+        items.push({
+          id: `barber-booking-updated:${event.id}`,
+          title: 'Booking updated',
+          body: `${event.customerName} updated ${event.serviceName} — ${formatBookingWhen(event.startsAt)}.`,
+          at: event.createdAt,
+          view: 'appointments',
+          kind: 'booking',
+        });
+      } else if (event.eventType === 'deleted') {
+        items.push({
+          id: `barber-booking-deleted:${event.id}`,
+          title: 'Booking deleted',
+          body: `${event.customerName} deleted ${event.serviceName} — ${formatBookingWhen(event.startsAt)}.`,
+          at: event.createdAt,
+          view: 'appointments',
+          kind: 'booking',
+        });
+      }
+    }
+  }
 
   if (!bookingsError) {
     for (const booking of bookings) {
