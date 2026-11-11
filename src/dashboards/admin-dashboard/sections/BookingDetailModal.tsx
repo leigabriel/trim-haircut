@@ -170,7 +170,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
             <p className="trim-admin-modal__meta">
               {booking.customerEmail ?? 'No email on file'}
             </p>
-            <p className="trim-admin-modal__meta">{booking.customerPhone}</p>
+            <p className="trim-admin-modal__meta">{booking.customerPhone ?? 'No phone on file'}</p>
           </div>
 
           <BookingStatusPill status={booking.status} />
