@@ -16,7 +16,7 @@ export interface BookingRow {
   customer_id: string;
   customer_name: string;
   customer_email: string | null;
-  customer_phone: string;
+  customer_phone: string | null;
   /** Absent until migration 0012 has run. */
   customer_avatar_url?: string | null;
   barber_id: string | null;
@@ -39,7 +39,7 @@ export interface Booking {
   customerId: string;
   customerName: string;
   customerEmail: string | null;
-  customerPhone: string;
+  customerPhone: string | null;
   customerAvatarUrl: string | null;
   barberId: string | null;
   barberName: string;
