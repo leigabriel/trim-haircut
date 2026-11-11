@@ -156,7 +156,7 @@ const AdminBookings: React.FC<AdminBookingsProps> = ({ bookings, accounts }) => 
 
                 return (
                   <tr
-                    className="trim-admin-row"
+                    className={`trim-admin-row trim-book-row trim-book-row--${booking.status}`}
                     key={booking.id}
                     onClick={(event) => openFromRow(booking, event.target)}
                   >
@@ -172,9 +172,11 @@ const AdminBookings: React.FC<AdminBookingsProps> = ({ bookings, accounts }) => 
 
                         <span className="trim-admin-account__text">
                           <span className="trim-table__primary">{name}</span>
-                          <span className="trim-table__secondary trim-book__contact">
-                            {booking.customerPhone}
-                          </span>
+                          {booking.customerPhone ? (
+                            <span className="trim-table__secondary trim-book__contact">
+                              {booking.customerPhone}
+                            </span>
+                          ) : null}
                           {booking.customerEmail ? (
                             <span className="trim-table__secondary trim-book__contact">
                               {booking.customerEmail}
