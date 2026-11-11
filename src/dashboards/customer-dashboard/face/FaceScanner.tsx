@@ -14,7 +14,6 @@ type FaceScannerProps = UseFaceScannerOptions;
 const FaceScanner: React.FC<FaceScannerProps> = (options) => {
   const scanner = useFaceScanner(options);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const { videoRef, status, overlay, guidance, progress, error, result } = scanner;
 
@@ -70,10 +69,6 @@ const FaceScanner: React.FC<FaceScannerProps> = (options) => {
         />
         <canvas ref={canvasRef} className="trim-scanner__overlay" aria-hidden="true" />
 
-        {result?.preview ? (
-          <img className="trim-scanner__still" src={result.preview} alt="" />
-        ) : null}
-
         {!isLive && !result ? (
           <div className="trim-scanner__placeholder">
             <p className="trim-scanner__placeholder-title">Faceshape Analyzer</p>
@@ -105,23 +100,14 @@ const FaceScanner: React.FC<FaceScannerProps> = (options) => {
 
       <div className="trim-scanner__controls">
         {status === 'idle' || status === 'error' ? (
-          <>
-            <button
-              className="trim-scanner__primary"
-              type="button"
-              disabled={isBusy}
-              onClick={() => void scanner.start()}
-            >
-              {isBusy ? 'Starting…' : 'Start camera'}
-            </button>
-            <button
-              className="trim-scanner__secondary"
-              type="button"
-              onClick={() => fileRef.current?.click()}
-            >
-              Upload a photo
-            </button>
-          </>
+          <button
+            className="trim-scanner__primary"
+            type="button"
+            disabled={isBusy}
+            onClick={() => void scanner.start()}
+          >
+            {isBusy ? 'Starting…' : 'Start camera'}
+          </button>
         ) : null}
 
         {isLive ? (
@@ -144,20 +130,6 @@ const FaceScanner: React.FC<FaceScannerProps> = (options) => {
           </button>
         ) : null}
       </div>
-
-      <input
-        ref={fileRef}
-        className="trim-scanner__file"
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (file) void scanner.analyseImage(file);
-          // Cleared so choosing the same file twice fires a change again.
-          event.target.value = '';
-        }}
-      />
     </div>
   );
 };
