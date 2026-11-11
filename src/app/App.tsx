@@ -5,6 +5,7 @@ import { IonReactRouter } from '@ionic/react-router';
 
 import { AuthProvider } from '../auth/AuthProvider';
 import AvatarOnboarding from '../auth/AvatarOnboarding';
+import PasswordSetupPrompt from '../auth/PasswordSetupPrompt';
 import { RequireAuth } from '../auth/RequireAuth';
 import IntroOverlay from '../components/layout/IntroOverlay';
 import AdminDashboard from '../dashboards/admin-dashboard/AdminDashboard';
@@ -12,6 +13,7 @@ import BarberDashboard from '../dashboards/barber-dashboard/BarberDashboard';
 import CustomerDashboard from '../dashboards/customer-dashboard/CustomerDashboard';
 import AuthCallback from '../pages/AuthCallback';
 import Home from '../pages/Home';
+import ResetPassword from '../pages/ResetPassword';
 import Welcome from '../pages/Welcome';
 
 /* Required by Ionic components */
@@ -73,6 +75,7 @@ const App: React.FC = () => (
           {/* The intro lives inside the home route. */}
           <Route path="/home" element={<HomeWithLoader />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/welcome" element={<Welcome />} />
 
           {/* The guard wraps the IonPage rather than sitting inside its content.
@@ -108,6 +111,7 @@ const App: React.FC = () => (
         {/* Global so the prompt reaches every role, including accounts that
             sign in with an existing username and never see /welcome. */}
         <AvatarOnboarding />
+        <PasswordSetupPrompt />
       </AuthProvider>
     </IonReactRouter>
   </IonApp>
