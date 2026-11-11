@@ -1,3 +1,6 @@
+import { useState } from 'react';
+
+import AddPasswordModal from '../../auth/AddPasswordModal';
 import { useAuth } from '../../auth/AuthProvider';
 import { roleLabel } from '../../auth/roles';
 import AvatarCard from '../../components/profile/AvatarCard';
@@ -19,7 +22,9 @@ interface AccountPanelProps {
  * both are the caller's own row and are shown throughout their dashboard.
  */
 const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
-  const { session, profile, saveDisplayName } = useAuth();
+  const { session, profile, saveDisplayName, hasPassword } = useAuth();
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordNotice, setPasswordNotice] = useState<string | null>(null);
 
   const memberSince = session?.user.created_at
     ? new Date(session.user.created_at).toLocaleDateString(undefined, {
@@ -28,6 +33,15 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
         day: 'numeric',
       })
     : '—';
+
+  const providers = (session?.user.app_metadata?.providers as string[] | undefined) ?? [];
+  const signedInWith = providers.includes('google') && providers.includes('email')
+    ? 'Google and password'
+    : providers.includes('google')
+      ? 'Google'
+      : providers.length > 0
+        ? providers.join(', ')
+        : 'Email and password';
 
   return (
     <>
@@ -59,6 +73,10 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
             <dd>{session?.user.email ?? '—'}</dd>
           </div>
           <div>
+            <dt>Signed in with</dt>
+            <dd>{signedInWith}</dd>
+          </div>
+          <div>
             <dt>Member since</dt>
             <dd>{memberSince}</dd>
           </div>
@@ -68,6 +86,33 @@ const AccountPanel: React.FC<AccountPanelProps> = ({ role }) => {
           <DisplayNameForm onSave={saveDisplayName} />
         ) : null}
       </div>
+
+      <div className="trim-card">
+        <h2 className="trim-card__title">Password</h2>
+        <p className="trim-card__text">
+          {hasPassword
+            ? 'You can sign in with your email and password.'
+            : 'Add a password so you can also sign in with your email and password.'}
+        </p>
+        {passwordNotice ? <p className="trim-card__text" role="status">{passwordNotice}</p> : null}
+        <button
+          className="trim-account__analyze"
+          type="button"
+          onClick={() => {
+            setPasswordNotice(null);
+            setIsPasswordModalOpen(true);
+          }}
+        >
+          {hasPassword ? 'Change password' : 'Add password'}
+        </button>
+      </div>
+
+      <AddPasswordModal
+        isOpen={isPasswordModalOpen}
+        allowLater={false}
+        onDismiss={() => setIsPasswordModalOpen(false)}
+        onSaved={() => setPasswordNotice('Password saved. You can now sign in with email and password.')}
+      />
     </>
   );
 };
