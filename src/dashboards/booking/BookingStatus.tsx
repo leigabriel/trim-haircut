@@ -21,18 +21,25 @@ export const BookingStatusSelect: React.FC<BookingStatusSelectProps> = ({
   booking,
   disabled,
   onChange,
-}) => (
-  <select
-    className="trim-role-select trim-book__status-select"
-    value={booking.status}
-    disabled={disabled}
-    aria-label={`Status for ${booking.customerName}'s ${booking.service} on ${formatBookingWhen(booking.startsAt)}`}
-    onChange={(event) => onChange(event.target.value as BookingStatus)}
-  >
-    {BOOKING_STATUSES.map((status) => (
-      <option key={status} value={status}>
-        {statusLabel(status)}
-      </option>
-    ))}
-  </select>
-);
+}) => {
+  const isCancelled = booking.status === 'cancelled';
+  if (isCancelled) {
+    return <BookingStatusPill status={booking.status} />;
+  }
+
+  return (
+    <select
+      className="trim-role-select trim-book__status-select"
+      value={booking.status}
+      disabled={disabled}
+      aria-label={`Status for ${booking.customerName}'s ${booking.service} on ${formatBookingWhen(booking.startsAt)}`}
+      onChange={(event) => onChange(event.target.value as BookingStatus)}
+    >
+      {BOOKING_STATUSES.filter((status) => status !== 'cancelled').map((status) => (
+        <option key={status} value={status}>
+          {statusLabel(status)}
+        </option>
+      ))}
+    </select>
+  );
+};
