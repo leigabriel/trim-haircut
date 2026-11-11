@@ -1,5 +1,6 @@
 import { formatBookingWhen, shopDateKey } from '../booking/format';
 import type { Booking } from '../booking/types';
+import type { BookingEvent } from '../booking/useBookingEvents';
 import type { AppNotification } from '../shell/notifications';
 import type { AdminView } from './data';
 import type { StaffAccount } from './useAccounts';
@@ -11,6 +12,9 @@ export interface BuildAdminNotificationsInput {
   accounts: StaffAccount[];
   accountsLoading: boolean;
   accountsError: string | null;
+  bookingEvents?: BookingEvent[];
+  bookingEventsLoading?: boolean;
+  bookingEventsError?: string | null;
 }
 
 const MAX_NOTIFICATIONS = 12;
@@ -50,13 +54,41 @@ export const buildAdminNotifications = ({
   accounts,
   accountsLoading,
   accountsError,
+  bookingEvents = [],
+  bookingEventsLoading = false,
+  bookingEventsError = null,
 }: BuildAdminNotificationsInput): AppNotification<AdminView>[] => {
-  // Wait for both sources. An empty feed while a query is still running would
+  // Wait for sources. An empty feed while a query is still running would
   // read as "nothing has happened" rather than "we have not looked yet".
-  if (bookingsLoading || accountsLoading) return [];
+  if (bookingsLoading || accountsLoading || bookingEventsLoading) return [];
 
   const items: AppNotification<AdminView>[] = [];
   const now = Date.now();
+
+  if (!bookingEventsError) {
+    for (const event of bookingEvents) {
+      if (!isWithinDays(event.createdAt, now, RECENT_EVENT_DAYS)) continue;
+      if (event.eventType === 'updated') {
+        items.push({
+          id: `admin-booking-updated:${event.id}`,
+          title: 'Booking updated',
+          body: `${event.customerName} updated ${event.serviceName} — ${formatBookingWhen(event.startsAt)}.`,
+          at: event.createdAt,
+          view: 'bookings',
+          kind: 'booking',
+        });
+      } else if (event.eventType === 'deleted') {
+        items.push({
+          id: `admin-booking-deleted:${event.id}`,
+          title: 'Booking deleted',
+          body: `${event.customerName} deleted ${event.serviceName} — ${formatBookingWhen(event.startsAt)}.`,
+          at: event.createdAt,
+          view: 'bookings',
+          kind: 'booking',
+        });
+      }
+    }
+  }
 
   if (!bookingsError) {
     for (const booking of bookings) {
