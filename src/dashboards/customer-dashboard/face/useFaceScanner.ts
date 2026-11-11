@@ -103,10 +103,10 @@ const describeError = (cause: unknown): string => {
   switch (name) {
     case 'NotAllowedError':
     case 'SecurityError':
-      return 'Camera access was blocked. Allow it in your browser settings, or upload a photo instead.';
+      return 'Camera access was blocked. Allow camera access in your browser settings and try again.';
     case 'NotFoundError':
     case 'OverconstrainedError':
-      return 'No camera found on this device. You can upload a photo instead.';
+      return 'No camera found on this device.';
     case 'NotReadableError':
     case 'AbortError':
       return 'The camera is already in use by another app. Close it and try again.';
@@ -127,8 +127,6 @@ export interface FaceScanner extends ScannerState {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   start: () => Promise<void>;
   stop: () => void;
-  /** Analyse a still image instead of a live feed. */
-  analyseImage: (file: File) => Promise<void>;
   /** Discard everything and start over. */
   restart: () => void;
 }
@@ -377,62 +375,11 @@ export const useFaceScanner = (options: UseFaceScannerOptions = {}): FaceScanner
     runLoop(aspect);
   }, [release, resetSampling, runLoop]);
 
-  const analyseImage = useCallback(
-    async (file: File) => {
-      release();
-      resetSampling();
-      setState({ ...IDLE, status: 'loading' });
-
-      try {
-        const vision = await import('@mediapipe/tasks-vision');
-        const fileset = await vision.FilesetResolver.forVisionTasks(MEDIAPIPE_WASM_URL);
-        const imageLandmarker = await vision.FaceLandmarker.createFromOptions(fileset, {
-          baseOptions: { modelAssetPath: MEDIAPIPE_MODEL_URL },
-          runningMode: 'IMAGE',
-          numFaces: 1,
-          outputFaceBlendshapes: true,
-          outputFacialTransformationMatrixes: true,
-        });
-
-        const bitmap = await createImageBitmap(file);
-        const aspect = bitmap.height / bitmap.width;
-
-        const result = imageLandmarker.detect(bitmap);
-        imageLandmarker.close();
-
-        const landmarks = result.faceLandmarks?.[0];
-        if (!landmarks) {
-          setState({
-            ...IDLE,
-            status: 'error',
-            error: 'No face found in that photo. Try one taken straight on, in even light.',
-          });
-          return;
-        }
-
-        consume(
-          landmarks,
-          readYaw(result.facialTransformationMatrixes?.[0]),
-          readBlendshape(result, 'jawOpen'),
-          aspect,
-          URL.createObjectURL(file),
-        );
-      } catch (cause) {
-        setState({
-          ...IDLE,
-          status: 'error',
-          error: cause instanceof Error ? cause.message : 'That photo could not be read.',
-        });
-      }
-    },
-    [consume, release, resetSampling],
-  );
-
   // Unmount is the guarantee that the camera is released, including when the
   // customer leaves the section rather than pressing stop.
   useEffect(() => release, [release]);
 
-  return { ...state, videoRef, start, stop, restart, analyseImage };
+  return { ...state, videoRef, start, stop, restart };
 };
 
 /** Draws the face oval, for the canvas overlay. Pure so it can be reasoned about. */
