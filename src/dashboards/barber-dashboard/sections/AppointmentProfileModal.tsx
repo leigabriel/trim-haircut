@@ -187,7 +187,7 @@ const AppointmentProfileModal: React.FC<AppointmentProfileModalProps> = ({
             <p className="trim-barber-modal__meta">
               {booking.customerEmail ?? 'No email on file'}
             </p>
-            <p className="trim-barber-modal__meta">{booking.customerPhone}</p>
+            <p className="trim-barber-modal__meta">{booking.customerPhone ?? 'No phone on file'}</p>
           </div>
 
           <BookingStatusPill status={booking.status} />
