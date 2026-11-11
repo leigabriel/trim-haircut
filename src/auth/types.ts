@@ -69,21 +69,32 @@ export interface AuthContextValue {
   saveAvailability: (available: boolean) => Promise<{ ok: boolean; error?: string }>;
 
   /**
-   * Creates an account and signs the customer straight in.
-   *
-   * The account is created with no username: the Welcome page collects it
-   * afterwards, so a half-filled signup form cannot block registration.
-   *
-   * There is no confirmation step, so the project must have "Confirm email"
-   * switched off. That setting is what makes Supabase return a live session
-   * from signUp instead of emailing a code.
+   * Creates an account and requests an email verification link (when email
+   * confirmations are enabled). If Supabase returns a session immediately
+   * (confirmations disabled), the user is signed in.
    */
   register: (input: {
     email: string;
     password: string;
-  }) => Promise<{ ok: true } | { ok: false; error: string }>;
+  }) => Promise<
+    | { ok: true; needsVerification: false }
+    | { ok: true; needsVerification: true; email: string }
+    | { ok: false; error: string }
+  >;
 
   signInWithPassword: (email: string, password: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+
+  /** Resends signup verification email. */
+  resendSignupVerification: (email: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+
+  /** Sends password reset email with a recovery link. */
+  sendPasswordResetLink: (email: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+
+  /** Sets/updates password for the currently signed-in user (e.g. Google users). */
+  setPassword: (password: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+
+  /** Whether the signed-in user has an email/password identity. */
+  hasPassword: boolean;
 
   /**
    * Whether a username is free.
