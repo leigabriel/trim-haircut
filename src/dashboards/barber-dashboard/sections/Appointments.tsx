@@ -215,7 +215,7 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
             </thead>
             <tbody>
               {ordered.map((booking) => (
-                <tr key={booking.id}>
+                <tr key={booking.id} className={`trim-book-row trim-book-row--${booking.status}`}>
                   <td data-label="When">{formatBookingWhen(booking.startsAt)}</td>
                   <td data-label="Customer">
                     <span className="trim-barber-account">
@@ -228,9 +228,11 @@ const Appointments: React.FC<AppointmentsProps> = ({ bookings }) => {
                         <span className="trim-table__primary">
                           {booking.customerName}
                         </span>
-                        <span className="trim-table__secondary trim-book__contact">
-                          {booking.customerPhone}
-                        </span>
+                        {booking.customerPhone ? (
+                          <span className="trim-table__secondary trim-book__contact">
+                            {booking.customerPhone}
+                          </span>
+                        ) : null}
                         {booking.customerEmail ? (
                           <span className="trim-table__secondary trim-book__contact">
                             {booking.customerEmail}
